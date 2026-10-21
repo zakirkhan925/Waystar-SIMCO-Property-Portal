@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js
+.next/
+out/
+build/
+
+# env
+.env
+.env*.local
+
+# supabase
+supabase/.branches/
+supabase/.temp/
+
+# misc
+.DS_Store
+Thumbs.db
+*.log
+coverage/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
