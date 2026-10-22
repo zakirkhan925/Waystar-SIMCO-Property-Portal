@@ -84,3 +84,20 @@ describe("client validation", () => {
     expect(clientFormSchema.safeParse({ ...base, cnic: "1234-1234567-1" }).success).toBe(false);
   });
 });
+
+describe("project policy validation", async () => {
+  const { projectFormSchema } = await import("@/features/projects/schemas");
+  const base = {
+    name: "Simco Villas", code: "SV", type: "plot_society" as const, status: "under_construction" as const, location: "", description: "",
+    sqft_per_marla: "225", marla_per_kanal: "20", late_fee_method: "pct_of_overdue_per_month" as const, late_fee_rate: "10",
+    late_fee_grace_days: "0", late_fee_cap_pct: "", corner_premium_pct: "10", cancel_after_consecutive_missed: "2",
+    cancellation_deduction_pct: "20", construction_min_paid_pct: "80", full_payment_possession_charge_pct: "5",
+    down_payment_balance_days: "", sort_order: "1", is_active: true,
+  };
+  it("accepts SIMCO's Simco Villas policy values", () => {
+    expect(projectFormSchema.safeParse(base).success).toBe(true);
+  });
+  it("rejects percentages over 100", () => {
+    expect(projectFormSchema.safeParse({ ...base, cancellation_deduction_pct: "120" }).success).toBe(false);
+  });
+});

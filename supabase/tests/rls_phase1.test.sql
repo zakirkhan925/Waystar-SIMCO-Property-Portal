@@ -72,10 +72,14 @@ select throws_ok($$ update public.units set deleted_at = now()
 select pg_temp.logout();
 
 -- ---------------------------------------------------------------- area normalization
-select is((select area_sqft from public.units where size_unit = 'marla' and size_value = 5 limit 1),
-          1125.00::numeric, '5 marla = 1125 sq ft (225 sq ft/marla)');
-select is((select area_sqft from public.units where size_unit = 'kanal' and size_value = 1 limit 1),
-          4500.00::numeric, '1 kanal = 4500 sq ft');
+-- Simco Villas plots carry real dimensions: area = width x depth
+select is((select area_sqft from public.units u join public.projects p on p.id = u.project_id
+           where p.code = 'SV' and u.size_value = 5 and u.width_ft = 25 limit 1),
+          1250.00::numeric, '5 Marla (25 x 50) = 1250 sq ft from dimensions');
+-- without dimensions, marla/kanal convert at the project rate (225 sq ft/marla, 20 marla/kanal)
+insert into public.units (project_id, unit_no, category, use, size_value, size_unit, base_price)
+select id, 'T-K1', 'plot', 'residential', 1, 'kanal', 1 from public.projects where code = 'SV';
+select is((select area_sqft from public.units where unit_no = 'T-K1'), 4500.00::numeric, '1 kanal = 4500 sq ft');
 
 -- ---------------------------------------------------------------- clients
 select pg_temp.login('agent@waystar.test');

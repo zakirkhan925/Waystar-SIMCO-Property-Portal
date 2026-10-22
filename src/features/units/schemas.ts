@@ -30,6 +30,8 @@ export const unitFormSchema = z
       .trim()
       .refine((v) => /^\d{1,7}(\.\d{1,2})?$/.test(v) && Number(v) > 0, "Enter the size, e.g. 5 or 1150"),
     size_unit: z.enum(["marla", "kanal", "sqft"]),
+    width_ft: z.string().trim().refine((v) => v === "" || (/^\d{1,4}(\.\d{1,2})?$/.test(v) && Number(v) > 0), "Feet, e.g. 25"),
+    depth_ft: z.string().trim().refine((v) => v === "" || (/^\d{1,4}(\.\d{1,2})?$/.test(v) && Number(v) > 0), "Feet, e.g. 50"),
     bedrooms: optionalInt,
     bathrooms: optionalInt,
     is_corner: z.boolean(),
@@ -42,6 +44,9 @@ export const unitFormSchema = z
     reason: z.string().trim().max(500),
   })
   .superRefine((v, ctx) => {
+    if ((v.width_ft === "") !== (v.depth_ft === "")) {
+      ctx.addIssue({ code: "custom", path: [v.width_ft ? "depth_ft" : "width_ft"], message: "Enter both width and depth" });
+    }
     if (v.category !== "plot" && !v.floor_id) {
       ctx.addIssue({ code: "custom", path: ["floor_id"], message: "Select the floor" });
     }

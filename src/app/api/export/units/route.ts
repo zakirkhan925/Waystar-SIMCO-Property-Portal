@@ -17,11 +17,11 @@ export async function GET(request: NextRequest) {
 
   const units = await listUnitsAll(projectId, parseUnitFilters(sp), 10000);
   const csv = toCsv(
-    ["Project", "Block/Tower", "Street", "Floor", "Unit No", "Category", "Use", "Size", "Size Unit", "Area (sq ft)",
+    ["Project", "Block/Tower", "Street", "Floor", "Unit No", "Category", "Use", "Size", "Size Unit", "Width (ft)", "Depth (ft)", "Area (sq ft)",
      "Bedrooms", "Corner", "Park Facing", "Main Boulevard", "Base Price (PKR)", "Price per sq ft (PKR)", "Status"],
     units.map((u) => [
       project.name, u.blocks?.name, u.street, u.floors?.label, u.unit_no, CATEGORY_LABELS[u.category], u.use,
-      Number(u.size_value), u.size_unit, Number(u.area_sqft), u.bedrooms,
+      Number(u.size_value), u.size_unit, u.width_ft === null ? null : Number(u.width_ft), u.depth_ft === null ? null : Number(u.depth_ft), Number(u.area_sqft), u.bedrooms,
       u.is_corner ? "Yes" : "No", u.is_park_facing ? "Yes" : "No", u.is_main_boulevard ? "Yes" : "No",
       Number(u.base_price), u.price_per_sqft === null ? null : Number(u.price_per_sqft), UNIT_STATUS_LABELS[u.status],
     ]),

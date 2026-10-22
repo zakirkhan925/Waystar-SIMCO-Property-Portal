@@ -54,7 +54,7 @@ update public.company_settings set
 insert into public.projects (id, name, code, type, status, location, description, sort_order,
                              late_fee_method, late_fee_rate, late_fee_grace_days) values
   ('10000000-0000-4000-a000-000000000001','Simco Villas','SV','plot_society','under_construction',
-   'Rawalpindi','Gated residential society — residential plots by block and street.',1,'none',0,0),
+   'PMO Road, Taxila','Residential society — 5, 6 and 8 Marla plots.',1,'pct_of_overdue_per_month',10,0),
   ('10000000-0000-4000-a000-000000000002','Simco Square','SSQ','high_rise','under_construction',
    'Islamabad','Mixed-use high-rise: shops, offices and apartments.',2,'none',0,0),
   ('10000000-0000-4000-a000-000000000003','The Vintage','VIN','high_rise','off_plan',
@@ -72,15 +72,31 @@ cross join (values ('00000000-0000-4000-a000-000000000004'::uuid),
                    ('00000000-0000-4000-a000-000000000005'::uuid)) as u(id);
 
 -- ---------------------------------------------------------------------------
--- Simco Villas: Blocks A–C, streets 1–4, 10 plots per street
+-- Simco Villas: policies + letter settings from SIMCO's documents, then plots.
+-- Plot types per the Booking Form: 5 Marla (25' x 50'), 6 Marla (30' x 50'), 8 Marla (30' x 60').
+-- Prices are SAMPLE figures only; corner plots carry +10%.
 -- ---------------------------------------------------------------------------
+update public.projects set
+  corner_premium_pct = 10,
+  cancel_after_consecutive_missed = 2,
+  cancellation_deduction_pct = 20,
+  construction_min_paid_pct = 80,
+  full_payment_possession_charge_pct = 5
+where code = 'SV';
+
+insert into public.project_document_settings (project_id, display_name, full_address, execution_city,
+  seller_legal_name, seller_office_address, seller_account_title, marketed_by)
+values ('10000000-0000-4000-a000-000000000001', 'SIMCO VILLAS', 'PMO Road, Taxila, District Rawalpindi', 'Taxila',
+  'SIMCO DEVELOPERS', 'Simco Square, Faisal Hills, Taxila, District Rawalpindi', 'SIMCO DEVELOPERS', 'Waystar Royco');
+
+select public.install_document_templates('10000000-0000-4000-a000-000000000001', 'plot_society_simco');
+
 do $$
 declare
   v_project uuid := '10000000-0000-4000-a000-000000000001';
   v_block uuid;
   b text; s int; n int; i int := 0;
-  v_size numeric; v_unit public.size_unit; v_price numeric;
-  v_rate numeric;
+  v_marla numeric; v_w numeric; v_d numeric; v_rate numeric; v_price numeric;
 begin
   foreach b in array array['A','B','C'] loop
     insert into public.blocks (project_id, name, kind, sort_order)
@@ -89,21 +105,19 @@ begin
     for s in 1..4 loop
       for n in 1..10 loop
         i := i + 1;
-        -- size mix: 5, 7, 10 marla and 1 kanal
-        case (i % 4)
-          when 0 then v_size := 5;  v_unit := 'marla'; v_rate := 1350000;
-          when 1 then v_size := 7;  v_unit := 'marla'; v_rate := 1300000;
-          when 2 then v_size := 10; v_unit := 'marla'; v_rate := 1250000;
-          else        v_size := 1;  v_unit := 'kanal'; v_rate := 1200000 * 20;
+        -- plot types used by SIMCO: 5, 6 and 8 Marla, with their standard dimensions
+        case (i % 3)
+          when 0 then v_marla := 5; v_w := 25; v_d := 50; v_rate := 1500000;   -- sample price per marla
+          when 1 then v_marla := 6; v_w := 30; v_d := 50; v_rate := 1450000;
+          else        v_marla := 8; v_w := 30; v_d := 60; v_rate := 1400000;
         end case;
-        v_price := v_size * v_rate
-                   * case when n in (1,10) then 1.10 else 1 end      -- corner premium
-                   * case when s = 1 then 1.05 else 1 end;           -- main boulevard premium
+        v_price := v_marla * v_rate * case when n in (1,10) then 1.10 else 1 end;   -- corner +10%
         insert into public.units (project_id, block_id, street, unit_no, category, use,
-                                  size_value, size_unit, base_price, is_corner, is_park_facing,
-                                  is_main_boulevard, status)
+                                  size_value, size_unit, width_ft, depth_ft, base_price,
+                                  is_corner, is_park_facing, is_main_boulevard, status)
         values (v_project, v_block, 'Street ' || s, (s * 100 + n)::text, 'plot', 'residential',
-                v_size, v_unit, round(v_price, -3), n in (1,10), (s = 4 and n between 4 and 7), s = 1,
+                v_marla, 'marla', v_w, v_d, round(v_price, -3),
+                n in (1,10), (s = 4 and n between 4 and 7), s = 1,
                 case when i % 17 = 0 then 'on_hold'::public.unit_status
                      when i % 29 = 0 then 'blocked'::public.unit_status
                      else 'available'::public.unit_status end);

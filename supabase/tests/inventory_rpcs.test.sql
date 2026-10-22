@@ -1,7 +1,7 @@
 -- pgTAP: update_unit (audit reason), soft_delete, area recalculation, global_search scoping
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(13);
 
 create or replace function pg_temp.login(p_email text) returns void language plpgsql as $$
 declare v_id uuid;
@@ -51,13 +51,26 @@ select pg_temp.login('admin@waystar.test');
 select lives_ok($$ select public.soft_delete('units', (select id from t_unit), 'duplicate entry') $$, 'super admin can soft-delete');
 select pg_temp.logout();
 
--- changing marla size recalculates areas
+-- changing marla size recalculates areas of plots without dimensions, not those with dimensions
+insert into public.units (project_id, unit_no, category, use, size_value, size_unit, base_price)
+select id, 'T-5M', 'plot', 'residential', 5, 'marla', 1 from public.projects where code = 'SV';
 update public.projects set sqft_per_marla = 272.25 where code = 'SV';
-select is((select area_sqft from public.units u join public.projects p on p.id = u.project_id
-           where p.code = 'SV' and u.size_unit = 'marla' and u.size_value = 5 limit 1),
+select is((select area_sqft from public.units where unit_no = 'T-5M'),
           1361.25::numeric, 'area recalculated when the project marla size changes');
 select is((select area_sqft from public.units u join public.projects p on p.id = u.project_id
+           where p.code = 'SV' and u.width_ft = 25 limit 1), 1250.00::numeric, 'dimensioned plots keep width x depth');
+select is((select area_sqft from public.units u join public.projects p on p.id = u.project_id
            where p.code = 'SSQ' and u.size_unit = 'sqft' limit 1) > 0, true, 'sq ft units unaffected');
+
+-- document templates installed for Simco Villas, one active version per type
+select is((select count(*)::int from public.document_templates t join public.projects p on p.id = t.project_id
+           where p.code = 'SV' and t.is_active), 6, 'six Simco Villas templates installed');
+select pg_temp.login('manager@waystar.test');
+select lives_ok($$ select public.save_document_template((select id from public.projects where code='SV'), 'ndc_letter',
+                   'NO DUES CERTIFICATE', 'NDC', '[]'::jsonb, 'wording update test') $$, 'manager can save a new template version');
+select pg_temp.logout();
+select is((select count(*)::int from public.document_templates t join public.projects p on p.id = t.project_id
+           where p.code = 'SV' and t.doc_type = 'ndc_letter'), 2, 'old NDC version kept, new one active');
 
 select * from finish();
 rollback;

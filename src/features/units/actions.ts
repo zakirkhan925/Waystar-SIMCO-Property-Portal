@@ -17,6 +17,8 @@ function toRow(v: UnitFormParsed) {
     // numeric columns are sent as strings so Postgres parses them exactly (no float rounding)
     size_value: v.size_value as unknown as number,
     size_unit: v.size_unit,
+    width_ft: v.width_ft === "" ? null : (v.width_ft as unknown as number),
+    depth_ft: v.depth_ft === "" ? null : (v.depth_ft as unknown as number),
     bedrooms: v.bedrooms === "" ? null : Number(v.bedrooms),
     bathrooms: v.bathrooms === "" ? null : Number(v.bathrooms),
     is_corner: v.is_corner,

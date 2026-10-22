@@ -25,6 +25,12 @@ const DEFAULTS: ProjectFormValues = {
   late_fee_rate: "0",
   late_fee_grace_days: "0",
   late_fee_cap_pct: "",
+  corner_premium_pct: "0",
+  cancel_after_consecutive_missed: "",
+  cancellation_deduction_pct: "",
+  construction_min_paid_pct: "",
+  full_payment_possession_charge_pct: "0",
+  down_payment_balance_days: "",
   sort_order: "0",
   is_active: true,
 };
@@ -121,6 +127,41 @@ export function ProjectForm({ projectId, initial }: { projectId?: string; initia
               />
             </>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Sales policy</CardTitle>
+          <CardDescription>
+            Used by bookings, schedules and recoveries. Missed installments only flag a sale as &ldquo;cancellation due&rdquo;; a
+            Manager confirms every cancellation.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <TextField control={control} name="corner_premium_pct" label="Corner plot premium %" inputMode="decimal" />
+          <TextField
+            control={control}
+            name="full_payment_possession_charge_pct"
+            label="Possession charges on full payment %"
+            inputMode="decimal"
+          />
+          <TextField
+            control={control}
+            name="down_payment_balance_days"
+            label="Rest of down payment due within (days)"
+            inputMode="numeric"
+            description="After the booking amount. Blank = not decided"
+          />
+          <TextField
+            control={control}
+            name="cancel_after_consecutive_missed"
+            label="Flag for cancellation after N missed installments"
+            inputMode="numeric"
+            description="Blank = never flag"
+          />
+          <TextField control={control} name="cancellation_deduction_pct" label="Cancellation deduction % of price" inputMode="decimal" />
+          <TextField control={control} name="construction_min_paid_pct" label="Construction allowed after % paid" inputMode="decimal" />
         </CardContent>
       </Card>
 

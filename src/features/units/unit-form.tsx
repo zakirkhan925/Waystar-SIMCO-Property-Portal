@@ -39,6 +39,8 @@ export function UnitForm({ projectId, isPlotSociety, sqftPerMarla, structure, un
       use: isPlotSociety ? "residential" : "residential",
       size_value: "",
       size_unit: isPlotSociety ? "marla" : "sqft",
+      width_ft: "",
+      depth_ft: "",
       bedrooms: "",
       bathrooms: "",
       is_corner: false,
@@ -53,15 +55,16 @@ export function UnitForm({ projectId, isPlotSociety, sqftPerMarla, structure, un
     },
   });
   const { control } = form;
-  const [blockId, category, sizeValue, sizeUnit, basePrice] = useWatch({
+  const [blockId, category, sizeValue, sizeUnit, basePrice, widthFt, depthFt] = useWatch({
     control,
-    name: ["block_id", "category", "size_value", "size_unit", "base_price"],
+    name: ["block_id", "category", "size_value", "size_unit", "base_price", "width_ft", "depth_ft"],
   });
   const floors = structure.find((b) => b.id === blockId)?.floors ?? [];
 
   // Live preview of area and rate (display only; the database computes the stored values).
   const size = Number(String(sizeValue).replace(/,/g, "")) || 0;
-  const area = sizeUnit === "sqft" ? size : sizeUnit === "marla" ? size * sqftPerMarla : size * sqftPerMarla * 20;
+  const dimsArea = (Number(widthFt) || 0) * (Number(depthFt) || 0);
+  const area = dimsArea || (sizeUnit === "sqft" ? size : sizeUnit === "marla" ? size * sqftPerMarla : size * sqftPerMarla * 20);
   const price = Number(String(basePrice).replace(/,/g, "")) || 0;
 
   const onSubmit = form.handleSubmit((values) =>
@@ -133,8 +136,14 @@ export function UnitForm({ projectId, isPlotSociety, sqftPerMarla, structure, un
             name="size_unit"
             label="Size unit"
             options={(["marla", "kanal", "sqft"] as const).map((u) => ({ value: u, label: SIZE_UNIT_LABELS[u] }))}
-            description={area ? `= ${area.toLocaleString("en-PK")} sq ft` : `1 marla = ${sqftPerMarla} sq ft`}
+            description={area ? `= ${area.toLocaleString("en-PK")} sq ft${dimsArea ? " (from dimensions)" : ""}` : `1 marla = ${sqftPerMarla} sq ft`}
           />
+          {category === "plot" && (
+            <>
+              <TextField control={control} name="width_ft" label="Width (ft)" inputMode="decimal" placeholder="25" description="Optional: sets the exact area" />
+              <TextField control={control} name="depth_ft" label="Depth (ft)" inputMode="decimal" placeholder="50" />
+            </>
+          )}
           {category !== "plot" && (
             <>
               <TextField control={control} name="bedrooms" label="Bedrooms" inputMode="numeric" />

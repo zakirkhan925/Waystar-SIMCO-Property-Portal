@@ -123,6 +123,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"document_templates": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"doc_type": Database["public"]['Enums']["document_type"],"id": string,"is_active": boolean,"project_id": string | null,"ref_prefix": string,"sections": NonNullable<Json>,"title": string,"version": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"doc_type": Database["public"]['Enums']["document_type"],"id"?: string,"is_active"?: boolean,"project_id"?: string | null,"ref_prefix": string,"sections"?: NonNullable<Json>,"title": string,"version"?: number
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"doc_type"?: Database["public"]['Enums']["document_type"],"id"?: string,"is_active"?: boolean,"project_id"?: string | null,"ref_prefix"?: string,"sections"?: NonNullable<Json>,"title"?: string,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "document_templates_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "document_templates_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "document_templates_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    }
+                  ]
                 },"floors": {
                   Row: {
                     "block_id": string,"created_at": string,"created_by": string | null,"deleted_at": string | null,"id": string,"label": string,"level": number,"sort_order": number,"updated_at": string
@@ -163,16 +195,48 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
-                },"projects": {
+                },"project_document_settings": {
                   Row: {
-                    "code": string,"cover_image_path": string | null,"created_at": string,"created_by": string | null,"deleted_at": string | null,"description": string | null,"id": string,"is_active": boolean,"late_fee_cap_pct": number | null,"late_fee_grace_days": number,"late_fee_method": Database["public"]['Enums']["late_fee_method"],"late_fee_rate": number,"location": string | null,"logo_path": string | null,"marla_per_kanal": number,"name": string,"sort_order": number,"sqft_per_marla": number,"status": Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at": string
+                    "allotment_countersign_days": number | null,"approval_noc_ref": string | null,"delay_compensation_basis": string | null,"discrepancy_report_days": number | null,"display_name": string | null,"dispute_window_days": number,"execution_city": string | null,"full_address": string | null,"managing_director_name": string | null,"marketed_by": string,"ndc_validity_days": number,"possession_timeline": string | null,"project_id": string,"refund_days_after_resale": number | null,"seller_account_title": string | null,"seller_legal_name": string,"seller_legal_status": string | null,"seller_ntn": string | null,"seller_office_address": string | null,"signatory_cnic": string | null,"signatory_name": string | null,"updated_at": string,"updated_by": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "code": string,"cover_image_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"description"?: string | null,"id"?: string,"is_active"?: boolean,"late_fee_cap_pct"?: number | null,"late_fee_grace_days"?: number,"late_fee_method"?: Database["public"]['Enums']["late_fee_method"],"late_fee_rate"?: number,"location"?: string | null,"logo_path"?: string | null,"marla_per_kanal"?: number,"name": string,"sort_order"?: number,"sqft_per_marla"?: number,"status"?: Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at"?: string
+                    "allotment_countersign_days"?: number | null,"approval_noc_ref"?: string | null,"delay_compensation_basis"?: string | null,"discrepancy_report_days"?: number | null,"display_name"?: string | null,"dispute_window_days"?: number,"execution_city"?: string | null,"full_address"?: string | null,"managing_director_name"?: string | null,"marketed_by"?: string,"ndc_validity_days"?: number,"possession_timeline"?: string | null,"project_id": string,"refund_days_after_resale"?: number | null,"seller_account_title"?: string | null,"seller_legal_name"?: string,"seller_legal_status"?: string | null,"seller_ntn"?: string | null,"seller_office_address"?: string | null,"signatory_cnic"?: string | null,"signatory_name"?: string | null,"updated_at"?: string,"updated_by"?: string | null
                   }
                   Update: {
-                    "code"?: string,"cover_image_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"description"?: string | null,"id"?: string,"is_active"?: boolean,"late_fee_cap_pct"?: number | null,"late_fee_grace_days"?: number,"late_fee_method"?: Database["public"]['Enums']["late_fee_method"],"late_fee_rate"?: number,"location"?: string | null,"logo_path"?: string | null,"marla_per_kanal"?: number,"name"?: string,"sort_order"?: number,"sqft_per_marla"?: number,"status"?: Database["public"]['Enums']["project_status"],"type"?: Database["public"]['Enums']["project_type"],"updated_at"?: string
+                    "allotment_countersign_days"?: number | null,"approval_noc_ref"?: string | null,"delay_compensation_basis"?: string | null,"discrepancy_report_days"?: number | null,"display_name"?: string | null,"dispute_window_days"?: number,"execution_city"?: string | null,"full_address"?: string | null,"managing_director_name"?: string | null,"marketed_by"?: string,"ndc_validity_days"?: number,"possession_timeline"?: string | null,"project_id"?: string,"refund_days_after_resale"?: number | null,"seller_account_title"?: string | null,"seller_legal_name"?: string,"seller_legal_status"?: string | null,"seller_ntn"?: string | null,"seller_office_address"?: string | null,"signatory_cnic"?: string | null,"signatory_name"?: string | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "project_document_settings_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: true
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "project_document_settings_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: true
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "project_document_settings_updated_by_fkey"
+      columns: ["updated_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"projects": {
+                  Row: {
+                    "cancel_after_consecutive_missed": number | null,"cancellation_deduction_pct": number | null,"code": string,"construction_min_paid_pct": number | null,"corner_premium_pct": number,"cover_image_path": string | null,"created_at": string,"created_by": string | null,"deleted_at": string | null,"description": string | null,"down_payment_balance_days": number | null,"full_payment_possession_charge_pct": number,"id": string,"is_active": boolean,"late_fee_cap_pct": number | null,"late_fee_grace_days": number,"late_fee_method": Database["public"]['Enums']["late_fee_method"],"late_fee_rate": number,"location": string | null,"logo_path": string | null,"marla_per_kanal": number,"name": string,"sort_order": number,"sqft_per_marla": number,"status": Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "cancel_after_consecutive_missed"?: number | null,"cancellation_deduction_pct"?: number | null,"code": string,"construction_min_paid_pct"?: number | null,"corner_premium_pct"?: number,"cover_image_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"description"?: string | null,"down_payment_balance_days"?: number | null,"full_payment_possession_charge_pct"?: number,"id"?: string,"is_active"?: boolean,"late_fee_cap_pct"?: number | null,"late_fee_grace_days"?: number,"late_fee_method"?: Database["public"]['Enums']["late_fee_method"],"late_fee_rate"?: number,"location"?: string | null,"logo_path"?: string | null,"marla_per_kanal"?: number,"name": string,"sort_order"?: number,"sqft_per_marla"?: number,"status"?: Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at"?: string
+                  }
+                  Update: {
+                    "cancel_after_consecutive_missed"?: number | null,"cancellation_deduction_pct"?: number | null,"code"?: string,"construction_min_paid_pct"?: number | null,"corner_premium_pct"?: number,"cover_image_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"description"?: string | null,"down_payment_balance_days"?: number | null,"full_payment_possession_charge_pct"?: number,"id"?: string,"is_active"?: boolean,"late_fee_cap_pct"?: number | null,"late_fee_grace_days"?: number,"late_fee_method"?: Database["public"]['Enums']["late_fee_method"],"late_fee_rate"?: number,"location"?: string | null,"logo_path"?: string | null,"marla_per_kanal"?: number,"name"?: string,"sort_order"?: number,"sqft_per_marla"?: number,"status"?: Database["public"]['Enums']["project_status"],"type"?: Database["public"]['Enums']["project_type"],"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -185,14 +249,14 @@ isOneToOne: false
                   ]
                 },"units": {
                   Row: {
-                    "area_sqft": number,"base_price": number,"bathrooms": number | null,"bedrooms": number | null,"block_id": string | null,"category": Database["public"]['Enums']["unit_category"],"created_at": string,"created_by": string | null,"deleted_at": string | null,"floor_id": string | null,"id": string,"is_corner": boolean,"is_main_boulevard": boolean,"is_park_facing": boolean,"notes": string | null,"price_per_sqft": number | null,"project_id": string,"size_unit": Database["public"]['Enums']["size_unit"],"size_value": number,"status": Database["public"]['Enums']["unit_status"],"street": string | null,"unit_no": string,"updated_at": string,"use": Database["public"]['Enums']["unit_use"]
+                    "area_sqft": number,"base_price": number,"bathrooms": number | null,"bedrooms": number | null,"block_id": string | null,"category": Database["public"]['Enums']["unit_category"],"created_at": string,"created_by": string | null,"deleted_at": string | null,"depth_ft": number | null,"floor_id": string | null,"id": string,"is_corner": boolean,"is_main_boulevard": boolean,"is_park_facing": boolean,"notes": string | null,"price_per_sqft": number | null,"project_id": string,"size_unit": Database["public"]['Enums']["size_unit"],"size_value": number,"status": Database["public"]['Enums']["unit_status"],"street": string | null,"unit_no": string,"updated_at": string,"use": Database["public"]['Enums']["unit_use"],"width_ft": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "area_sqft"?: number,"base_price": number,"bathrooms"?: number | null,"bedrooms"?: number | null,"block_id"?: string | null,"category": Database["public"]['Enums']["unit_category"],"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"floor_id"?: string | null,"id"?: string,"is_corner"?: boolean,"is_main_boulevard"?: boolean,"is_park_facing"?: boolean,"notes"?: string | null,"price_per_sqft"?: number | null,"project_id": string,"size_unit": Database["public"]['Enums']["size_unit"],"size_value": number,"status"?: Database["public"]['Enums']["unit_status"],"street"?: string | null,"unit_no": string,"updated_at"?: string,"use": Database["public"]['Enums']["unit_use"]
+                    "area_sqft"?: number,"base_price": number,"bathrooms"?: number | null,"bedrooms"?: number | null,"block_id"?: string | null,"category": Database["public"]['Enums']["unit_category"],"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"depth_ft"?: number | null,"floor_id"?: string | null,"id"?: string,"is_corner"?: boolean,"is_main_boulevard"?: boolean,"is_park_facing"?: boolean,"notes"?: string | null,"price_per_sqft"?: number | null,"project_id": string,"size_unit": Database["public"]['Enums']["size_unit"],"size_value": number,"status"?: Database["public"]['Enums']["unit_status"],"street"?: string | null,"unit_no": string,"updated_at"?: string,"use": Database["public"]['Enums']["unit_use"],"width_ft"?: number | null
                   }
                   Update: {
-                    "area_sqft"?: number,"base_price"?: number,"bathrooms"?: number | null,"bedrooms"?: number | null,"block_id"?: string | null,"category"?: Database["public"]['Enums']["unit_category"],"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"floor_id"?: string | null,"id"?: string,"is_corner"?: boolean,"is_main_boulevard"?: boolean,"is_park_facing"?: boolean,"notes"?: string | null,"price_per_sqft"?: number | null,"project_id"?: string,"size_unit"?: Database["public"]['Enums']["size_unit"],"size_value"?: number,"status"?: Database["public"]['Enums']["unit_status"],"street"?: string | null,"unit_no"?: string,"updated_at"?: string,"use"?: Database["public"]['Enums']["unit_use"]
+                    "area_sqft"?: number,"base_price"?: number,"bathrooms"?: number | null,"bedrooms"?: number | null,"block_id"?: string | null,"category"?: Database["public"]['Enums']["unit_category"],"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"depth_ft"?: number | null,"floor_id"?: string | null,"id"?: string,"is_corner"?: boolean,"is_main_boulevard"?: boolean,"is_park_facing"?: boolean,"notes"?: string | null,"price_per_sqft"?: number | null,"project_id"?: string,"size_unit"?: Database["public"]['Enums']["size_unit"],"size_value"?: number,"status"?: Database["public"]['Enums']["unit_status"],"street"?: string | null,"unit_no"?: string,"updated_at"?: string,"use"?: Database["public"]['Enums']["unit_use"],"width_ft"?: number | null
                   }
                   Relationships: [
                     {
@@ -281,6 +345,28 @@ isOneToOne: false
               "id": string,"kind": string,"project_id": string,"subtitle": string,"title": string
             }[]
                            },
+"install_document_templates":
+{ Args: { "p_project_id": string,"p_set": string }; Returns: number
+                           },
+"save_document_template":
+{ Args: { "p_doc_type": Database["public"]['Enums']["document_type"],"p_project_id": string,"p_reason": string,"p_ref_prefix": string,"p_sections": Json,"p_title": string }; Returns: {
+              "created_at": string,
+"created_by": string | null,
+"doc_type": Database["public"]['Enums']["document_type"],
+"id": string,
+"is_active": boolean,
+"project_id": string | null,
+"ref_prefix": string,
+"sections": NonNullable<Json>,
+"title": string,
+"version": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "document_templates"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "soft_delete":
 { Args: { "p_id": string,"p_reason": string,"p_table": string }; Returns: undefined
                            },
@@ -295,6 +381,7 @@ isOneToOne: false
 "created_at": string,
 "created_by": string | null,
 "deleted_at": string | null,
+"depth_ft": number | null,
 "floor_id": string | null,
 "id": string,
 "is_corner": boolean,
@@ -309,7 +396,8 @@ isOneToOne: false
 "street": string | null,
 "unit_no": string,
 "updated_at": string,
-"use": Database["public"]['Enums']["unit_use"]
+"use": Database["public"]['Enums']["unit_use"],
+"width_ft": number | null
             }
                           SetofOptions: {
         from: "*"
@@ -319,7 +407,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
+            "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","document_type": "booking_form"|"allotment_letter"|"sale_agreement"|"installment_schedule"|"possession_letter"|"ndc_letter"|"payment_receipt"|"transfer_letter"|"statement_of_account","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -439,7 +527,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["super_admin", "manager", "sales_agent", "accounts", "viewer", "client"],"audit_action": ["insert", "update", "delete"],"block_kind": ["block", "tower", "phase", "sector"],"late_fee_method": ["none", "flat_per_installment", "pct_of_overdue_per_month", "pct_per_day"],"project_status": ["off_plan", "under_construction", "completed"],"project_type": ["plot_society", "high_rise"],"size_unit": ["marla", "kanal", "sqft"],"unit_category": ["plot", "apartment", "shop", "office", "penthouse", "other"],"unit_status": ["available", "on_hold", "booked", "sold", "rented", "blocked"],"unit_use": ["residential", "commercial"]
+            "app_role": ["super_admin", "manager", "sales_agent", "accounts", "viewer", "client"],"audit_action": ["insert", "update", "delete"],"block_kind": ["block", "tower", "phase", "sector"],"document_type": ["booking_form", "allotment_letter", "sale_agreement", "installment_schedule", "possession_letter", "ndc_letter", "payment_receipt", "transfer_letter", "statement_of_account"],"late_fee_method": ["none", "flat_per_installment", "pct_of_overdue_per_month", "pct_per_day"],"project_status": ["off_plan", "under_construction", "completed"],"project_type": ["plot_society", "high_rise"],"size_unit": ["marla", "kanal", "sqft"],"unit_category": ["plot", "apartment", "shop", "office", "penthouse", "other"],"unit_status": ["available", "on_hold", "booked", "sold", "rented", "blocked"],"unit_use": ["residential", "commercial"]
           }
         }
 } as const

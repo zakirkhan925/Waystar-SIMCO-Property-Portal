@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { UnitFilters } from "./filters";
 
 export const UNIT_LIST_COLUMNS =
-  "id, unit_no, street, category, use, size_value, size_unit, area_sqft, bedrooms, base_price, price_per_sqft, status, is_corner, is_park_facing, is_main_boulevard, block_id, floor_id, blocks(name), floors(label, level)";
+  "id, unit_no, street, category, use, size_value, size_unit, width_ft, depth_ft, area_sqft, bedrooms, base_price, price_per_sqft, status, is_corner, is_park_facing, is_main_boulevard, block_id, floor_id, blocks(name), floors(label, level)";
 
 type SupabaseServer = Awaited<ReturnType<typeof createClient>>;
 

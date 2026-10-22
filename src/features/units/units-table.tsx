@@ -21,7 +21,7 @@ const columns: ColumnDef<UnitListRow, unknown>[] = [
   {
     id: "area_sqft",
     header: "Size",
-    cell: ({ row }) => formatSize(row.original.size_value, row.original.size_unit, row.original.area_sqft),
+    cell: ({ row }) => formatSize(row.original.size_value, row.original.size_unit, row.original.area_sqft, row.original),
   },
   { id: "bedrooms", header: "Beds", cell: ({ row }) => row.original.bedrooms ?? "—", meta: { className: "text-center" } },
   {

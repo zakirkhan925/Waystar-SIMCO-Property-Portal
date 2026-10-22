@@ -102,7 +102,8 @@ export default async function UnitPage({ params }: Props) {
                 <Spec label="Unit no." value={unit.unit_no} />
                 <Spec label="Category" value={CATEGORY_LABELS[unit.category]} />
                 <Spec label="Use" value={unit.use === "residential" ? "Residential" : "Commercial"} />
-                <Spec label="Size" value={formatSize(unit.size_value, unit.size_unit, unit.area_sqft)} />
+                {unit.width_ft && <Spec label="Area" value={`${Number(unit.area_sqft).toLocaleString("en-PK")} sq ft`} />}
+                <Spec label="Size" value={formatSize(unit.size_value, unit.size_unit, unit.area_sqft, unit)} />
                 {unit.bedrooms !== null && <Spec label="Bedrooms" value={unit.bedrooms} />}
                 {unit.bathrooms !== null && <Spec label="Bathrooms" value={unit.bathrooms} />}
                 <Spec

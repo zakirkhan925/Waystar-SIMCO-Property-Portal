@@ -30,6 +30,12 @@ export const projectFormSchema = z
       .string()
       .trim()
       .refine((v) => v === "" || (/^\d{1,3}(\.\d{1,2})?$/.test(v) && Number(v) <= 100), "0–100"),
+    corner_premium_pct: z.string().trim().refine((v) => v === "" || (/^\d{1,3}(\.\d{1,2})?$/.test(v) && Number(v) <= 100), "0–100"),
+    cancel_after_consecutive_missed: z.string().trim().refine((v) => v === "" || (/^\d{1,4}$/.test(v) && Number(v) <= 24), "Whole number up to 24"),
+    cancellation_deduction_pct: z.string().trim().refine((v) => v === "" || (/^\d{1,3}(\.\d{1,2})?$/.test(v) && Number(v) <= 100), "0–100"),
+    construction_min_paid_pct: z.string().trim().refine((v) => v === "" || (/^\d{1,3}(\.\d{1,2})?$/.test(v) && Number(v) <= 100), "0–100"),
+    full_payment_possession_charge_pct: z.string().trim().refine((v) => v === "" || (/^\d{1,3}(\.\d{1,2})?$/.test(v) && Number(v) <= 100), "0–100"),
+    down_payment_balance_days: z.string().trim().refine((v) => v === "" || (/^\d{1,4}$/.test(v) && Number(v) <= 365), "Whole number up to 365"),
     sort_order: z
       .string()
       .trim()

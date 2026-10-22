@@ -27,6 +27,12 @@ function toRow(v: ProjectFormParsed) {
     late_fee_rate: v.late_fee_rate as unknown as number,
     late_fee_grace_days: Number(v.late_fee_grace_days),
     late_fee_cap_pct: v.late_fee_cap_pct === "" ? null : (v.late_fee_cap_pct as unknown as number),
+    corner_premium_pct: (v.corner_premium_pct || "0") as unknown as number,
+    cancel_after_consecutive_missed: v.cancel_after_consecutive_missed === "" ? null : Number(v.cancel_after_consecutive_missed),
+    cancellation_deduction_pct: v.cancellation_deduction_pct === "" ? null : (v.cancellation_deduction_pct as unknown as number),
+    construction_min_paid_pct: v.construction_min_paid_pct === "" ? null : (v.construction_min_paid_pct as unknown as number),
+    full_payment_possession_charge_pct: (v.full_payment_possession_charge_pct || "0") as unknown as number,
+    down_payment_balance_days: v.down_payment_balance_days === "" ? null : Number(v.down_payment_balance_days),
     sort_order: Number(v.sort_order),
     is_active: v.is_active,
   };

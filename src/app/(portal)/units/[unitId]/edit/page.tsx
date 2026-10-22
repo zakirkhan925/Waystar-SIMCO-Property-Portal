@@ -45,6 +45,8 @@ export default async function EditUnitPage({ params }: { params: Promise<{ unitI
           use: unit.use,
           size_value: String(unit.size_value),
           size_unit: unit.size_unit,
+          width_ft: unit.width_ft?.toString() ?? "",
+          depth_ft: unit.depth_ft?.toString() ?? "",
           bedrooms: unit.bedrooms?.toString() ?? "",
           bathrooms: unit.bathrooms?.toString() ?? "",
           is_corner: unit.is_corner,

@@ -22,9 +22,14 @@ export default async function EditProjectPage({ params }: { params: Promise<{ pr
         crumbs={[{ label: "Settings", href: "/settings" }, { label: "Projects", href: "/settings/projects" }, { label: project.name }]}
         title={project.name}
         actions={
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/projects/${project.id}`}>View inventory</Link>
-          </Button>
+          <>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/settings/projects/${project.id}/documents`}>Documents & letters</Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/projects/${project.id}`}>View inventory</Link>
+            </Button>
+          </>
         }
       />
       <div className="space-y-6">
@@ -49,6 +54,12 @@ export default async function EditProjectPage({ params }: { params: Promise<{ pr
             late_fee_rate: String(project.late_fee_rate),
             late_fee_grace_days: String(project.late_fee_grace_days),
             late_fee_cap_pct: project.late_fee_cap_pct === null ? "" : String(project.late_fee_cap_pct),
+            corner_premium_pct: String(project.corner_premium_pct),
+            cancel_after_consecutive_missed: project.cancel_after_consecutive_missed === null ? "" : String(project.cancel_after_consecutive_missed),
+            cancellation_deduction_pct: project.cancellation_deduction_pct === null ? "" : String(project.cancellation_deduction_pct),
+            construction_min_paid_pct: project.construction_min_paid_pct === null ? "" : String(project.construction_min_paid_pct),
+            full_payment_possession_charge_pct: String(project.full_payment_possession_charge_pct),
+            down_payment_balance_days: project.down_payment_balance_days === null ? "" : String(project.down_payment_balance_days),
             sort_order: String(project.sort_order),
             is_active: project.is_active,
           }}
