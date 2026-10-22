@@ -61,18 +61,24 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "projects"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "blocks_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
     }
                   ]
                 },"clients": {
                   Row: {
-                    "address": string | null,"auth_user_id": string | null,"city": string | null,"cnic": string | null,"cnic_back_path": string | null,"cnic_front_path": string | null,"country": string,"created_at": string,"created_by": string | null,"deleted_at": string | null,"email": string | null,"full_name": string,"guardian_name": string | null,"id": string,"is_overseas": boolean,"nationality": string,"nok_cnic": string | null,"nok_name": string | null,"nok_phone": string | null,"nok_relation": string | null,"notes": string | null,"passport_no": string | null,"phone": string,"photo_path": string | null,"relation_type": string | null,"updated_at": string,"whatsapp": string | null
+                    "address": string | null,"auth_user_id": string | null,"city": string | null,"cnic": string | null,"cnic_back_path": string | null,"cnic_front_path": string | null,"country": string,"created_at": string,"created_by": string | null,"deleted_at": string | null,"email": string | null,"full_name": string,"guardian_name": string | null,"id": string,"is_overseas": boolean,"nationality": string,"nok_cnic": string | null,"nok_name": string | null,"nok_phone": string | null,"nok_relation": string | null,"notes": string | null,"passport_no": string | null,"phone": string,"photo_path": string | null,"relation_type": string | null,"search_digits": string | null,"updated_at": string,"whatsapp": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "address"?: string | null,"auth_user_id"?: string | null,"city"?: string | null,"cnic"?: string | null,"cnic_back_path"?: string | null,"cnic_front_path"?: string | null,"country"?: string,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"email"?: string | null,"full_name": string,"guardian_name"?: string | null,"id"?: string,"is_overseas"?: boolean,"nationality"?: string,"nok_cnic"?: string | null,"nok_name"?: string | null,"nok_phone"?: string | null,"nok_relation"?: string | null,"notes"?: string | null,"passport_no"?: string | null,"phone": string,"photo_path"?: string | null,"relation_type"?: string | null,"updated_at"?: string,"whatsapp"?: string | null
+                    "address"?: string | null,"auth_user_id"?: string | null,"city"?: string | null,"cnic"?: string | null,"cnic_back_path"?: string | null,"cnic_front_path"?: string | null,"country"?: string,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"email"?: string | null,"full_name": string,"guardian_name"?: string | null,"id"?: string,"is_overseas"?: boolean,"nationality"?: string,"nok_cnic"?: string | null,"nok_name"?: string | null,"nok_phone"?: string | null,"nok_relation"?: string | null,"notes"?: string | null,"passport_no"?: string | null,"phone": string,"photo_path"?: string | null,"relation_type"?: string | null,"search_digits"?: never,"updated_at"?: string,"whatsapp"?: string | null
                   }
                   Update: {
-                    "address"?: string | null,"auth_user_id"?: string | null,"city"?: string | null,"cnic"?: string | null,"cnic_back_path"?: string | null,"cnic_front_path"?: string | null,"country"?: string,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"email"?: string | null,"full_name"?: string,"guardian_name"?: string | null,"id"?: string,"is_overseas"?: boolean,"nationality"?: string,"nok_cnic"?: string | null,"nok_name"?: string | null,"nok_phone"?: string | null,"nok_relation"?: string | null,"notes"?: string | null,"passport_no"?: string | null,"phone"?: string,"photo_path"?: string | null,"relation_type"?: string | null,"updated_at"?: string,"whatsapp"?: string | null
+                    "address"?: string | null,"auth_user_id"?: string | null,"city"?: string | null,"cnic"?: string | null,"cnic_back_path"?: string | null,"cnic_front_path"?: string | null,"country"?: string,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"email"?: string | null,"full_name"?: string,"guardian_name"?: string | null,"id"?: string,"is_overseas"?: boolean,"nationality"?: string,"nok_cnic"?: string | null,"nok_name"?: string | null,"nok_phone"?: string | null,"nok_relation"?: string | null,"notes"?: string | null,"passport_no"?: string | null,"phone"?: string,"photo_path"?: string | null,"relation_type"?: string | null,"search_digits"?: never,"updated_at"?: string,"whatsapp"?: string | null
                   }
                   Relationships: [
                     {
@@ -213,6 +219,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "projects"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "units_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
     }
                   ]
                 },"user_project_access": {
@@ -234,6 +246,12 @@ isOneToOne: false
       referencedRelation: "projects"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "user_project_access_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
       foreignKeyName: "user_project_access_user_id_fkey"
       columns: ["user_id"]
 isOneToOne: false
@@ -244,12 +262,61 @@ isOneToOne: false
                 }
           }
           Views: {
-            [_ in never]: never
+            "v_project_inventory": {
+                  Row: {
+                    "available": number | null,"blocked": number | null,"booked": number | null,"code": string | null,"name": string | null,"on_hold": number | null,"project_id": string | null,"project_status": Database["public"]['Enums']["project_status"] | null,"rented": number | null,"sold": number | null,"sort_order": number | null,"total_area_sqft": number | null,"total_list_value": number | null,"total_units": number | null,"type": Database["public"]['Enums']["project_type"] | null,"unsold_inventory_value": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
+                }
           }
           Functions: {
             "client_exists":
 { Args: { "p_cnic"?: string,"p_passport"?: string }; Returns: boolean
-                           }
+                           },
+"global_search":
+{ Args: { "p_limit"?: number,"p_q": string }; Returns: {
+              "id": string,"kind": string,"project_id": string,"subtitle": string,"title": string
+            }[]
+                           },
+"soft_delete":
+{ Args: { "p_id": string,"p_reason": string,"p_table": string }; Returns: undefined
+                           },
+"update_unit":
+{ Args: { "p_id": string,"p_patch": Json,"p_reason"?: string }; Returns: {
+              "area_sqft": number,
+"base_price": number,
+"bathrooms": number | null,
+"bedrooms": number | null,
+"block_id": string | null,
+"category": Database["public"]['Enums']["unit_category"],
+"created_at": string,
+"created_by": string | null,
+"deleted_at": string | null,
+"floor_id": string | null,
+"id": string,
+"is_corner": boolean,
+"is_main_boulevard": boolean,
+"is_park_facing": boolean,
+"notes": string | null,
+"price_per_sqft": number | null,
+"project_id": string,
+"size_unit": Database["public"]['Enums']["size_unit"],
+"size_value": number,
+"status": Database["public"]['Enums']["unit_status"],
+"street": string | null,
+"unit_no": string,
+"updated_at": string,
+"use": Database["public"]['Enums']["unit_use"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "units"
+        isOneToOne: true
+        isSetofReturn: false
+      } }
           }
           Enums: {
             "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"

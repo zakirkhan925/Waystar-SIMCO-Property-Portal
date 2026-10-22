@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Waystar Property Management Portal
 
-## Getting Started
+Property management portal for **SIMCO Developers** projects, run by **Waystar Royco Marketing**.
+It will be hosted at **portal.waystarmarketing.com**.
 
-First, run the development server:
+It tracks every unit and plot: ownership, sales and installments, payments, possession and rentals.
+
+| Phase | Scope | Status |
+|---|---|---|
+| 1 | Schema, RLS, auth, roles, projects/units inventory, clients | ✅ Done |
+| 2 | Sales, payment plans, installment generator, payments & receipts, ledgers | Next |
+| 3 | Possession, transfers, cancellations, documents | |
+| 4 | Rentals, rent invoices, deposits | |
+| 5 | Dashboard, reports, PDFs, exports, pg_cron jobs | |
+
+Design docs:
+- [Architecture & schema proposal](docs/01-architecture-proposal.md)
+- [Business-rule decisions](docs/02-business-rules.md). Read this before changing any money or status logic.
+
+## Stack
+
+Next.js 15 (App Router) · TypeScript · Tailwind v4 · shadcn/ui · Supabase (Postgres, Auth, Storage, RLS) ·
+react-hook-form + zod · TanStack Table v8 · Recharts · @react-pdf/renderer · decimal.js · Vitest + pgTAP.
+
+## Local setup
+
+Prerequisites:
+- Node.js 20+ (24 LTS recommended)
+- Docker Desktop, running
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npx supabase start          # first run downloads the Supabase images
+npx supabase status -o env  # copy ANON_KEY / SERVICE_ROLE_KEY / API_URL into .env.local
+cp .env.example .env.local  # then paste the values
+npm run dev                 # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Local services:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Service | URL |
+|---|---|
+| Supabase Studio | http://127.0.0.1:54323 |
+| Mailpit (password-reset emails) | http://127.0.0.1:54324 |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Test logins (local seed only)
 
-## Learn More
+`supabase/seed.sql` creates one user per role:
 
-To learn more about Next.js, take a look at the following resources:
+| Email | Role | Project access |
+|---|---|---|
+| `admin@waystar.test` | Super Admin | All projects |
+| `manager@waystar.test` | Manager | All projects |
+| `agent@waystar.test` | Sales Agent | Simco Villas, Simco Square |
+| `accounts@waystar.test` | Accounts | All 5 projects |
+| `viewer@waystar.test` | Viewer (SIMCO) | All 5 projects |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+They all share the password in the header of `seed.sql`. **These accounts must never exist in production.**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment variables
 
-## Deploy on Vercel
+| Variable | Where | Notes |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | browser + server | Project API URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | browser + server | Public anon key; RLS protects data |
+| `SUPABASE_SERVICE_ROLE_KEY` | **server only** | Used only in `src/lib/supabase/admin.ts` (marked `server-only`), e.g. to create users. Never expose it. |
+| `NEXT_PUBLIC_SITE_URL` | server | Base URL for password-reset links, e.g. `https://portal.waystarmarketing.com` |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database & migrations
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All schema changes are SQL files in `supabase/migrations/`. Never edit the database by hand.
+
+```bash
+npx supabase migration new <name>  # create a migration
+npx supabase migration up --local  # apply new migrations locally
+npm run db:reset                   # rebuild local DB from migrations + seed.sql
+npm run db:types                   # regenerate src/types/database.ts after schema changes
+```
+
+How the database is set up:
+- **Row Level Security** is on for every table.
+  - Role helpers live in a non-exposed `private` schema.
+  - Super Admins and Managers see every project. Everyone else sees only the projects listed for them in `user_project_access`.
+- **No hard deletes through the API.** Super Admins soft-delete records with `soft_delete(table, id, reason)`.
+- **Every change is audited** to `activity_log` by triggers. To record a reason with a change, call `select set_config('app.reason', '…', true)` in the same transaction; `update_unit()` does this for you.
+- **Unit statuses `booked`, `sold` and `rented` can only be set by sales and leases.** Users can only switch a unit between available, on hold and blocked.
+- **Money** is stored as `numeric(14,2)` and handled in TypeScript with `decimal.js`, never JS floats.
+- **Dates and times:**
+  - Business dates use Asia/Karachi time.
+  - Dates display as `DD-MMM-YYYY` (e.g. 22-Oct-2026).
+  - Amounts display as `Rs 1,250,000`.
+
+## Tests
+
+```bash
+npm test         # Vitest: money, CNIC, dates, CSV, validation
+npm run test:db  # pgTAP: RLS per role, guards, RPCs (requires `supabase start`)
+npm run lint && npm run typecheck
+```
+
+CI (`.github/workflows/ci.yml`) runs all of these on every push.
+
+## Deploying (Vercel + Supabase)
+
+1. **Create the Supabase project.** In the Supabase dashboard, create a project in the region nearest Pakistan (e.g. Singapore or Mumbai).
+2. **Link it and push migrations:**
+   ```bash
+   npx supabase login
+   npx supabase link --project-ref <ref>
+   npx supabase db push
+   ```
+   Do **not** run `seed.sql` against production. Create the first Super Admin in Supabase Studio:
+   1. Go to Auth → Add user.
+   2. Run: `update profiles set role = 'super_admin' where email = '…';`
+   3. Set `raw_app_meta_data.role` to match.
+3. **Set Supabase Auth URLs.** Under Authentication → URL configuration:
+   - Site URL: `https://portal.waystarmarketing.com`
+   - Redirect URLs: add `https://portal.waystarmarketing.com/auth/callback`
+   - Disable sign-ups.
+4. **Create the Vercel project.** Import the GitHub repo, then add the four environment variables for Production and Preview.
+   Mark `SUPABASE_SERVICE_ROLE_KEY` as **Sensitive**.
+5. **Point the custom domain to Vercel:**
+   1. In Vercel → Project → Settings → Domains, add `portal.waystarmarketing.com`.
+   2. At the DNS host for `waystarmarketing.com`, add this record:
+
+      | Type | Name | Value |
+      |---|---|---|
+      | `CNAME` | `portal` | `cname.vercel-dns.com` |
+
+   Vercel issues the HTTPS certificate automatically once DNS resolves.
+
+## Project layout
+
+```
+supabase/migrations   SQL migrations (source of truth for the schema)
+supabase/seed.sql     local sample data
+supabase/tests        pgTAP database tests
+src/app               routes: (auth) login/reset · (portal) dashboard, projects, units, clients, settings · api/export
+src/features/*        per-domain queries, server actions, zod schemas and components
+src/components        layout, data table, form fields, shared UI (shadcn in components/ui)
+src/lib               supabase clients, auth/session, money, dates, CNIC, CSV
+tests                 Vitest unit tests
+```
