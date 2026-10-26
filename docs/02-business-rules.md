@@ -76,3 +76,15 @@ Still open for Simco Villas:
 - Is the penalty settled before the installment amount when a payment comes in?
 - The full-payment discount rate
 - Documents 02 and 04 of the set (not yet received: probably Payment Receipt and Transfer Letter?)
+
+### Letterhead (26-Oct-2026)
+
+SIMCO VILLAS letterhead (A4) received. Documents print in three modes: on the letterhead (digital), for pre-printed letterhead stock, or plain.
+- **Safe area** (measured from the letterhead):
+  - body text from 80 mm on every page, below the tagline
+  - page-1 heading from 40 mm, starting 42 mm from the left, beside the tagline
+  - bottom 28.5 mm kept clear for the footer
+  - left margin 16.2 mm, right margin 10 mm
+- **Editable:** all of these in Settings → Documents & letters.
+- **Assumption:** every sheet of letterhead stock carries the tagline, so page 2+ also start at 80 mm.
+  If later pages go on plain paper, the body can start higher. This would need a separate "continuation page" margin (not built).

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DocSettingsForm } from "@/features/documents/doc-settings-form";
 import { InstallTemplatesButton } from "@/features/documents/install-button";
+import { LetterheadCard } from "@/features/documents/letterhead-card";
 import { getProject } from "@/features/projects/queries";
 import { requireRole } from "@/lib/auth/session";
 import { formatDate } from "@/lib/dates";
@@ -34,6 +35,10 @@ export default async function ProjectDocumentsPage({ params }: { params: Promise
   const byType = new Map((templates ?? []).map((t) => [t.doc_type as string, t]));
   const s = settings;
   const str = (v: unknown) => (v === null || v === undefined ? "" : String(v));
+  const letterheadUrl = s?.letterhead_path ? supabase.storage.from("branding").getPublicUrl(s.letterhead_path).data.publicUrl : null;
+  const modes = s?.letterhead_path
+    ? ([["letterhead", "On letterhead"], ["preprinted", "For pre-printed paper"], ["plain", "Plain"]] as const)
+    : ([["plain", "Preview PDF"]] as const);
 
   return (
     <>
@@ -78,11 +83,13 @@ export default async function ProjectDocumentsPage({ params }: { params: Promise
                       {t ? (
                         <>
                           <Badge variant="outline">v{t.version}</Badge>
-                          <Button variant="outline" size="sm" asChild>
-                            <a href={`/api/pdf/preview/${dt}?projectId=${projectId}`} target="_blank" rel="noopener noreferrer">
-                              Preview PDF
-                            </a>
-                          </Button>
+                          {modes.map(([mode, label]) => (
+                            <Button key={mode} variant="outline" size="sm" asChild>
+                              <a href={`/api/pdf/preview/${dt}?projectId=${projectId}&mode=${mode}`} target="_blank" rel="noopener noreferrer">
+                                {label}
+                              </a>
+                            </Button>
+                          ))}
                           <Button variant="outline" size="sm" asChild>
                             <Link href={`/settings/projects/${projectId}/documents/${dt}`}>
                               <Pencil /> Edit wording
@@ -97,6 +104,8 @@ export default async function ProjectDocumentsPage({ params }: { params: Promise
             )}
           </CardContent>
         </Card>
+
+        <LetterheadCard projectId={projectId} path={s?.letterhead_path ?? null} publicUrl={letterheadUrl} />
 
         <DocSettingsForm
           projectId={projectId}
@@ -121,6 +130,12 @@ export default async function ProjectDocumentsPage({ params }: { params: Promise
             ndc_validity_days: str(s?.ndc_validity_days ?? 7),
             dispute_window_days: str(s?.dispute_window_days ?? 7),
             marketed_by: s?.marketed_by ?? "Waystar Royco",
+            letterhead_top_mm: str(s?.letterhead_top_mm ?? 80),
+            letterhead_bottom_mm: str(s?.letterhead_bottom_mm ?? 28.5),
+            letterhead_left_mm: str(s?.letterhead_left_mm ?? 16.2),
+            letterhead_right_mm: str(s?.letterhead_right_mm ?? 10),
+            letterhead_head_top_mm: s ? str(s.letterhead_head_top_mm) : "40",
+            letterhead_head_left_mm: s ? str(s.letterhead_head_left_mm) : "42",
           }}
         />
       </div>

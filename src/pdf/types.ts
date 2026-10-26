@@ -23,6 +23,25 @@ export type ScheduleRow = {
   receivedBy?: string | null;
 };
 
+/**
+ * Page geometry in PDF points (1 pt = 1/72 in).
+ * - plain: the portal draws its own header/footer
+ * - letterhead: content sits in the letterhead's safe area; the letterhead PDF is placed behind each page
+ * - preprinted: same safe area, no background (for printing on pre-printed letterhead stock)
+ */
+export type PageLayout = {
+  mode: "plain" | "letterhead" | "preprinted";
+  top: number; // body text starts here on every page
+  bottom: number;
+  left: number;
+  right: number;
+  /** Page-1 heading (title, ref, addressee) placed higher, in free space beside letterhead artwork. */
+  head: { top: number; left: number } | null;
+};
+
+export const MM = 72 / 25.4;
+export const A4 = { width: 595.28, height: 841.89 };
+
 /** Everything a document needs. Money values are numeric strings (never JS floats). */
 export type DocContext = {
   docType: DocumentTemplate["doc_type"];
@@ -32,6 +51,7 @@ export type DocContext = {
   verifyUrl: string | null;
   qrDataUrl: string | null;
   specimen: boolean;
+  layout: PageLayout;
   company: { name: string; partnerName: string; address: string | null; phone: string | null; email: string | null; website: string | null };
   project: { code: string; name: string; displayName: string; fullAddress: string | null };
   settings: Record<string, string | null>; // project_document_settings, stringified

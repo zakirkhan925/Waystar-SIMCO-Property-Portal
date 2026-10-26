@@ -36,6 +36,34 @@ export const docSettingsSchema = z.object({
     .trim()
     .refine((v) => /^\d{1,3}$/.test(v) && Number(v) >= 1, "Days, at least 1"),
   marketed_by: z.string().trim().min(2).max(120),
+  letterhead_top_mm: z
+    .string()
+    .trim()
+    .refine((v) => /^\d{1,3}(\.\d)?$/.test(v) && Number(v) <= 200, "mm, e.g. 28.5"),
+  letterhead_bottom_mm: z
+    .string()
+    .trim()
+    .refine((v) => /^\d{1,3}(\.\d)?$/.test(v) && Number(v) <= 120, "mm, e.g. 28.5"),
+  letterhead_left_mm: z
+    .string()
+    .trim()
+    .refine((v) => /^\d{1,3}(\.\d)?$/.test(v) && Number(v) <= 60, "mm, e.g. 28.5"),
+  letterhead_right_mm: z
+    .string()
+    .trim()
+    .refine((v) => /^\d{1,3}(\.\d)?$/.test(v) && Number(v) <= 60, "mm, e.g. 28.5"),
+  letterhead_head_top_mm: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || (/^\d{1,3}(\.\d)?$/.test(v) && Number(v) <= 200), "mm, or blank"),
+  letterhead_head_left_mm: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || (/^\d{1,3}(\.\d)?$/.test(v) && Number(v) <= 200), "mm, or blank"),
+}).superRefine((v, ctx) => {
+  if (v.letterhead_head_top_mm !== "" && Number(v.letterhead_head_top_mm) >= Number(v.letterhead_top_mm)) {
+    ctx.addIssue({ code: "custom", path: ["letterhead_head_top_mm"], message: "Must be above where the body starts" });
+  }
 });
 export type DocSettingsValues = z.input<typeof docSettingsSchema>;
 export type DocSettingsParsed = z.output<typeof docSettingsSchema>;

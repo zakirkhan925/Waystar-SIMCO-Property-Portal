@@ -69,6 +69,24 @@ export function DocSettingsForm({ projectId, initial }: { projectId: string; ini
           <TextField control={control} name="dispute_window_days" label="Raise disputes within" inputMode="numeric" />
         </CardContent>
       </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Letterhead margins (mm)</CardTitle>
+          <CardDescription>
+            Where text may print on the letterhead, measured from the paper edge. Body text starts below the tagline on every
+            page; on page 1 the heading (title, ref no., addressee) sits higher, beside the tagline. Leave the heading position
+            blank to start the heading with the body.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <TextField control={control} name="letterhead_top_mm" label="Body starts at" inputMode="decimal" />
+          <TextField control={control} name="letterhead_bottom_mm" label="Keep clear at bottom" inputMode="decimal" />
+          <TextField control={control} name="letterhead_left_mm" label="Left margin" inputMode="decimal" />
+          <TextField control={control} name="letterhead_right_mm" label="Right margin" inputMode="decimal" />
+          <TextField control={control} name="letterhead_head_top_mm" label="Page-1 heading from top" inputMode="decimal" />
+          <TextField control={control} name="letterhead_head_left_mm" label="Page-1 heading from left" inputMode="decimal" />
+        </CardContent>
+      </Card>
       <div className="flex justify-end">
         <Button type="submit" disabled={pending}>
           {pending ? "Saving…" : "Save details"}

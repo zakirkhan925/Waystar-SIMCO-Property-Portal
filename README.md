@@ -57,6 +57,39 @@ Local services:
 
 They all share the password in the header of `seed.sql`. **These accounts must never exist in production.**
 
+### Seed files (letterheads)
+
+`supabase/seed.sql` can't upload files, so after `npm run db:reset` also run:
+
+```bash
+npm run db:seed-assets   # uploads supabase/seed-assets/* (e.g. the SIMCO VILLAS letterhead) to local Storage
+```
+
+## Printed documents & letterheads
+
+Each project's forms and letters are managed in **Settings → Projects → (project) → Documents & letters**:
+- clause wording (versioned)
+- the details that fill the blanks
+- the project **letterhead** (an A4 PDF)
+
+Every document can be printed three ways:
+
+| Mode | Use it for | Notes |
+|---|---|---|
+| On letterhead | Email / digital copies | The letterhead PDF is placed behind every page. Both stay vector graphics |
+| For pre-printed paper | Printing on letterhead stock | Same layout, no background |
+| Plain | Projects without a letterhead | The portal draws its own simple header and footer |
+
+**Margins.** On letterhead pages, text stays inside the margins set in mm.
+- Body text starts below the letterhead artwork on every page.
+- On page 1, the heading (title, ref no., addressee) sits higher, in the free space beside the artwork.
+- The SIMCO VILLAS defaults were measured from its letterhead:
+  - logos 11–35 mm from the top
+  - tagline down to 74 mm
+  - footer rule at 272 mm
+
+**Printing on pre-printed paper.** Print at **100% / Actual size**. "Fit to page" shrinks the page and breaks the alignment.
+
 ## Environment variables
 
 | Variable | Where | Notes |

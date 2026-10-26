@@ -1,7 +1,7 @@
 import { Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { formatDate } from "@/lib/dates";
 import { BLANK, fillPlaceholders, type TemplateSection } from "./template";
-import type { DocContext } from "./types";
+import { A4, type DocContext } from "./types";
 
 // Built-in Helvetica covers WinAnsi only; map the few typographic characters it lacks.
 export function pdfSafe(s: string): string {
@@ -59,6 +59,21 @@ export function Letterhead({ ctx }: { ctx: DocContext }) {
   );
 }
 
+/**
+ * Page-1 heading (title, ref/date, addressee). On a letterhead with a heading zone it is placed higher,
+ * beside the letterhead artwork, so the body can use the rest of the page; otherwise it flows normally.
+ * Absolutely positioned and not "fixed", so it appears on page 1 only.
+ */
+export function DocHead({ ctx, children }: { ctx: DocContext; children: React.ReactNode }) {
+  const L = ctx.layout;
+  if (L.mode === "plain" || !L.head) return <>{children}</>;
+  return (
+    <View style={{ position: "absolute", top: L.head.top, left: L.head.left, right: L.right, maxHeight: L.top - L.head.top - 4 }}>
+      {children}
+    </View>
+  );
+}
+
 export function TitleBlock({ ctx, subtitle }: { ctx: DocContext; subtitle?: string }) {
   return (
     <View>
@@ -83,15 +98,25 @@ export function RefRow({ ctx, label = "Ref. No." }: { ctx: DocContext; label?: s
   );
 }
 
-export function Particulars({ heading, rows }: { heading?: string; rows: [string, string | null | undefined][] }) {
+/** compact: letterhead / pre-printed pages, where tables and gaps are a little tighter. */
+export function Particulars({
+  heading,
+  rows,
+  compact = false,
+}: {
+  heading?: string;
+  rows: [string, string | null | undefined][];
+  compact?: boolean;
+}) {
+  const pad = compact ? { paddingVertical: 2 } : null;
   return (
     <View wrap={false}>
-      {heading && <Text style={s.heading}>{heading}</Text>}
+      {heading && <Text style={[s.heading, pad ? { marginTop: 6 } : {}]}>{heading}</Text>}
       <View style={s.table}>
         {rows.map(([label, value], i) => (
           <View key={label} style={i === rows.length - 1 ? s.trLast : s.tr}>
-            <Text style={s.tdLabel}>{label}:</Text>
-            <Text style={s.tdValue}>{pdfSafe(value && String(value).trim() ? String(value) : BLANK)}</Text>
+            <Text style={[s.tdLabel, pad ?? {}]}>{label}:</Text>
+            <Text style={[s.tdValue, pad ?? {}]}>{pdfSafe(value && String(value).trim() ? String(value) : BLANK)}</Text>
           </View>
         ))}
       </View>
@@ -141,40 +166,80 @@ export function Sections({
   );
 }
 
-export function Signatures({ labels }: { labels: string[] }) {
+export function Signatures({ labels, compact = false }: { labels: string[]; compact?: boolean }) {
   return (
-    <View style={s.sigRow} wrap={false}>
+    <View style={[s.sigRow, compact ? { marginTop: 12 } : {}]} wrap={false}>
       {labels.map((l) => (
         <View key={l} style={s.sigCell}>
           <Text>{pdfSafe(l)}</Text>
-          <Text style={{ marginTop: 6, color: MUTED }}>Date: ____________________</Text>
+          <Text style={{ marginTop: compact ? 3 : 6, color: MUTED }}>Date: ____________________</Text>
         </View>
       ))}
     </View>
   );
 }
 
+const footerLine = (ctx: DocContext) =>
+  [
+    pdfSafe(`${ctx.template.title} · ${ctx.refNo ?? "unnumbered"} · template v${ctx.template.version}`),
+    ctx.verifyUrl ? `Verify authenticity: ${ctx.verifyUrl}` : "Specimen - not a valid document",
+  ].join("\n");
+
+/** Height of the QR / verification strip kept above the letterhead footer. */
+const STRIP = 30;
+
 export function DocPage({ ctx, children }: { ctx: DocContext; children: React.ReactNode }) {
-  return (
-    <Page size="A4" style={s.page}>
-      {ctx.specimen && (
-        <Text style={s.watermark} fixed>
-          SPECIMEN
+  const L = ctx.layout;
+  const watermark = ctx.specimen && (
+    <Text style={s.watermark} fixed>
+      SPECIMEN
+    </Text>
+  );
+
+  if (L.mode === "plain") {
+    return (
+      <Page size="A4" style={s.page}>
+        {watermark}
+        <Letterhead ctx={ctx} />
+        {children}
+        <View style={s.footerRule} fixed />
+        {ctx.qrDataUrl && (
+          // eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt prop
+          <Image src={ctx.qrDataUrl} style={s.qr} fixed />
+        )}
+        <Text style={[s.footerText, { left: ctx.qrDataUrl ? 84 : 44 }]} fixed>
+          {footerLine(ctx)}
         </Text>
-      )}
-      <Letterhead ctx={ctx} />
+        <Text style={s.pageNo} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
+      </Page>
+    );
+  }
+
+  // Letterhead / pre-printed paper: everything stays inside the letterhead's safe area.
+  const stripTop = A4.height - L.bottom - STRIP; // anchored from the top (react-pdf mis-places "bottom" on multi-page docs)
+  return (
+    <Page
+      size="A4"
+      // slightly tighter type: the letterhead leaves ~30% less writing space per page than plain paper
+      style={[s.page, { paddingTop: L.top, paddingBottom: L.bottom + STRIP + 4, paddingLeft: L.left, paddingRight: L.right, fontSize: 9, lineHeight: 1.32 }]}
+    >
+      {watermark}
       {children}
-      <View style={s.footerRule} fixed />
       {ctx.qrDataUrl && (
         // eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt prop
-        <Image src={ctx.qrDataUrl} style={s.qr} fixed />
+        <Image src={ctx.qrDataUrl} style={[s.qr, { bottom: undefined, top: stripTop + 3, left: L.left, width: 26, height: 26 }]} fixed />
       )}
-      <Text style={[s.footerText, { left: ctx.qrDataUrl ? 84 : 44 }]} fixed>
-        {pdfSafe(`${ctx.template.title} · ${ctx.refNo ?? "unnumbered"} · template v${ctx.template.version}
-`)}
-        {ctx.verifyUrl ? `Verify authenticity: ${ctx.verifyUrl}` : "Specimen - not a valid document"}
+      <Text
+        style={[s.footerText, { bottom: undefined, top: stripTop + 8, left: L.left + (ctx.qrDataUrl ? 32 : 0), right: L.right + 70 }]}
+        fixed
+      >
+        {footerLine(ctx)}
       </Text>
-      <Text style={s.pageNo} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
+      <Text
+        style={[s.pageNo, { top: stripTop + 12, left: L.left, right: L.right }]}
+        render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
+        fixed
+      />
     </Page>
   );
 }

@@ -1,7 +1,7 @@
 -- pgTAP: update_unit (audit reason), soft_delete, area recalculation, global_search scoping
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(13);
+select plan(15);
 
 create or replace function pg_temp.login(p_email text) returns void language plpgsql as $$
 declare v_id uuid;
@@ -71,6 +71,14 @@ select lives_ok($$ select public.save_document_template((select id from public.p
 select pg_temp.logout();
 select is((select count(*)::int from public.document_templates t join public.projects p on p.id = t.project_id
            where p.code = 'SV' and t.doc_type = 'ndc_letter'), 2, 'old NDC version kept, new one active');
+
+-- letterhead margins: heading zone must sit above the body; margins can't be negative
+select throws_ok($$ update public.project_document_settings set letterhead_head_top_mm = 90, letterhead_top_mm = 80
+                    where project_id = (select id from public.projects where code = 'SV') $$,
+                 '23514', null, 'page-1 heading cannot start below the body');
+select throws_ok($$ update public.project_document_settings set letterhead_left_mm = -1
+                    where project_id = (select id from public.projects where code = 'SV') $$,
+                 '23514', null, 'negative margin rejected');
 
 select * from finish();
 rollback;

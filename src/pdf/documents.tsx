@@ -3,7 +3,7 @@ import Decimal from "decimal.js";
 import { rupeesInWords } from "@/lib/amount-words";
 import { formatDate } from "@/lib/dates";
 import { formatPKR } from "@/lib/money";
-import { DocPage, Particulars, pdfSafe, RefRow, s, Sections, Signatures, TitleBlock } from "./components";
+import { DocHead, DocPage, Particulars, pdfSafe, RefRow, s, Sections, Signatures, TitleBlock } from "./components";
 import { BLANK } from "./template";
 import type { DocContext, Party } from "./types";
 
@@ -46,14 +46,18 @@ const addressee = (p: Party) => (
 // ---------------------------------------------------------------- Booking Form
 function BookingForm({ ctx }: { ctx: DocContext }) {
   const vars = templateVars(ctx);
+  const compact = ctx.layout.mode !== "plain";
   const a = ctx.applicant;
   const joint = ctx.jointApplicants[0];
   const inst = ctx.sale.planType === "installment";
   return (
     <DocPage ctx={ctx}>
-      <TitleBlock ctx={ctx} />
-      <RefRow ctx={ctx} label="Form No." />
+      <DocHead ctx={ctx}>
+        <TitleBlock ctx={ctx} />
+        <RefRow ctx={ctx} label="Form No." />
+      </DocHead>
       <Particulars
+        compact={compact}
         heading="PROJECT & PLOT DETAILS"
         rows={[
           ["Project Name", [ctx.project.displayName, ctx.project.fullAddress].filter(Boolean).join(", ")],
@@ -64,6 +68,7 @@ function BookingForm({ ctx }: { ctx: DocContext }) {
         ]}
       />
       <Particulars
+        compact={compact}
         heading="APPLICANT DETAILS"
         rows={[
           ["Applicant Name", a.name],
@@ -75,6 +80,7 @@ function BookingForm({ ctx }: { ctx: DocContext }) {
         ]}
       />
       <Particulars
+        compact={compact}
         heading="JOINT APPLICANT / NOMINEE (IF ANY)"
         rows={[
           ["Name", joint?.name ?? "—"],
@@ -83,6 +89,7 @@ function BookingForm({ ctx }: { ctx: DocContext }) {
         ]}
       />
       <Particulars
+        compact={compact}
         heading="PAYMENT PLAN SELECTED"
         rows={[
           ["Plan Type", inst ? "Down Payment + Installments" : "Full Payment"],
@@ -93,7 +100,7 @@ function BookingForm({ ctx }: { ctx: DocContext }) {
         ]}
       />
       <Sections sections={ctx.template.sections} vars={vars} />
-      <Signatures labels={["Applicant Signature", "Joint Applicant Signature", "Received By (For SIMCO Developers)"]} />
+      <Signatures compact={compact} labels={["Applicant Signature", "Joint Applicant Signature", "Received By (For SIMCO Developers)"]} />
     </DocPage>
   );
 }
@@ -101,15 +108,19 @@ function BookingForm({ ctx }: { ctx: DocContext }) {
 // ---------------------------------------------------------------- Allotment Letter
 function AllotmentLetter({ ctx }: { ctx: DocContext }) {
   const vars = templateVars(ctx);
+  const compact = ctx.layout.mode !== "plain";
   const balance = new Decimal(ctx.sale.totalPrice).minus(ctx.sale.amountPaid).toFixed(2);
   return (
     <DocPage ctx={ctx}>
-      <TitleBlock ctx={ctx} />
-      <RefRow ctx={ctx} />
-      {addressee(ctx.applicant)}
-      <Text style={[s.bold, { marginBottom: 6 }]}>Subject: Allotment of Plot — {pdfSafe(ctx.project.displayName)}</Text>
+      <DocHead ctx={ctx}>
+        <TitleBlock ctx={ctx} />
+        <RefRow ctx={ctx} />
+        {addressee(ctx.applicant)}
+        <Text style={[s.bold, { marginBottom: 6 }]}>Subject: Allotment of Plot — {pdfSafe(ctx.project.displayName)}</Text>
+      </DocHead>
       <Sections sections={ctx.template.sections} vars={vars} only={["intro"]} />
       <Particulars
+        compact={compact}
         heading="ALLOTMENT PARTICULARS"
         rows={[
           ["Project Name", ctx.project.displayName],
@@ -122,6 +133,7 @@ function AllotmentLetter({ ctx }: { ctx: DocContext }) {
       />
       <Sections sections={ctx.template.sections} vars={vars} except={["intro"]} />
       <Signatures
+        compact={compact}
         labels={[`MANAGING DIRECTOR\n${ctx.settings.managing_director_name ?? BLANK}`, `ALLOTTEE\n${ctx.applicant.name}`]}
       />
     </DocPage>
@@ -131,12 +143,16 @@ function AllotmentLetter({ ctx }: { ctx: DocContext }) {
 // ---------------------------------------------------------------- Sale Agreement
 function SaleAgreement({ ctx }: { ctx: DocContext }) {
   const vars = templateVars(ctx);
+  const compact = ctx.layout.mode !== "plain";
   return (
     <DocPage ctx={ctx}>
-      <TitleBlock ctx={ctx} />
-      <RefRow ctx={ctx} />
+      <DocHead ctx={ctx}>
+        <TitleBlock ctx={ctx} />
+        <RefRow ctx={ctx} />
+      </DocHead>
       <Sections sections={ctx.template.sections} vars={vars} only={["parties", "recitals"]} />
       <Particulars
+        compact={compact}
         heading="PLOT PARTICULARS"
         rows={[
           ["Project Name", [ctx.project.displayName, ctx.project.fullAddress].filter(Boolean).join(", ")],
@@ -147,8 +163,8 @@ function SaleAgreement({ ctx }: { ctx: DocContext }) {
         ]}
       />
       <Sections sections={ctx.template.sections} vars={vars} except={["parties", "recitals"]} />
-      <Signatures labels={["Seller — For SIMCO Developers", "Purchaser"]} />
-      <Signatures labels={["Witness 1 (Name, CNIC, Signature)", "Witness 2 (Name, CNIC, Signature)"]} />
+      <Signatures compact={compact} labels={["Seller — For SIMCO Developers", "Purchaser"]} />
+      <Signatures compact={compact} labels={["Witness 1 (Name, CNIC, Signature)", "Witness 2 (Name, CNIC, Signature)"]} />
     </DocPage>
   );
 }
@@ -156,6 +172,7 @@ function SaleAgreement({ ctx }: { ctx: DocContext }) {
 // ---------------------------------------------------------------- Installment Payment Schedule
 function InstallmentSchedule({ ctx }: { ctx: DocContext }) {
   const vars = templateVars(ctx);
+  const compact = ctx.layout.mode !== "plain";
   const total = ctx.schedule.reduce((acc, r) => acc.plus(r.amount), new Decimal(0));
   const pctTotal = ctx.schedule.reduce((acc, r) => acc.plus(r.pct ?? 0), new Decimal(0));
   const cols = [
@@ -169,7 +186,7 @@ function InstallmentSchedule({ ctx }: { ctx: DocContext }) {
   ];
   const cell = (w: string, bold = false, align: "left" | "right" | "center" = "left") => ({
     width: w,
-    paddingVertical: 2,
+    paddingVertical: compact ? 1.5 : 2,
     paddingHorizontal: 3,
     borderRightWidth: 0.75,
     borderRightColor: "#9ca3af",
@@ -178,8 +195,11 @@ function InstallmentSchedule({ ctx }: { ctx: DocContext }) {
   });
   return (
     <DocPage ctx={ctx}>
-      <TitleBlock ctx={ctx} subtitle="Annexure to Booking Form / Sale Agreement" />
+      <DocHead ctx={ctx}>
+        <TitleBlock ctx={ctx} subtitle="Annexure to Booking Form / Sale Agreement" />
+      </DocHead>
       <Particulars
+        compact={compact}
         heading="REFERENCE DETAILS"
         rows={[
           ["Project Name", [ctx.project.displayName, ctx.project.fullAddress].filter(Boolean).join(", ")],
@@ -218,8 +238,12 @@ function InstallmentSchedule({ ctx }: { ctx: DocContext }) {
           <Text style={cell(cols[6].w)} />
         </View>
       </View>
-      <Sections sections={ctx.template.sections} vars={vars} />
-      <Signatures labels={["For SIMCO Developers", "Applicant"]} />
+      <Sections sections={ctx.template.sections} vars={vars} only={["note"]} />
+      {/* closing terms stay with the signatures, so a signature row never sits alone on a page */}
+      <View wrap={false}>
+        <Sections sections={ctx.template.sections} vars={vars} except={["note"]} />
+        <Signatures compact={compact} labels={["For SIMCO Developers", "Applicant"]} />
+      </View>
     </DocPage>
   );
 }
@@ -227,16 +251,20 @@ function InstallmentSchedule({ ctx }: { ctx: DocContext }) {
 // ---------------------------------------------------------------- Possession Letter
 function PossessionLetter({ ctx }: { ctx: DocContext }) {
   const vars = templateVars(ctx);
+  const compact = ctx.layout.mode !== "plain";
   return (
     <DocPage ctx={ctx}>
-      <TitleBlock ctx={ctx} />
-      <RefRow ctx={ctx} />
-      {addressee(ctx.applicant)}
-      <Text style={[s.bold, { marginBottom: 6 }]}>
-        Subject: Handing Over of Possession — {pdfSafe(ctx.project.displayName)}, Plot {ctx.plot.no}
-      </Text>
+      <DocHead ctx={ctx}>
+        <TitleBlock ctx={ctx} />
+        <RefRow ctx={ctx} />
+        {addressee(ctx.applicant)}
+        <Text style={[s.bold, { marginBottom: 6 }]}>
+          Subject: Handing Over of Possession — {pdfSafe(ctx.project.displayName)}, Plot {ctx.plot.no}
+        </Text>
+      </DocHead>
       <Sections sections={ctx.template.sections} vars={vars} only={["intro"]} />
       <Particulars
+        compact={compact}
         heading="PLOT PARTICULARS"
         rows={[
           ["Project Name", [ctx.project.displayName, ctx.project.fullAddress].filter(Boolean).join(", ")],
@@ -247,7 +275,7 @@ function PossessionLetter({ ctx }: { ctx: DocContext }) {
         ]}
       />
       <Sections sections={ctx.template.sections} vars={vars} except={["intro"]} />
-      <Signatures labels={["For SIMCO Developers", "Acknowledged by Allottee"]} />
+      <Signatures compact={compact} labels={["For SIMCO Developers", "Acknowledged by Allottee"]} />
     </DocPage>
   );
 }
@@ -255,12 +283,16 @@ function PossessionLetter({ ctx }: { ctx: DocContext }) {
 // ---------------------------------------------------------------- NDC
 function NdcLetter({ ctx }: { ctx: DocContext }) {
   const vars = templateVars(ctx);
+  const compact = ctx.layout.mode !== "plain";
   return (
     <DocPage ctx={ctx}>
-      <TitleBlock ctx={ctx} />
-      <RefRow ctx={ctx} />
+      <DocHead ctx={ctx}>
+        <TitleBlock ctx={ctx} />
+        <RefRow ctx={ctx} />
+      </DocHead>
       <Sections sections={ctx.template.sections} vars={vars} only={["intro"]} />
       <Particulars
+        compact={compact}
         heading="PLOT & ALLOTTEE PARTICULARS"
         rows={[
           ["Project Name", ctx.project.displayName],
@@ -273,7 +305,7 @@ function NdcLetter({ ctx }: { ctx: DocContext }) {
         ]}
       />
       <Sections sections={ctx.template.sections} vars={vars} except={["intro"]} />
-      <Signatures labels={["For SIMCO Developers (Finance / Accounts)", "Company Stamp"]} />
+      <Signatures compact={compact} labels={["For SIMCO Developers (Finance / Accounts)", "Company Stamp"]} />
     </DocPage>
   );
 }

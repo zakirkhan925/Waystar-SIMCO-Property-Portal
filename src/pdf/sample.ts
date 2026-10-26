@@ -6,7 +6,7 @@ import type { DocContext, ScheduleRow } from "./types";
  * Sample deal used to preview templates before real bookings exist (Phase 2 replaces this with sale data).
  * Mirrors the Simco Villas plan: 30% down payment at booking + 8 equal quarterly installments of 8.75%.
  */
-export function sampleDeal(today: string): Omit<DocContext, "docType" | "template" | "company" | "project" | "settings" | "qrDataUrl" | "verifyUrl"> {
+export function sampleDeal(today: string): Omit<DocContext, "docType" | "template" | "company" | "project" | "settings" | "qrDataUrl" | "verifyUrl" | "layout"> {
   const total = new Decimal("8250000.00");
   const booking = new Date(`${today}T00:00:00`);
   const down = total.times(0.3).toDecimalPlaces(2);

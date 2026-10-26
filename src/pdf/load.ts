@@ -46,5 +46,15 @@ export async function loadDocContextBase(projectId: string) {
       fullAddress: settings?.full_address ?? project.location,
     },
     settings: stringified,
+    letterheadPath: settings?.letterhead_path ?? null,
   };
+}
+
+/** Letterhead PDF bytes from storage (branding bucket), or null if missing. */
+export async function loadLetterhead(path: string | null): Promise<Uint8Array | null> {
+  if (!path) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase.storage.from("branding").download(path);
+  if (error || !data) return null;
+  return new Uint8Array(await data.arrayBuffer());
 }

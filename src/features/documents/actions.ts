@@ -42,10 +42,32 @@ export async function saveDocSettings(projectId: string, input: unknown): Promis
     ndc_validity_days: Number(v.ndc_validity_days),
     dispute_window_days: Number(v.dispute_window_days),
     marketed_by: v.marketed_by,
+    // numeric(5,1) columns sent as strings → exact
+    letterhead_top_mm: v.letterhead_top_mm as unknown as number,
+    letterhead_bottom_mm: v.letterhead_bottom_mm as unknown as number,
+    letterhead_left_mm: v.letterhead_left_mm as unknown as number,
+    letterhead_right_mm: v.letterhead_right_mm as unknown as number,
+    letterhead_head_top_mm: v.letterhead_head_top_mm === "" ? null : (v.letterhead_head_top_mm as unknown as number),
+    letterhead_head_left_mm: v.letterhead_head_left_mm === "" ? null : (v.letterhead_head_left_mm as unknown as number),
   });
   if (error) return { ok: false, error: dbErrorMessage(error) };
   revalidatePath(`/settings/projects/${projectId}/documents`);
   return { ok: true, message: "Document settings saved." };
+}
+
+/** After the browser uploads a letterhead PDF to storage, link it to the project (or clear it with null). */
+export async function setLetterhead(projectId: string, path: string | null): Promise<ActionResult> {
+  if (!(await isManager())) return { ok: false, error: "Only managers can change the letterhead." };
+  if (path !== null && !(path.startsWith(`letterheads/${projectId}/`) && path.toLowerCase().endsWith(".pdf"))) {
+    return { ok: false, error: "Invalid letterhead file." };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("project_document_settings")
+    .upsert({ project_id: projectId, letterhead_path: path }, { onConflict: "project_id" });
+  if (error) return { ok: false, error: dbErrorMessage(error) };
+  revalidatePath(`/settings/projects/${projectId}/documents`);
+  return { ok: true, message: path ? "Letterhead saved. Previews now print on it." : "Letterhead removed." };
 }
 
 export async function saveTemplate(projectId: string, docType: string, input: unknown): Promise<ActionResult> {
