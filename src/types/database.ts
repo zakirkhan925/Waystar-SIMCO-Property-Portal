@@ -89,6 +89,94 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"commission_receipts": {
+                  Row: {
+                    "amount": number,"commission_id": string,"created_at": string,"created_by": string | null,"id": string,"received_on": string,"reference_no": string | null,"status": Database["public"]['Enums']["record_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"commission_id": string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"received_on": string,"reference_no"?: string | null,"status"?: Database["public"]['Enums']["record_status"]
+                  }
+                  Update: {
+                    "amount"?: number,"commission_id"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"received_on"?: string,"reference_no"?: string | null,"status"?: Database["public"]['Enums']["record_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "commission_receipts_commission_id_fkey"
+      columns: ["commission_id"]
+isOneToOne: false
+      referencedRelation: "commissions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "commission_receipts_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"commissions": {
+                  Row: {
+                    "agent_id": string | null,"amount": number,"base_amount": number,"created_at": string,"created_by": string | null,"dealer_id": string | null,"earned_amount": number,"id": string,"lease_id": string | null,"project_id": string,"rate_pct": number,"received_amount": number,"sale_id": string | null,"status": Database["public"]['Enums']["commission_status"],"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agent_id"?: string | null,"amount"?: number,"base_amount"?: number,"created_at"?: string,"created_by"?: string | null,"dealer_id"?: string | null,"earned_amount"?: number,"id"?: string,"lease_id"?: string | null,"project_id": string,"rate_pct": number,"received_amount"?: number,"sale_id"?: string | null,"status"?: Database["public"]['Enums']["commission_status"],"updated_at"?: string
+                  }
+                  Update: {
+                    "agent_id"?: string | null,"amount"?: number,"base_amount"?: number,"created_at"?: string,"created_by"?: string | null,"dealer_id"?: string | null,"earned_amount"?: number,"id"?: string,"lease_id"?: string | null,"project_id"?: string,"rate_pct"?: number,"received_amount"?: number,"sale_id"?: string | null,"status"?: Database["public"]['Enums']["commission_status"],"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "commissions_agent_id_fkey"
+      columns: ["agent_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "commissions_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "commissions_dealer_id_fkey"
+      columns: ["dealer_id"]
+isOneToOne: false
+      referencedRelation: "dealers"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "commissions_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "commissions_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "commissions_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "commissions_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "commissions_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    }
+                  ]
                 },"company_settings": {
                   Row: {
                     "address": string | null,"company_name": string,"default_lease_commission_pct": number,"default_rent_increment_pct": number,"default_sale_commission_pct": number,"discount_approval_threshold_pct": number,"email": string | null,"id": boolean,"logo_path": string | null,"partner_name": string,"phone": string | null,"updated_at": string,"website": string | null
@@ -121,6 +209,32 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"doc_sequences": {
+                  Row: {
+                    "doc_type": string,"last_no": number,"project_id": string,"year": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "doc_type": string,"last_no"?: number,"project_id": string,"year": number
+                  }
+                  Update: {
+                    "doc_type"?: string,"last_no"?: number,"project_id"?: string,"year"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "doc_sequences_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "doc_sequences_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
     }
                   ]
                 },"document_templates": {
@@ -179,6 +293,194 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"installments": {
+                  Row: {
+                    "amount_due": number,"amount_paid": number,"amount_pending": number,"created_at": string,"created_by": string | null,"days_overdue": number,"deleted_at": string | null,"due_date": string | null,"id": string,"label": string,"late_fee": number,"sale_id": string,"seq": number,"status": Database["public"]['Enums']["installment_status"],"type": Database["public"]['Enums']["installment_type"],"updated_at": string,"waived_amount": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_due": number,"amount_paid"?: number,"amount_pending"?: number,"created_at"?: string,"created_by"?: string | null,"days_overdue"?: number,"deleted_at"?: string | null,"due_date"?: string | null,"id"?: string,"label": string,"late_fee"?: number,"sale_id": string,"seq": number,"status"?: Database["public"]['Enums']["installment_status"],"type": Database["public"]['Enums']["installment_type"],"updated_at"?: string,"waived_amount"?: number
+                  }
+                  Update: {
+                    "amount_due"?: number,"amount_paid"?: number,"amount_pending"?: number,"created_at"?: string,"created_by"?: string | null,"days_overdue"?: number,"deleted_at"?: string | null,"due_date"?: string | null,"id"?: string,"label"?: string,"late_fee"?: number,"sale_id"?: string,"seq"?: number,"status"?: Database["public"]['Enums']["installment_status"],"type"?: Database["public"]['Enums']["installment_type"],"updated_at"?: string,"waived_amount"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "installments_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "installments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "installments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "installments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    }
+                  ]
+                },"payment_allocations": {
+                  Row: {
+                    "amount": number,"created_at": string,"created_by": string | null,"id": string,"installment_id": string,"payment_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"created_at"?: string,"created_by"?: string | null,"id"?: string,"installment_id": string,"payment_id": string
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"created_by"?: string | null,"id"?: string,"installment_id"?: string,"payment_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_allocations_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_allocations_installment_id_fkey"
+      columns: ["installment_id"]
+isOneToOne: false
+      referencedRelation: "installments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_allocations_installment_id_fkey"
+      columns: ["installment_id"]
+isOneToOne: false
+      referencedRelation: "v_receivables"
+      referencedColumns: ["installment_id"]
+    },{
+      foreignKeyName: "payment_allocations_payment_id_fkey"
+      columns: ["payment_id"]
+isOneToOne: false
+      referencedRelation: "payments"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payment_plans": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"deleted_at": string | null,"down_payment_pct": number,"frequency": Database["public"]['Enums']["plan_frequency"] | null,"id": string,"installment_pct": number,"is_active": boolean,"is_default": boolean,"kind": Database["public"]['Enums']["plan_kind"],"name": string,"possession_pct": number,"project_id": string | null,"tenure_months": number | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"down_payment_pct"?: number,"frequency"?: Database["public"]['Enums']["plan_frequency"] | null,"id"?: string,"installment_pct"?: number,"is_active"?: boolean,"is_default"?: boolean,"kind": Database["public"]['Enums']["plan_kind"],"name": string,"possession_pct"?: number,"project_id"?: string | null,"tenure_months"?: number | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"down_payment_pct"?: number,"frequency"?: Database["public"]['Enums']["plan_frequency"] | null,"id"?: string,"installment_pct"?: number,"is_active"?: boolean,"is_default"?: boolean,"kind"?: Database["public"]['Enums']["plan_kind"],"name"?: string,"possession_pct"?: number,"project_id"?: string | null,"tenure_months"?: number | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_plans_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_plans_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_plans_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    }
+                  ]
+                },"payments": {
+                  Row: {
+                    "amount": number,"bank_name": string | null,"bounced_reason": string | null,"cleared_on": string | null,"created_at": string,"created_by": string | null,"id": string,"instrument_date": string | null,"instrument_no": string | null,"instrument_status": Database["public"]['Enums']["instrument_status"],"mode": Database["public"]['Enums']["payment_mode"],"notes": string | null,"payer_client_id": string | null,"project_id": string,"receipt_no": string,"received_by": string | null,"received_on": string,"reversal_reason": string | null,"reversed_at": string | null,"reversed_by": string | null,"sale_id": string,"status": Database["public"]['Enums']["record_status"],"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"bank_name"?: string | null,"bounced_reason"?: string | null,"cleared_on"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"instrument_date"?: string | null,"instrument_no"?: string | null,"instrument_status"?: Database["public"]['Enums']["instrument_status"],"mode": Database["public"]['Enums']["payment_mode"],"notes"?: string | null,"payer_client_id"?: string | null,"project_id": string,"receipt_no": string,"received_by"?: string | null,"received_on": string,"reversal_reason"?: string | null,"reversed_at"?: string | null,"reversed_by"?: string | null,"sale_id": string,"status"?: Database["public"]['Enums']["record_status"],"updated_at"?: string
+                  }
+                  Update: {
+                    "amount"?: number,"bank_name"?: string | null,"bounced_reason"?: string | null,"cleared_on"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"instrument_date"?: string | null,"instrument_no"?: string | null,"instrument_status"?: Database["public"]['Enums']["instrument_status"],"mode"?: Database["public"]['Enums']["payment_mode"],"notes"?: string | null,"payer_client_id"?: string | null,"project_id"?: string,"receipt_no"?: string,"received_by"?: string | null,"received_on"?: string,"reversal_reason"?: string | null,"reversed_at"?: string | null,"reversed_by"?: string | null,"sale_id"?: string,"status"?: Database["public"]['Enums']["record_status"],"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payments_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_payer_client_id_fkey"
+      columns: ["payer_client_id"]
+isOneToOne: false
+      referencedRelation: "clients"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_payer_client_id_fkey"
+      columns: ["payer_client_id"]
+isOneToOne: false
+      referencedRelation: "v_receivables"
+      referencedColumns: ["client_id"]
+    },{
+      foreignKeyName: "payments_payer_client_id_fkey"
+      columns: ["payer_client_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["primary_client_id"]
+    },{
+      foreignKeyName: "payments_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "payments_received_by_fkey"
+      columns: ["received_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_reversed_by_fkey"
+      columns: ["reversed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "payments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
     }
                   ]
                 },"profiles": {
@@ -244,6 +546,174 @@ isOneToOne: false
       columns: ["created_by"]
 isOneToOne: false
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"sale_buyers": {
+                  Row: {
+                    "client_id": string,"created_at": string,"is_primary": boolean,"sale_id": string,"share_pct": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "client_id": string,"created_at"?: string,"is_primary"?: boolean,"sale_id": string,"share_pct": number
+                  }
+                  Update: {
+                    "client_id"?: string,"created_at"?: string,"is_primary"?: boolean,"sale_id"?: string,"share_pct"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "sale_buyers_client_id_fkey"
+      columns: ["client_id"]
+isOneToOne: false
+      referencedRelation: "clients"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sale_buyers_client_id_fkey"
+      columns: ["client_id"]
+isOneToOne: false
+      referencedRelation: "v_receivables"
+      referencedColumns: ["client_id"]
+    },{
+      foreignKeyName: "sale_buyers_client_id_fkey"
+      columns: ["client_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["primary_client_id"]
+    },{
+      foreignKeyName: "sale_buyers_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sale_buyers_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "sale_buyers_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    }
+                  ]
+                },"sales": {
+                  Row: {
+                    "agent_id": string | null,"booking_amount": number | null,"booking_date": string,"booking_form_no": string,"cancellation_due": boolean,"commission_pct": number,"created_at": string,"created_by": string | null,"dealer_id": string | null,"deleted_at": string | null,"discount": number,"down_payment_pct": number | null,"final_price": number | null,"first_installment_date": string | null,"frequency": Database["public"]['Enums']["plan_frequency"] | null,"id": string,"installment_pct": number | null,"is_custom_schedule": boolean,"list_price": number,"notes": string | null,"payment_plan_id": string | null,"plan_kind": Database["public"]['Enums']["plan_kind"],"possession_pct": number | null,"project_id": string,"status": Database["public"]['Enums']["sale_status"],"tenure_months": number | null,"unit_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agent_id"?: string | null,"booking_amount"?: number | null,"booking_date": string,"booking_form_no": string,"cancellation_due"?: boolean,"commission_pct"?: number,"created_at"?: string,"created_by"?: string | null,"dealer_id"?: string | null,"deleted_at"?: string | null,"discount"?: number,"down_payment_pct"?: number | null,"final_price"?: never,"first_installment_date"?: string | null,"frequency"?: Database["public"]['Enums']["plan_frequency"] | null,"id"?: string,"installment_pct"?: number | null,"is_custom_schedule"?: boolean,"list_price": number,"notes"?: string | null,"payment_plan_id"?: string | null,"plan_kind": Database["public"]['Enums']["plan_kind"],"possession_pct"?: number | null,"project_id": string,"status"?: Database["public"]['Enums']["sale_status"],"tenure_months"?: number | null,"unit_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "agent_id"?: string | null,"booking_amount"?: number | null,"booking_date"?: string,"booking_form_no"?: string,"cancellation_due"?: boolean,"commission_pct"?: number,"created_at"?: string,"created_by"?: string | null,"dealer_id"?: string | null,"deleted_at"?: string | null,"discount"?: number,"down_payment_pct"?: number | null,"final_price"?: never,"first_installment_date"?: string | null,"frequency"?: Database["public"]['Enums']["plan_frequency"] | null,"id"?: string,"installment_pct"?: number | null,"is_custom_schedule"?: boolean,"list_price"?: number,"notes"?: string | null,"payment_plan_id"?: string | null,"plan_kind"?: Database["public"]['Enums']["plan_kind"],"possession_pct"?: number | null,"project_id"?: string,"status"?: Database["public"]['Enums']["sale_status"],"tenure_months"?: number | null,"unit_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "sales_agent_id_fkey"
+      columns: ["agent_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_dealer_id_fkey"
+      columns: ["dealer_id"]
+isOneToOne: false
+      referencedRelation: "dealers"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_payment_plan_id_fkey"
+      columns: ["payment_plan_id"]
+isOneToOne: false
+      referencedRelation: "payment_plans"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "sales_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "units"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"unit_ownerships": {
+                  Row: {
+                    "acquired_via": Database["public"]['Enums']["ownership_via"],"client_id": string,"created_at": string,"created_by": string | null,"id": string,"sale_id": string,"share_pct": number,"transfer_id": string | null,"unit_id": string,"valid_from": string,"valid_to": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "acquired_via": Database["public"]['Enums']["ownership_via"],"client_id": string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"sale_id": string,"share_pct": number,"transfer_id"?: string | null,"unit_id": string,"valid_from": string,"valid_to"?: string | null
+                  }
+                  Update: {
+                    "acquired_via"?: Database["public"]['Enums']["ownership_via"],"client_id"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"sale_id"?: string,"share_pct"?: number,"transfer_id"?: string | null,"unit_id"?: string,"valid_from"?: string,"valid_to"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "unit_ownerships_client_id_fkey"
+      columns: ["client_id"]
+isOneToOne: false
+      referencedRelation: "clients"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "unit_ownerships_client_id_fkey"
+      columns: ["client_id"]
+isOneToOne: false
+      referencedRelation: "v_receivables"
+      referencedColumns: ["client_id"]
+    },{
+      foreignKeyName: "unit_ownerships_client_id_fkey"
+      columns: ["client_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["primary_client_id"]
+    },{
+      foreignKeyName: "unit_ownerships_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "unit_ownerships_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "unit_ownerships_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "unit_ownerships_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "unit_ownerships_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "units"
       referencedColumns: ["id"]
     }
                   ]
@@ -334,12 +804,186 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"v_receivables": {
+                  Row: {
+                    "aging_bucket": string | null,"amount_pending": number | null,"client_id": string | null,"client_name": string | null,"client_phone": string | null,"client_whatsapp": string | null,"days_overdue": number | null,"due_date": string | null,"installment_id": string | null,"label": string | null,"outstanding": number | null,"project_id": string | null,"sale_id": string | null,"seq": number | null,"status": Database["public"]['Enums']["installment_status"] | null,"type": Database["public"]['Enums']["installment_type"] | null,"unit_id": string | null,"unit_no": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "installments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "installments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "installments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "sales_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "sales_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "units"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"v_sale_ledger": {
+                  Row: {
+                    "balance": number | null,"final_price": number | null,"max_days_overdue": number | null,"next_due_date": string | null,"overdue_amount": number | null,"pct_paid": number | null,"project_id": string | null,"sale_id": string | null,"total_late_fee": number | null,"total_paid": number | null,"total_pending": number | null,"total_waived": number | null,"unit_id": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "sales_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "sales_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "units"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"v_sale_summary": {
+                  Row: {
+                    "agent_id": string | null,"agent_name": string | null,"balance": number | null,"block_name": string | null,"booking_date": string | null,"booking_form_no": string | null,"buyer_count": number | null,"cancellation_due": boolean | null,"category": Database["public"]['Enums']["unit_category"] | null,"discount": number | null,"final_price": number | null,"floor_label": string | null,"next_due_date": string | null,"overdue_amount": number | null,"pct_paid": number | null,"plan_kind": Database["public"]['Enums']["plan_kind"] | null,"primary_client_cnic": string | null,"primary_client_id": string | null,"primary_client_name": string | null,"primary_client_phone": string | null,"project_code": string | null,"project_id": string | null,"project_name": string | null,"sale_id": string | null,"status": Database["public"]['Enums']["sale_status"] | null,"street": string | null,"total_paid": number | null,"unit_id": string | null,"unit_no": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "sales_agent_id_fkey"
+      columns: ["agent_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "sales_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "units"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Functions: {
-            "client_exists":
+            "allocate_payment":
+{ Args: { "p_payment": string }; Returns: undefined
+                           },
+"bounce_instrument":
+{ Args: { "p_payment": string,"p_reason": string }; Returns: undefined
+                           },
+"clear_instrument":
+{ Args: { "p_cleared_on"?: string,"p_payment": string }; Returns: undefined
+                           },
+"client_exists":
 { Args: { "p_cnic"?: string,"p_passport"?: string }; Returns: boolean
                            },
+"create_sale":
+{ Args: { "p": Json }; Returns: {
+              "agent_id": string | null,
+"booking_amount": number | null,
+"booking_date": string,
+"booking_form_no": string,
+"cancellation_due": boolean,
+"commission_pct": number,
+"created_at": string,
+"created_by": string | null,
+"dealer_id": string | null,
+"deleted_at": string | null,
+"discount": number,
+"down_payment_pct": number | null,
+"final_price": number | null,
+"first_installment_date": string | null,
+"frequency": Database["public"]['Enums']["plan_frequency"] | null,
+"id": string,
+"installment_pct": number | null,
+"is_custom_schedule": boolean,
+"list_price": number,
+"notes": string | null,
+"payment_plan_id": string | null,
+"plan_kind": Database["public"]['Enums']["plan_kind"],
+"possession_pct": number | null,
+"project_id": string,
+"status": Database["public"]['Enums']["sale_status"],
+"tenure_months": number | null,
+"unit_id": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "sales"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"generate_installment_schedule":
+{ Args: { "p_reason"?: string,"p_sale": string }; Returns: {
+              "amount_due": number,
+"amount_paid": number,
+"amount_pending": number,
+"created_at": string,
+"created_by": string | null,
+"days_overdue": number,
+"deleted_at": string | null,
+"due_date": string | null,
+"id": string,
+"label": string,
+"late_fee": number,
+"sale_id": string,
+"seq": number,
+"status": Database["public"]['Enums']["installment_status"],
+"type": Database["public"]['Enums']["installment_type"],
+"updated_at": string,
+"waived_amount": number
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "installments"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
 "global_search":
 { Args: { "p_limit"?: number,"p_q": string }; Returns: {
               "id": string,"kind": string,"project_id": string,"subtitle": string,"title": string
@@ -347,6 +991,47 @@ isOneToOne: false
                            },
 "install_document_templates":
 { Args: { "p_project_id": string,"p_set": string }; Returns: number
+                           },
+"mark_overdue":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
+"next_doc_no":
+{ Args: { "p_doc_type": string,"p_project": string }; Returns: string
+                           },
+"record_payment":
+{ Args: { "p": Json }; Returns: {
+              "amount": number,
+"bank_name": string | null,
+"bounced_reason": string | null,
+"cleared_on": string | null,
+"created_at": string,
+"created_by": string | null,
+"id": string,
+"instrument_date": string | null,
+"instrument_no": string | null,
+"instrument_status": Database["public"]['Enums']["instrument_status"],
+"mode": Database["public"]['Enums']["payment_mode"],
+"notes": string | null,
+"payer_client_id": string | null,
+"project_id": string,
+"receipt_no": string,
+"received_by": string | null,
+"received_on": string,
+"reversal_reason": string | null,
+"reversed_at": string | null,
+"reversed_by": string | null,
+"sale_id": string,
+"status": Database["public"]['Enums']["record_status"],
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "payments"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"reverse_payment":
+{ Args: { "p_payment": string,"p_reason": string }; Returns: undefined
                            },
 "save_document_template":
 { Args: { "p_doc_type": Database["public"]['Enums']["document_type"],"p_project_id": string,"p_reason": string,"p_ref_prefix": string,"p_sections": Json,"p_title": string }; Returns: {
@@ -367,6 +1052,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"set_payment_allocations":
+{ Args: { "p_alloc": Json,"p_payment": string,"p_reason": string }; Returns: undefined
+                           },
 "soft_delete":
 { Args: { "p_id": string,"p_reason": string,"p_table": string }; Returns: undefined
                            },
@@ -407,7 +1095,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","document_type": "booking_form"|"allotment_letter"|"sale_agreement"|"installment_schedule"|"possession_letter"|"ndc_letter"|"payment_receipt"|"transfer_letter"|"statement_of_account","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
+            "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","commission_status": "pending"|"partially_received"|"received"|"cancelled","document_type": "booking_form"|"allotment_letter"|"sale_agreement"|"installment_schedule"|"possession_letter"|"ndc_letter"|"payment_receipt"|"transfer_letter"|"statement_of_account","installment_status": "pending"|"partially_paid"|"paid"|"overdue"|"waived","installment_type": "down_payment"|"installment"|"possession"|"balloon"|"other","instrument_status": "not_applicable"|"pending"|"cleared"|"bounced","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","ownership_via": "booking"|"transfer"|"correction","payment_mode": "cash"|"cheque"|"pay_order"|"bank_transfer"|"online","plan_frequency": "monthly"|"quarterly"|"bi_annual"|"annual","plan_kind": "full_cash"|"installment","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","record_status": "valid"|"reversed","sale_status": "booked"|"active"|"completed"|"cancelled"|"transferred","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -527,7 +1215,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["super_admin", "manager", "sales_agent", "accounts", "viewer", "client"],"audit_action": ["insert", "update", "delete"],"block_kind": ["block", "tower", "phase", "sector"],"document_type": ["booking_form", "allotment_letter", "sale_agreement", "installment_schedule", "possession_letter", "ndc_letter", "payment_receipt", "transfer_letter", "statement_of_account"],"late_fee_method": ["none", "flat_per_installment", "pct_of_overdue_per_month", "pct_per_day"],"project_status": ["off_plan", "under_construction", "completed"],"project_type": ["plot_society", "high_rise"],"size_unit": ["marla", "kanal", "sqft"],"unit_category": ["plot", "apartment", "shop", "office", "penthouse", "other"],"unit_status": ["available", "on_hold", "booked", "sold", "rented", "blocked"],"unit_use": ["residential", "commercial"]
+            "app_role": ["super_admin", "manager", "sales_agent", "accounts", "viewer", "client"],"audit_action": ["insert", "update", "delete"],"block_kind": ["block", "tower", "phase", "sector"],"commission_status": ["pending", "partially_received", "received", "cancelled"],"document_type": ["booking_form", "allotment_letter", "sale_agreement", "installment_schedule", "possession_letter", "ndc_letter", "payment_receipt", "transfer_letter", "statement_of_account"],"installment_status": ["pending", "partially_paid", "paid", "overdue", "waived"],"installment_type": ["down_payment", "installment", "possession", "balloon", "other"],"instrument_status": ["not_applicable", "pending", "cleared", "bounced"],"late_fee_method": ["none", "flat_per_installment", "pct_of_overdue_per_month", "pct_per_day"],"ownership_via": ["booking", "transfer", "correction"],"payment_mode": ["cash", "cheque", "pay_order", "bank_transfer", "online"],"plan_frequency": ["monthly", "quarterly", "bi_annual", "annual"],"plan_kind": ["full_cash", "installment"],"project_status": ["off_plan", "under_construction", "completed"],"project_type": ["plot_society", "high_rise"],"record_status": ["valid", "reversed"],"sale_status": ["booked", "active", "completed", "cancelled", "transferred"],"size_unit": ["marla", "kanal", "sqft"],"unit_category": ["plot", "apartment", "shop", "office", "penthouse", "other"],"unit_status": ["available", "on_hold", "booked", "sold", "rented", "blocked"],"unit_use": ["residential", "commercial"]
           }
         }
 } as const

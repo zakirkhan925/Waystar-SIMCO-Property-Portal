@@ -229,3 +229,154 @@ insert into public.clients (full_name, relation_type, guardian_name, cnic, passp
 insert into public.dealers (name, agency, phone, default_commission_pct) values
   ('Raja Estate Advisors', 'Raja Estate', '+92 300 5550001', 1.00),
   ('Capital Property Links', 'CPL', '+92 321 5550002', 1.00);
+
+-- ---------------------------------------------------------------------------
+-- Payment plans
+-- Simco Villas follows SIMCO's own plan: 30% down, then 70% in 8 quarterly installments.
+-- ---------------------------------------------------------------------------
+insert into public.payment_plans (project_id, name, kind, down_payment_pct, installment_pct, possession_pct,
+                                  tenure_months, frequency, is_default)
+values
+  ('10000000-0000-4000-a000-000000000001','SIMCO Villas — 30% + 8 quarterly','installment',30,70,0,24,'quarterly',true),
+  ('10000000-0000-4000-a000-000000000001','SIMCO Villas — Full Payment','full_cash',100,0,0,null,null,false),
+  (null,'Standard — 40/50/10, 24 months quarterly','installment',40,50,10,24,'quarterly',true),
+  (null,'Standard — 40/50/10, 12 months monthly','installment',40,50,10,12,'monthly',false),
+  (null,'Full Payment','full_cash',100,0,0,null,null,false);
+
+-- ---------------------------------------------------------------------------
+-- Sample bookings. These go through the real functions, so every derived value
+-- (unit status, ledger, commission, overdue flags) is produced exactly the way
+-- the portal produces it. Dates are relative to today so the data stays useful.
+-- ---------------------------------------------------------------------------
+do $$
+declare
+  v_agent   uuid := '00000000-0000-4000-a000-000000000003'; -- Bilal Ahmed, sales agent
+  v_manager uuid := '00000000-0000-4000-a000-000000000002'; -- Imran Qureshi, manager
+  v_acct  uuid := '00000000-0000-4000-a000-000000000004';   -- Sana Malik, accounts
+  v_sv    uuid := '10000000-0000-4000-a000-000000000001';
+  v_ssq   uuid := '10000000-0000-4000-a000-000000000002';
+  v_plan_inst uuid; v_plan_cash uuid; v_plan_std uuid;
+  v_today date := (now() at time zone 'Asia/Karachi')::date;
+  v_sale public.sales; v_unit uuid; v_c1 uuid; v_c2 uuid; r record; v_i int;
+begin
+  select id into v_plan_inst from public.payment_plans where project_id = v_sv and kind = 'installment';
+  select id into v_plan_cash from public.payment_plans where project_id = v_sv and kind = 'full_cash';
+  select id into v_plan_std  from public.payment_plans where project_id is null and is_default;
+
+  -- 1. Full cash, paid in full -> the unit becomes "sold"
+  perform set_config('request.jwt.claims', json_build_object('sub', v_agent)::text, false);
+  select u.id into v_unit from public.units u join public.blocks b on b.id = u.block_id
+   where u.project_id = v_sv and u.status = 'available' and u.category = 'plot'
+   order by b.name, u.street, u.unit_no offset 0 limit 1;
+  select id into v_c1 from public.clients where cnic = '37405-1234567-1';
+
+  v_sale := public.create_sale(jsonb_build_object(
+    'unit_id', v_unit, 'booking_date', v_today - 60, 'plan_kind', 'full_cash',
+    'payment_plan_id', v_plan_cash,
+    'list_price', (select base_price from public.units where id = v_unit),
+    'discount', 0, 'agent_id', v_agent,
+    'buyers', jsonb_build_array(jsonb_build_object('client_id', v_c1, 'share_pct', 100, 'is_primary', true))));
+
+  perform set_config('request.jwt.claims', json_build_object('sub', v_acct)::text, false);
+  perform public.record_payment(jsonb_build_object(
+    'sale_id', v_sale.id, 'received_on', v_today - 58, 'amount', v_sale.final_price,
+    'mode', 'pay_order', 'bank_name', 'Meezan Bank', 'instrument_no', 'PO-100241',
+    'instrument_date', v_today - 58, 'instrument_status', 'cleared', 'payer_client_id', v_c1));
+
+  -- 2. Installment plan, joint buyers, down payment + 4 installments cleared.
+  --    Booked by the Manager because it carries a discount; the agent still owns the sale.
+  perform set_config('request.jwt.claims', json_build_object('sub', v_manager)::text, false);
+  select u.id into v_unit from public.units u join public.blocks b on b.id = u.block_id
+   where u.project_id = v_sv and u.status = 'available' and u.category = 'plot'
+   order by b.name, u.street, u.unit_no offset 11 limit 1;
+  select id into v_c1 from public.clients where cnic = '61101-2345678-2';
+  select id into v_c2 from public.clients where cnic = '37405-3456789-3';
+
+  v_sale := public.create_sale(jsonb_build_object(
+    'unit_id', v_unit, 'booking_date', v_today - 400, 'plan_kind', 'installment',
+    'payment_plan_id', v_plan_inst,
+    'list_price', (select base_price from public.units where id = v_unit),
+    'discount', 150000, 'agent_id', v_agent,
+    'buyers', jsonb_build_array(
+      jsonb_build_object('client_id', v_c1, 'share_pct', 60, 'is_primary', true),
+      jsonb_build_object('client_id', v_c2, 'share_pct', 40))));
+
+  perform set_config('request.jwt.claims', json_build_object('sub', v_acct)::text, false);
+  v_i := 0;
+  for r in select id, amount_due, due_date from public.installments
+           where sale_id = v_sale.id order by seq limit 5
+  loop
+    v_i := v_i + 1;
+    perform public.record_payment(jsonb_build_object(
+      'sale_id', v_sale.id, 'received_on', r.due_date, 'amount', r.amount_due,
+      'mode', case when v_i = 1 then 'bank_transfer' else 'cheque' end,
+      'bank_name', 'HBL', 'instrument_no', 'CHQ-' || (560000 + v_i)::text,
+      'instrument_date', r.due_date, 'instrument_status', 'cleared', 'payer_client_id', v_c1));
+  end loop;
+
+  -- 3. Down payment paid by a cheque that has NOT cleared -> the unit stays "booked"
+  perform set_config('request.jwt.claims', json_build_object('sub', v_agent)::text, false);
+  select u.id into v_unit from public.units u join public.blocks b on b.id = u.block_id
+   where u.project_id = v_sv and u.status = 'available' and u.category = 'plot'
+   order by b.name, u.street, u.unit_no offset 44 limit 1;
+  select id into v_c1 from public.clients where cnic = '61101-4567890-4';
+
+  v_sale := public.create_sale(jsonb_build_object(
+    'unit_id', v_unit, 'booking_date', v_today - 20, 'plan_kind', 'installment',
+    'payment_plan_id', v_plan_inst,
+    'list_price', (select base_price from public.units where id = v_unit),
+    'agent_id', v_agent,
+    'buyers', jsonb_build_array(jsonb_build_object('client_id', v_c1, 'share_pct', 100, 'is_primary', true))));
+
+  perform set_config('request.jwt.claims', json_build_object('sub', v_acct)::text, false);
+  select id, amount_due into r from public.installments where sale_id = v_sale.id order by seq limit 1;
+  perform public.record_payment(jsonb_build_object(
+    'sale_id', v_sale.id, 'received_on', v_today - 18, 'amount', r.amount_due,
+    'mode', 'cheque', 'bank_name', 'UBL', 'instrument_no', 'CHQ-770145',
+    'instrument_date', v_today - 18, 'payer_client_id', v_c1));
+
+  -- 4. Stopped paying after the down payment -> overdue, and flagged for a Manager
+  perform set_config('request.jwt.claims', json_build_object('sub', v_agent)::text, false);
+  select u.id into v_unit from public.units u join public.blocks b on b.id = u.block_id
+   where u.project_id = v_sv and u.status = 'available' and u.category = 'plot'
+   order by b.name, u.street, u.unit_no offset 90 limit 1;
+  select id into v_c1 from public.clients where cnic = '37405-6789012-6';
+
+  v_sale := public.create_sale(jsonb_build_object(
+    'unit_id', v_unit, 'booking_date', v_today - 500, 'plan_kind', 'installment',
+    'payment_plan_id', v_plan_inst,
+    'list_price', (select base_price from public.units where id = v_unit),
+    'agent_id', v_agent,
+    'buyers', jsonb_build_array(jsonb_build_object('client_id', v_c1, 'share_pct', 100, 'is_primary', true))));
+
+  perform set_config('request.jwt.claims', json_build_object('sub', v_acct)::text, false);
+  select id, amount_due, due_date into r from public.installments where sale_id = v_sale.id order by seq limit 1;
+  perform public.record_payment(jsonb_build_object(
+    'sale_id', v_sale.id, 'received_on', r.due_date, 'amount', r.amount_due,
+    'mode', 'cash', 'payer_client_id', v_c1));
+
+  -- 5. High-rise apartment on the standard 40/50/10 plan (overseas buyer)
+  perform set_config('request.jwt.claims', json_build_object('sub', v_agent)::text, false);
+  select id into v_unit from public.units where project_id = v_ssq and status = 'available'
+    and category = 'apartment' order by unit_no limit 1;
+  select id into v_c1 from public.clients where cnic = '17301-5678901-5';
+
+  v_sale := public.create_sale(jsonb_build_object(
+    'unit_id', v_unit, 'booking_date', v_today - 100, 'plan_kind', 'installment',
+    'payment_plan_id', v_plan_std,
+    'list_price', (select base_price from public.units where id = v_unit),
+    'agent_id', v_agent,
+    'buyers', jsonb_build_array(jsonb_build_object('client_id', v_c1, 'share_pct', 100, 'is_primary', true))));
+
+  perform set_config('request.jwt.claims', json_build_object('sub', v_acct)::text, false);
+  select id, amount_due, due_date into r from public.installments where sale_id = v_sale.id order by seq limit 1;
+  perform public.record_payment(jsonb_build_object(
+    'sale_id', v_sale.id, 'received_on', r.due_date, 'amount', r.amount_due,
+    'mode', 'bank_transfer', 'bank_name', 'Standard Chartered', 'instrument_no', 'TT-99812',
+    'instrument_date', r.due_date, 'instrument_status', 'cleared', 'payer_client_id', v_c1));
+
+  perform set_config('request.jwt.claims', '', false);
+end $$;
+
+-- bring the overdue flags up to date for the seeded history
+select public.mark_overdue();
