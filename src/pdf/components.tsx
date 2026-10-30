@@ -10,7 +10,7 @@ export function pdfSafe(s: string): string {
 
 const INK = "#111827";
 const MUTED = "#6b7280";
-const BRAND = "#1e3a6e";
+const BRAND = "#3f4442";   // the graphite of the Waystar Royco signage
 const RULE = "#9ca3af";
 
 export const s = StyleSheet.create({

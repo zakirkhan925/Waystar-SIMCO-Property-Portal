@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { deleteUnit } from "@/features/units/actions";
 import { formatSize, unitFeatures, unitTitle } from "@/features/units/format";
 import { getActivity, getUnit } from "@/features/units/queries";
+import { getOwnershipHistory, getUnitSale } from "@/features/sales/queries";
+import { UnitSalePanel } from "@/features/sales/unit-sale-panel";
 import { UnitStatusDialog } from "@/features/units/status-dialog";
 import { can, getCurrentUser } from "@/lib/auth/session";
 import { formatDate } from "@/lib/dates";
@@ -41,7 +43,12 @@ export default async function UnitPage({ params }: Props) {
   if (!unit) notFound();
 
   const perms = can(user);
-  const activity = perms.viewActivity ? await getActivity("units", unitId) : [];
+  const [activity, sale, ownership] = await Promise.all([
+    perms.viewActivity ? getActivity("units", unitId) : Promise.resolve([]),
+    getUnitSale(unitId),
+    getOwnershipHistory(unitId),
+  ]);
+  const canBook = perms.createClients && unit.status === "available";
   const manualStatus = ["available", "on_hold", "blocked"].includes(unit.status);
   const features = unitFeatures(unit);
 
@@ -60,8 +67,14 @@ export default async function UnitPage({ params }: Props) {
         }
         description={[unit.blocks?.name, unit.street, unit.floors?.label && `${unit.floors.label} floor`].filter(Boolean).join(" · ")}
         actions={
-          perms.manageInventory && (
-            <>
+          <>
+            {canBook && (
+              <Button size="sm" asChild>
+                <Link href={`/bookings/new?unit=${unit.id}`}>Book this unit</Link>
+              </Button>
+            )}
+            {perms.manageInventory && (
+              <>
               {manualStatus && <UnitStatusDialog unitId={unit.id} current={unit.status} />}
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/units/${unit.id}/edit`}>
@@ -76,8 +89,9 @@ export default async function UnitPage({ params }: Props) {
                   redirectTo={`/projects/${unit.project_id}`}
                 />
               )}
-            </>
-          )
+              </>
+            )}
+          </>
         }
       />
 
@@ -141,12 +155,7 @@ export default async function UnitPage({ params }: Props) {
         </TabsContent>
 
         <TabsContent value="ownership" className="mt-4">
-          <Card>
-            <CardContent className="py-8 text-center text-sm text-muted-foreground">
-              No sale or booking recorded for this unit yet. Owners, the payment ledger, installment schedule, possession and
-              leases will appear here.
-            </CardContent>
-          </Card>
+          <UnitSalePanel unitId={unit.id} sale={sale} history={ownership} canBook={canBook} />
         </TabsContent>
 
         {perms.viewActivity && (

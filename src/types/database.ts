@@ -806,7 +806,7 @@ isOneToOne: false
                   ]
                 },"v_receivables": {
                   Row: {
-                    "aging_bucket": string | null,"amount_pending": number | null,"client_id": string | null,"client_name": string | null,"client_phone": string | null,"client_whatsapp": string | null,"days_overdue": number | null,"due_date": string | null,"installment_id": string | null,"label": string | null,"outstanding": number | null,"project_id": string | null,"sale_id": string | null,"seq": number | null,"status": Database["public"]['Enums']["installment_status"] | null,"type": Database["public"]['Enums']["installment_type"] | null,"unit_id": string | null,"unit_no": string | null
+                    "aging_bucket": string | null,"amount_pending": number | null,"client_id": string | null,"client_name": string | null,"client_phone": string | null,"client_whatsapp": string | null,"days_overdue": number | null,"due_date": string | null,"installment_id": string | null,"label": string | null,"outstanding": number | null,"project_code": string | null,"project_id": string | null,"project_name": string | null,"sale_id": string | null,"seq": number | null,"status": Database["public"]['Enums']["installment_status"] | null,"type": Database["public"]['Enums']["installment_type"] | null,"unit_id": string | null,"unit_no": string | null
                   }
                   ComputedFields: never
                   Relationships: [

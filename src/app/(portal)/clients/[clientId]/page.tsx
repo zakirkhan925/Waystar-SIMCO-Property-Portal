@@ -14,6 +14,9 @@ import { deleteClient } from "@/features/clients/actions";
 import { ClientDocuments } from "@/features/clients/client-documents";
 import { getClient, getClientDocUrls } from "@/features/clients/queries";
 import { getActivity } from "@/features/units/queries";
+import { getClientSales } from "@/features/sales/queries";
+import { SaleStatusBadge } from "@/features/sales/badges";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { can, getCurrentUser } from "@/lib/auth/session";
 import { formatDate } from "@/lib/dates";
 import { formatPKR } from "@/lib/money";
@@ -43,10 +46,14 @@ export default async function ClientPage({ params }: Props) {
 
   const perms = can(user);
   const canEdit = perms.manageInventory || (user.role === "sales_agent" && client.created_by === user.id);
-  const [docUrls, activity] = await Promise.all([
+  const [docUrls, activity, sales] = await Promise.all([
     getClientDocUrls({ photo: client.photo_path, cnic_front: client.cnic_front_path, cnic_back: client.cnic_back_path }),
     perms.viewActivity ? getActivity("clients", clientId) : Promise.resolve([]),
+    getClientSales(clientId),
   ]);
+  const owned = sales.filter((s) => s.status !== "cancelled");
+  const totalPaid = owned.reduce((n, s) => n + Number(s.total_paid ?? 0), 0);
+  const outstanding = owned.reduce((n, s) => n + Number(s.balance ?? 0), 0);
   const whatsapp = client.whatsapp ?? client.phone;
 
   return (
@@ -92,10 +99,10 @@ export default async function ClientPage({ params }: Props) {
       />
 
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard label="Units owned" value="0" />
-        <StatCard label="Units rented" value="0" />
-        <StatCard label="Total paid" value={formatPKR(0)} />
-        <StatCard label="Outstanding" value={formatPKR(0)} />
+        <StatCard label="Units owned" value={owned.length} />
+        <StatCard label="Units rented" value="0" hint="Rentals arrive in Phase 4" />
+        <StatCard label="Total paid" value={formatPKR(totalPaid)} />
+        <StatCard label="Outstanding" value={formatPKR(outstanding)} />
       </div>
 
       <Tabs defaultValue="profile">
@@ -151,11 +158,49 @@ export default async function ClientPage({ params }: Props) {
         </TabsContent>
 
         <TabsContent value="units" className="mt-4">
-          <Card>
-            <CardContent className="py-8 text-center text-sm text-muted-foreground">
-              No units owned or rented yet. Bookings and leases for this client will be listed here.
-            </CardContent>
-          </Card>
+          {sales.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-sm text-muted-foreground">
+                This client has not booked a unit yet.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="overflow-hidden rounded-lg border">
+              <Table>
+                <TableHeader className="bg-muted/50">
+                  <TableRow>
+                    <TableHead>Unit</TableHead>
+                    <TableHead>Booked</TableHead>
+                    <TableHead>Share</TableHead>
+                    <TableHead className="text-right">Sale price</TableHead>
+                    <TableHead className="text-right">Received</TableHead>
+                    <TableHead className="text-right">Balance</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sales.map((s) => (
+                    <TableRow key={s.sale_id}>
+                      <TableCell>
+                        <Link href={`/sales/${s.sale_id}`} className="font-medium hover:underline">
+                          {s.unit_no}
+                        </Link>
+                        <div className="text-xs text-muted-foreground">{s.project_name}</div>
+                      </TableCell>
+                      <TableCell>{formatDate(s.booking_date)}</TableCell>
+                      <TableCell className="tabular-nums">{Number(s.share_pct)}%</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatPKR(s.final_price ?? 0)}</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatPKR(s.total_paid ?? 0)}</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatPKR(s.balance ?? 0)}</TableCell>
+                      <TableCell>
+                        <SaleStatusBadge status={s.status!} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </TabsContent>
 
         {perms.viewActivity && (

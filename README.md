@@ -65,6 +65,25 @@ They all share the password in the header of `seed.sql`. **These accounts must n
 npm run db:seed-assets   # uploads supabase/seed-assets/* (e.g. the SIMCO VILLAS letterhead) to local Storage
 ```
 
+## Brand
+
+The palette is taken from the Waystar Royco office signage (`public/brand/waystar-royco-signage.jpg`):
+white lettering on graphite stone. Sampled from the photograph:
+
+| Role | Colour |
+|---|---|
+| Stone (sidebar, light mode) | `#393e3a` |
+| Stone mid (charts, primary accents) | `#5d5f5b` |
+| Primary (buttons, links) | `#4a4d49` |
+| Lettering / page background | `#fbfbfa` |
+
+It is deliberately near-neutral — about 2% saturation — so the status colours (available, sold,
+overdue and so on) stay the only strong colour on screen. Tokens live in `src/app/globals.css`;
+change them there and the whole portal follows, including the PDFs.
+
+The wordmark is set the way the signage is: a `WR` monogram, then *Waystar* in the sans and
+*ROYCO* in Playfair Display, split by a hairline. Page titles use the same serif.
+
 ## Printed documents & letterheads
 
 Each project's forms and letters are managed in **Settings → Projects → (project) → Documents & letters**:
