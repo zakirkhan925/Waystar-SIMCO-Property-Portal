@@ -135,10 +135,13 @@ select public.install_document_templates('10000000-0000-4000-a000-000000000001',
 --
 --      01, 04, 71, 74 | 05, 08, 75, 78 | 09, 12, 79, 82 | 24, 26, 20, 17 | 34, 35, 16, 13
 --
---    NOTE: is_corner is set as a fact about the layout. It does NOT change the price here.
---    The Booking Form says corner plots carry +10%, and projects.corner_premium_pct is 10,
---    but SIMCO's price list of 31-Oct-2026 is quoted flat per size, so whether the premium
---    is already inside those figures is a business question — see the foot of this file.
+--    Corner plots carry +10% on BOTH published prices (client, 31-Oct-2026): on the
+--    installment list price, and on the cash price, which is the after-discount figure.
+--    All 20 corners fall in the 25'x50' blocks, so only 5 Marla plots are uplifted:
+--      5 Marla corner  installment 3,740,000  cash 3,289,000
+--    No 6 or 8 Marla plot is a corner — every one of them sits in a perimeter strip whose
+--    second boundary is the boundary wall rather than a road. Plots 40, 60 and 70 are the
+--    open question there; if SIMCO treats them as corners, uplift them too.
 -- ---------------------------------------------------------------------------
 do $$
 declare
@@ -147,10 +150,12 @@ declare
   v_use public.unit_use;
   v_sv numeric; v_su public.size_unit; v_w numeric; v_d numeric;
   v_base numeric; v_cash numeric; v_status public.unit_status; v_note text; v_no text;
+  v_corner boolean;
 begin
   for n in 1..122 loop
     v_use := 'residential'; v_note := null;
     v_status := 'available'; v_w := null; v_d := null; v_cash := null;
+    v_corner := n in (1,4,71,74, 5,8,75,78, 9,12,79,82, 24,26,20,17, 34,35,16,13);
     -- the plan prints 01..09 zero-padded; lpad() would TRUNCATE 100+, so build it by hand
     v_no := case when n < 10 then '0' || n::text else n::text end;
 
@@ -177,10 +182,16 @@ begin
       v_base := 3400000; v_cash := 2990000;
     end if;
 
+    -- Corner premium (31-Oct-2026): +10% on the installment price, and +10% on the cash
+    -- price, which is applied to the after-discount figure SIMCO publishes.
+    if v_corner and v_base > 0 then
+      v_base := round(v_base * 1.10, 2);
+      v_cash := round(v_cash * 1.10, 2);
+    end if;
+
     insert into public.units (project_id, unit_no, category, use, size_value, size_unit,
                               width_ft, depth_ft, base_price, cash_price, status, notes, is_corner)
-    values (v_p, v_no, 'plot', v_use, v_sv, v_su, v_w, v_d, v_base, v_cash, v_status, v_note,
-            n in (1,4,71,74, 5,8,75,78, 9,12,79,82, 24,26,20,17, 34,35,16,13));
+    values (v_p, v_no, 'plot', v_use, v_sv, v_su, v_w, v_d, v_base, v_cash, v_status, v_note, v_corner);
   end loop;
 end $$;
 
@@ -297,21 +308,10 @@ group by p.code, p.name, p.sort_order order by p.sort_order;
 -- Setting base_price alone leaves the old price_per_sqft in place; pass
 -- 'price_per_sqft', null alongside it to have the trigger recompute it.
 --
--- Corner pricing — UNRESOLVED
+-- Corner pricing
 --
 -- The Booking Form and the Allotment Letter both say "Corner plots carry an additional
--- 10% on the plot price", and projects.corner_premium_pct is 10. But nothing applies that
--- automatically: create_sale() takes whatever list_price the caller passes, which defaults
--- to the unit's own price. So the premium has to live in base_price / cash_price.
---
--- SIMCO's list of 31-Oct-2026 is quoted flat per size with no corner line, so either:
---   (a) the quoted figures are for ordinary plots and the 20 corner plots should be
---       uplifted 10%  (5 Marla corner: 3,740,000 installment / 3,289,000 cash), or
---   (b) the figures already include whatever SIMCO charges and no uplift is due.
--- Until that is confirmed, every plot carries the flat price. To apply (a):
---
---   update public.units u set base_price = round(u.base_price * 1.10, -3),
---                             cash_price = round(u.cash_price * 1.10, -3)
---   from public.projects p
---   where p.id = u.project_id and p.code = 'SV' and u.is_corner and u.base_price > 0;
+-- 10% on the plot price", and projects.corner_premium_pct is 10. Nothing applies that
+-- automatically — create_sale() takes whatever list_price the caller passes, which defaults
+-- to the unit's own price — so the premium is baked into base_price / cash_price above.
 -- =============================================================================
