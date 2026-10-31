@@ -14,11 +14,14 @@
 -- Everything it creates is attributed to the real Super Admin, so the audit log
 -- and every created_by column name a real person rather than nobody.
 --
--- >>> PRICES ARE PLACEHOLDERS <<<
--- base_price is NOT NULL, so every unit must carry a figure. The rates below are
--- the same sample rates used in local development. They are NOT SIMCO's price
--- list. Replace them with the real price list before anyone quotes a buyer —
--- see "Updating prices" at the foot of this file.
+-- Simco Villas carries SIMCO's real plan and real prices (31-Oct-2026).
+--
+-- >>> THE FOUR HIGH-RISE PRICE LISTS ARE STILL PLACEHOLDERS <<<
+-- base_price is NOT NULL, so every unit must carry a figure. The high-rise rates
+-- below are the sample rates from local development. They are NOT SIMCO's price
+-- list. Replace them before anyone quotes a buyer — see "Updating prices" at the
+-- foot of this file. The high-rise layouts are likewise invented, pending each
+-- building's own approved plan.
 --
 -- Run once:  psql "$DATABASE_URL" -f supabase/seed-production.sql
 -- (or paste into the Supabase SQL editor). It runs as a single transaction, so
@@ -103,40 +106,71 @@ values ('10000000-0000-4000-a000-000000000001', 'SIMCO VILLAS', 'PMO Road, Taxil
 select public.install_document_templates('10000000-0000-4000-a000-000000000001', 'plot_society_simco');
 
 -- ---------------------------------------------------------------------------
--- 4. Simco Villas plots — Blocks A/B/C, Streets 1-4, 10 plots each (120 plots).
---    Plot types per the Booking Form: 5 Marla (25'x50'), 6 Marla (30'x50'),
---    8 Marla (30'x60'). Plots 1 and 10 on each street are corners (+10%).
---    Every plot starts AVAILABLE — holds and blocks are an operational decision.
+-- 4. Simco Villas — taken from the approved master plan.
+--
+--    The scheme has NO blocks: plots are numbered 01-121 across the whole site,
+--    which is how the documents refer to them ("Plot No. {{plot_no}}").
+--    Plot 122 is the 4,410 sqft commercial plot, which the plan leaves unnumbered.
+--
+--      25' x 50' (5 Marla)  83 plots  1-23, 27-33, 36-39, 57, 71-118
+--      30' x 50' (6 Marla)  24 plots  40-56, 62-68
+--      30' x 60' (8 Marla)   4 plots  60, 61, 69, 70
+--      Irregular             7 plots  24, 25, 26, 34, 35, 58, 59
+--      Commercial 50' x 50'  3 plots  119, 120, 121   (2,500 sqft each)
+--      Commercial            1 plot   122             (4,410 sqft)
+--
+--    83 + 24 + 4 + 7 = 118 residential, matching the plan's own legend.
+--
+--    Prices are SIMCO's list of 31-Oct-2026. base_price is the installment price;
+--    cash_price is the Full Payment price.
+--
+--    The 7 irregular plots and the 4 commercial plots are created BLOCKED: their
+--    area and/or price are not yet confirmed, and a blocked unit cannot be booked.
+--    Unblock each one as its real figures are loaded.
+--
+--    is_corner is left false throughout: the plan does not mark corners, and under
+--    the project's corner_premium_pct the flag carries a 10% price consequence.
 -- ---------------------------------------------------------------------------
 do $$
 declare
-  v_project uuid := '10000000-0000-4000-a000-000000000001';
-  v_block uuid;
-  b text; s int; n int; i int := 0;
-  v_marla numeric; v_w numeric; v_d numeric; v_rate numeric; v_price numeric;
+  v_p uuid := '10000000-0000-4000-a000-000000000001';
+  n int;
+  v_use public.unit_use;
+  v_sv numeric; v_su public.size_unit; v_w numeric; v_d numeric;
+  v_base numeric; v_cash numeric; v_status public.unit_status; v_note text; v_no text;
 begin
-  foreach b in array array['A','B','C'] loop
-    insert into public.blocks (project_id, name, kind, sort_order)
-    values (v_project, 'Block ' || b, 'block', ascii(b)) returning id into v_block;
+  for n in 1..122 loop
+    v_use := 'residential'; v_note := null;
+    v_status := 'available'; v_w := null; v_d := null; v_cash := null;
+    -- the plan prints 01..09 zero-padded; lpad() would TRUNCATE 100+, so build it by hand
+    v_no := case when n < 10 then '0' || n::text else n::text end;
 
-    for s in 1..4 loop
-      for n in 1..10 loop
-        i := i + 1;
-        case (i % 3)
-          when 0 then v_marla := 5; v_w := 25; v_d := 50; v_rate := 1500000;   -- PLACEHOLDER rate
-          when 1 then v_marla := 6; v_w := 30; v_d := 50; v_rate := 1450000;   -- PLACEHOLDER rate
-          else        v_marla := 8; v_w := 30; v_d := 60; v_rate := 1400000;   -- PLACEHOLDER rate
-        end case;
-        v_price := v_marla * v_rate * case when n in (1,10) then 1.10 else 1 end;
-        insert into public.units (project_id, block_id, street, unit_no, category, use,
-                                  size_value, size_unit, width_ft, depth_ft, base_price,
-                                  is_corner, is_park_facing, is_main_boulevard, status)
-        values (v_project, v_block, 'Street ' || s, (s * 100 + n)::text, 'plot', 'residential',
-                v_marla, 'marla', v_w, v_d, round(v_price, -3),
-                n in (1,10), (s = 4 and n between 4 and 7), s = 1,
-                'available');
-      end loop;
-    end loop;
+    if n in (119,120,121) then
+      v_use := 'commercial'; v_sv := 2500; v_su := 'sqft'; v_w := 50; v_d := 50;
+      v_base := 0; v_status := 'blocked';
+      v_note := 'Commercial plot 50ft x 50ft (2,500 sqft). Price not yet set — blocked until then.';
+    elsif n = 122 then
+      v_use := 'commercial'; v_sv := 4410; v_su := 'sqft';
+      v_base := 0; v_status := 'blocked';
+      v_note := 'Commercial plot, 4,410 sqft (unnumbered on the master plan; given no. 122). Price not yet set — blocked until then.';
+    elsif n in (24,25,26,34,35,58,59) then
+      v_sv := 1250; v_su := 'sqft';
+      v_base := 0; v_status := 'blocked';
+      v_note := 'IRREGULAR plot. Area 1,250 sqft is a PLACEHOLDER and price is not set — blocked until both are confirmed from the approved layout.';
+    elsif (n between 40 and 56) or (n between 62 and 68) then
+      v_sv := 6; v_su := 'marla'; v_w := 30; v_d := 50;
+      v_base := 3800000; v_cash := 3390000;
+    elsif n in (60,61,69,70) then
+      v_sv := 8; v_su := 'marla'; v_w := 30; v_d := 60;
+      v_base := 4800000; v_cash := 4490000;
+    else
+      v_sv := 5; v_su := 'marla'; v_w := 25; v_d := 50;
+      v_base := 3400000; v_cash := 2990000;
+    end if;
+
+    insert into public.units (project_id, unit_no, category, use, size_value, size_unit,
+                              width_ft, depth_ft, base_price, cash_price, status, notes)
+    values (v_p, v_no, 'plot', v_use, v_sv, v_su, v_w, v_d, v_base, v_cash, v_status, v_note);
   end loop;
 end $$;
 
