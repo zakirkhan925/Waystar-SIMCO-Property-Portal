@@ -9,6 +9,24 @@ import { userFormSchema } from "./schemas";
 
 const BAN_FOREVER = "876000h"; // ~100 years: blocks sign-in for deactivated staff
 
+/**
+ * Creating and updating staff accounts needs the service-role key. If it is missing the
+ * deployment is simply not configured for it — say so plainly instead of letting the throw
+ * escape the server action, which replaces the whole page with "a server-side exception".
+ * Only Super Admins reach this code, so naming the variable is useful rather than leaky.
+ */
+const ADMIN_UNAVAILABLE =
+  "User management is not configured on this deployment: SUPABASE_SERVICE_ROLE_KEY is missing. " +
+  "Add it to the environment variables and redeploy. Until then, staff accounts can be created in Supabase.";
+
+function adminOrNull() {
+  try {
+    return createAdminClient();
+  } catch {
+    return null;
+  }
+}
+
 async function assertSuperAdmin() {
   const user = await getCurrentUser();
   if (!hasRole(user, "super_admin")) throw new Error("Only a Super Admin can manage users.");
@@ -43,7 +61,8 @@ export async function createUser(input: unknown): Promise<ActionResult<{ id: str
     return { ok: false, error: "Check the highlighted fields.", fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
   }
   const v = parsed.data;
-  const admin = createAdminClient();
+  const admin = adminOrNull();
+  if (!admin) return { ok: false, error: ADMIN_UNAVAILABLE };
 
   // Role lives in app_metadata (not editable by the user); the DB trigger copies it to profiles.
   const { data, error } = await admin.auth.admin.createUser({
@@ -91,6 +110,10 @@ export async function updateUser(userId: string, input: unknown): Promise<Action
   if (userId === me.id && (v.role !== "super_admin" || !v.is_active)) {
     return { ok: false, error: "You can't remove your own Super Admin access." };
   }
+  // Checked before the profile write below, so a missing key cannot leave the profile
+  // updated while the matching auth change silently never happens.
+  const admin = adminOrNull();
+  if (!admin) return { ok: false, error: ADMIN_UNAVAILABLE };
 
   // Profile update runs as the Super Admin so the DB guard + audit log record who did it.
   const supabase = await createClient();
@@ -100,7 +123,6 @@ export async function updateUser(userId: string, input: unknown): Promise<Action
     .eq("id", userId);
   if (error) return { ok: false, error: dbErrorMessage(error) };
 
-  const admin = createAdminClient();
   const { error: authErr } = await admin.auth.admin.updateUserById(userId, {
     app_metadata: { role: v.role },
     ban_duration: v.is_active ? "none" : BAN_FOREVER,
