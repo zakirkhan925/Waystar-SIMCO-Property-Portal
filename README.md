@@ -1,7 +1,7 @@
 # Waystar Property Management Portal
 
 Property management portal for **SIMCO Developers** projects, run by **Waystar Royco Marketing**.
-It will be hosted at **portal.waystarmarketing.com**.
+It will be hosted at **crm.waystarmarketing.com**.
 
 It tracks every unit and plot: ownership, sales and installments, payments, possession and rentals.
 
@@ -116,7 +116,7 @@ Every document can be printed three ways:
 | `NEXT_PUBLIC_SUPABASE_URL` | browser + server | Project API URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | browser + server | Public anon key; RLS protects data |
 | `SUPABASE_SERVICE_ROLE_KEY` | **server only** | Used only in `src/lib/supabase/admin.ts` (marked `server-only`), e.g. to create users. Never expose it. |
-| `NEXT_PUBLIC_SITE_URL` | server | Base URL for password-reset links, e.g. `https://portal.waystarmarketing.com` |
+| `NEXT_PUBLIC_SITE_URL` | server | Base URL for password-reset links, e.g. `https://crm.waystarmarketing.com` |
 
 ## Database & migrations
 
@@ -166,13 +166,13 @@ CI (`.github/workflows/ci.yml`) runs all of these on every push.
    2. Run: `update profiles set role = 'super_admin' where email = '…';`
    3. Set `raw_app_meta_data.role` to match.
 3. **Set Supabase Auth URLs.** Under Authentication → URL configuration:
-   - Site URL: `https://portal.waystarmarketing.com`
-   - Redirect URLs: add `https://portal.waystarmarketing.com/auth/callback`
+   - Site URL: `https://crm.waystarmarketing.com`
+   - Redirect URLs: add `https://crm.waystarmarketing.com/auth/callback`
    - Disable sign-ups.
 4. **Create the Vercel project.** Import the GitHub repo, then add the four environment variables for Production and Preview.
    Mark `SUPABASE_SERVICE_ROLE_KEY` as **Sensitive**.
 5. **Point the custom domain to Vercel:**
-   1. In Vercel → Project → Settings → Domains, add `portal.waystarmarketing.com`.
+   1. In Vercel → Project → Settings → Domains, add `crm.waystarmarketing.com`.
    2. At the DNS host for `waystarmarketing.com`, add this record:
 
       | Type | Name | Value |
