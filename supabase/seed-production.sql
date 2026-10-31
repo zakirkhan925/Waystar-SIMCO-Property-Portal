@@ -128,8 +128,17 @@ select public.install_document_templates('10000000-0000-4000-a000-000000000001',
 --    area and/or price are not yet confirmed, and a blocked unit cannot be booked.
 --    Unblock each one as its real figures are loaded.
 --
---    is_corner is left false throughout: the plan does not mark corners, and under
---    the project's corner_premium_pct the flag carries a 10% price consequence.
+--    Corner plots are read off the plan as those with TWO road frontages. Each of the
+--    five rectangular blocks is ringed by roads, with a top row, two back-to-back middle
+--    columns and a bottom row; only the four extreme plots of each block turn a corner.
+--    The middle-column plots have a single frontage and are not corners.
+--
+--      01, 04, 71, 74 | 05, 08, 75, 78 | 09, 12, 79, 82 | 24, 26, 20, 17 | 34, 35, 16, 13
+--
+--    NOTE: is_corner is set as a fact about the layout. It does NOT change the price here.
+--    The Booking Form says corner plots carry +10%, and projects.corner_premium_pct is 10,
+--    but SIMCO's price list of 31-Oct-2026 is quoted flat per size, so whether the premium
+--    is already inside those figures is a business question — see the foot of this file.
 -- ---------------------------------------------------------------------------
 do $$
 declare
@@ -169,8 +178,9 @@ begin
     end if;
 
     insert into public.units (project_id, unit_no, category, use, size_value, size_unit,
-                              width_ft, depth_ft, base_price, cash_price, status, notes)
-    values (v_p, v_no, 'plot', v_use, v_sv, v_su, v_w, v_d, v_base, v_cash, v_status, v_note);
+                              width_ft, depth_ft, base_price, cash_price, status, notes, is_corner)
+    values (v_p, v_no, 'plot', v_use, v_sv, v_su, v_w, v_d, v_base, v_cash, v_status, v_note,
+            n in (1,4,71,74, 5,8,75,78, 9,12,79,82, 24,26,20,17, 34,35,16,13));
   end loop;
 end $$;
 
@@ -286,4 +296,22 @@ group by p.code, p.name, p.sort_order order by p.sort_order;
 --
 -- Setting base_price alone leaves the old price_per_sqft in place; pass
 -- 'price_per_sqft', null alongside it to have the trigger recompute it.
+--
+-- Corner pricing — UNRESOLVED
+--
+-- The Booking Form and the Allotment Letter both say "Corner plots carry an additional
+-- 10% on the plot price", and projects.corner_premium_pct is 10. But nothing applies that
+-- automatically: create_sale() takes whatever list_price the caller passes, which defaults
+-- to the unit's own price. So the premium has to live in base_price / cash_price.
+--
+-- SIMCO's list of 31-Oct-2026 is quoted flat per size with no corner line, so either:
+--   (a) the quoted figures are for ordinary plots and the 20 corner plots should be
+--       uplifted 10%  (5 Marla corner: 3,740,000 installment / 3,289,000 cash), or
+--   (b) the figures already include whatever SIMCO charges and no uplift is due.
+-- Until that is confirmed, every plot carries the flat price. To apply (a):
+--
+--   update public.units u set base_price = round(u.base_price * 1.10, -3),
+--                             cash_price = round(u.cash_price * 1.10, -3)
+--   from public.projects p
+--   where p.id = u.project_id and p.code = 'SV' and u.is_corner and u.base_price > 0;
 -- =============================================================================
