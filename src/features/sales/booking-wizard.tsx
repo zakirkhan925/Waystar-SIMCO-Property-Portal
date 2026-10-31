@@ -24,6 +24,8 @@ type UnitInfo = {
   id: string;
   unit_no: string;
   base_price: string | number;
+  /** SIMCO's published Full Payment price, where one exists. Null = derive it from base_price. */
+  cash_price: string | number | null;
   projectName: string;
   projectId: string;
   location: string;
@@ -123,13 +125,20 @@ export function BookingWizard({
   }, [finalPrice, w.booking_date, w.plan_kind, w.down_payment_pct, w.installment_pct, w.possession_pct,
       w.tenure_months, w.frequency, w.first_installment_date, w.booking_amount, unit.downPaymentBalanceDays]);
 
-  // SIMCO's full-payment pricing: add the possession charge, then discount the result.
+  // Full-payment pricing. Where SIMCO publishes a cash price for the unit, that figure IS the
+  // price — it already accounts for the possession charge and the discount, and the gap from the
+  // installment price is not a fixed percentage, so it must not be re-derived. Only when no cash
+  // price is on file do we fall back to the old rule: add the possession charge, then discount it.
   const fullPayment = (() => {
+    const published = unit.cash_price === null ? null : new Decimal(unit.cash_price || 0);
+    if (published && published.greaterThan(0)) {
+      return { listed: published, discount: new Decimal(0), net: published, isPublished: true };
+    }
     if (unit.fullPaymentDiscountPct === null) return null;
     const base = new Decimal(unit.base_price || 0);
     const listed = base.times(1 + unit.fullPaymentPossessionChargePct / 100).toDecimalPlaces(2);
     const discount = listed.times(unit.fullPaymentDiscountPct).div(100).toDecimalPlaces(2);
-    return { listed, discount, net: listed.minus(discount) };
+    return { listed, discount, net: listed.minus(discount), isPublished: false };
   })();
 
   const applyFullPaymentPricing = () => {
@@ -293,9 +302,18 @@ export function BookingWizard({
               {w.plan_kind === "full_cash" && fullPayment && (
                 <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/40 p-3 text-sm sm:col-span-2 lg:col-span-4">
                   <span className="flex-1">
-                    Full payment: {formatPKR(unit.base_price)} plus {unit.fullPaymentPossessionChargePct}% possession charge
-                    = {formatPKR(fullPayment.listed)}, less the {unit.fullPaymentDiscountPct}% full-payment discount
-                    = <strong>{formatPKR(fullPayment.net)}</strong>.
+                    {fullPayment.isPublished ? (
+                      <>
+                        Full payment price for this plot is <strong>{formatPKR(fullPayment.net)}</strong>{" "}
+                        (the installment price is {formatPKR(unit.base_price)}).
+                      </>
+                    ) : (
+                      <>
+                        Full payment: {formatPKR(unit.base_price)} plus {unit.fullPaymentPossessionChargePct}% possession charge
+                        = {formatPKR(fullPayment.listed)}, less the {unit.fullPaymentDiscountPct}% full-payment discount
+                        = <strong>{formatPKR(fullPayment.net)}</strong>.
+                      </>
+                    )}
                   </span>
                   <Button type="button" variant="outline" size="sm" onClick={applyFullPaymentPricing}>
                     Apply this pricing

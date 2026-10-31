@@ -87,6 +87,7 @@ export default async function NewBookingPage({ searchParams }: { searchParams: P
             id: unit.id,
             unit_no: unit.unit_no,
             base_price: unit.base_price,
+            cash_price: unit.cash_price,
             projectName: project?.name ?? "",
             projectId: unit.project_id,
             location: [unit.blocks?.name, unit.street, unit.floors?.label].filter(Boolean).join(" · "),
