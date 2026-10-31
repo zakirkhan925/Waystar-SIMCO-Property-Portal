@@ -19,11 +19,13 @@ const ADMIN_UNAVAILABLE =
   "User management is not configured on this deployment: SUPABASE_SERVICE_ROLE_KEY is missing. " +
   "Add it to the environment variables and redeploy. Until then, staff accounts can be created in Supabase.";
 
-function adminOrNull() {
+/** Returns the admin client, or the reason it is unusable. The reason never contains the key. */
+function adminOrReason(): { admin: ReturnType<typeof createAdminClient>; reason?: never } | { admin?: never; reason: string } {
   try {
-    return createAdminClient();
-  } catch {
-    return null;
+    return { admin: createAdminClient() };
+  } catch (e) {
+    const message = (e as Error).message;
+    return { reason: message.includes("is not set") ? ADMIN_UNAVAILABLE : message };
   }
 }
 
@@ -61,8 +63,9 @@ export async function createUser(input: unknown): Promise<ActionResult<{ id: str
     return { ok: false, error: "Check the highlighted fields.", fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
   }
   const v = parsed.data;
-  const admin = adminOrNull();
-  if (!admin) return { ok: false, error: ADMIN_UNAVAILABLE };
+  const a = adminOrReason();
+  if (!a.admin) return { ok: false, error: a.reason };
+  const admin = a.admin;
 
   // Role lives in app_metadata (not editable by the user); the DB trigger copies it to profiles.
   const { data, error } = await admin.auth.admin.createUser({
@@ -112,8 +115,9 @@ export async function updateUser(userId: string, input: unknown): Promise<Action
   }
   // Checked before the profile write below, so a missing key cannot leave the profile
   // updated while the matching auth change silently never happens.
-  const admin = adminOrNull();
-  if (!admin) return { ok: false, error: ADMIN_UNAVAILABLE };
+  const a = adminOrReason();
+  if (!a.admin) return { ok: false, error: a.reason };
+  const admin = a.admin;
 
   // Profile update runs as the Super Admin so the DB guard + audit log record who did it.
   const supabase = await createClient();
