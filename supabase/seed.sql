@@ -81,7 +81,9 @@ update public.projects set
   cancel_after_consecutive_missed = 2,
   cancellation_deduction_pct = 20,
   construction_min_paid_pct = 80,
-  full_payment_possession_charge_pct = 5
+  full_payment_possession_charge_pct = 5,
+  full_payment_discount_pct = 5,
+  down_payment_balance_days = 0     -- the balance of the down payment is due at once
 where code = 'SV';
 
 insert into public.project_document_settings (project_id, display_name, full_address, execution_city,

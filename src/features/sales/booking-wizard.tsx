@@ -1,5 +1,6 @@
 "use client";
 
+import Decimal from "decimal.js";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -16,7 +17,7 @@ import { buildSchedule, scheduleTotal } from "@/lib/schedule";
 import { cn } from "@/lib/utils";
 import { createBooking } from "./actions";
 import { BuyerPicker, type PickedBuyer } from "./buyer-picker";
-import { bookingSchema, type BookingParsed, type BookingValues } from "./schemas";
+import { bookingSchema, NO_DEALER, type BookingParsed, type BookingValues } from "./schemas";
 import type { PaymentPlan } from "./queries";
 
 type UnitInfo = {
@@ -30,9 +31,31 @@ type UnitInfo = {
   isCorner: boolean;
   cornerPremiumPct: number;
   downPaymentBalanceDays: number | null;
+  /** SIMCO adds possession charges, then takes the full-payment discount off the result. */
+  fullPaymentPossessionChargePct: number;
+  fullPaymentDiscountPct: number | null;
 };
 
 const STEPS = ["Buyers", "Price & plan", "Schedule", "Confirm"] as const;
+
+/** Field labels, so a problem can be named rather than just pointed at. */
+const FIELD_LABEL: Partial<Record<keyof BookingValues, string>> = {
+  buyers: "Buyers",
+  booking_date: "Booking date", list_price: "List price", discount: "Discount",
+  payment_plan_id: "Payment plan", down_payment_pct: "Down payment %",
+  installment_pct: "Installments %", possession_pct: "On possession %",
+  tenure_months: "Tenure", frequency: "Frequency", booking_amount: "Booking amount",
+  first_installment_date: "First installment", commission_pct: "Commission %", notes: "Notes",
+};
+
+/** Which step each field lives on, so a validation failure can take you back to it. */
+const STEP_OF_FIELD: Partial<Record<keyof BookingValues, number>> = {
+  buyers: 0,
+  booking_date: 1, list_price: 1, discount: 1, plan_kind: 1, payment_plan_id: 1,
+  down_payment_pct: 1, installment_pct: 1, possession_pct: 1, tenure_months: 1,
+  frequency: 1, booking_amount: 1, first_installment_date: 1, dealer_id: 1,
+  commission_pct: 1, notes: 1,
+};
 
 export function BookingWizard({
   unit,
@@ -68,7 +91,7 @@ export function BookingWizard({
       frequency: defaultPlan?.frequency ?? "quarterly",
       booking_amount: "",
       first_installment_date: "",
-      dealer_id: "",
+      dealer_id: NO_DEALER,
       commission_pct: defaultCommissionPct,
       notes: "",
     },
@@ -99,6 +122,21 @@ export function BookingWizard({
     }
   }, [finalPrice, w.booking_date, w.plan_kind, w.down_payment_pct, w.installment_pct, w.possession_pct,
       w.tenure_months, w.frequency, w.first_installment_date, w.booking_amount, unit.downPaymentBalanceDays]);
+
+  // SIMCO's full-payment pricing: add the possession charge, then discount the result.
+  const fullPayment = (() => {
+    if (unit.fullPaymentDiscountPct === null) return null;
+    const base = new Decimal(unit.base_price || 0);
+    const listed = base.times(1 + unit.fullPaymentPossessionChargePct / 100).toDecimalPlaces(2);
+    const discount = listed.times(unit.fullPaymentDiscountPct).div(100).toDecimalPlaces(2);
+    return { listed, discount, net: listed.minus(discount) };
+  })();
+
+  const applyFullPaymentPricing = () => {
+    if (!fullPayment) return;
+    form.setValue("list_price", fullPayment.listed.toFixed(2), { shouldValidate: true });
+    form.setValue("discount", fullPayment.discount.toFixed(2), { shouldValidate: true });
+  };
 
   const applyPlan = (planId: string) => {
     const plan = plans.find((p) => p.id === planId);
@@ -137,10 +175,29 @@ export function BookingWizard({
         router.push(`/sales/${res.data!.id}`);
         router.refresh();
       }),
-    () => toast.error("Check the highlighted fields."),
+    (errors) => {
+      // the broken field is usually on an earlier step, where the user cannot see it
+      const names = Object.keys(errors) as (keyof BookingValues)[];
+      const earliest = Math.min(...names.map((n) => STEP_OF_FIELD[n] ?? 1));
+      setStep(earliest);
+      const named = names
+        .map((n) => (typeof errors[n]?.message === "string" ? describe(n, errors[n]!.message as string) : null))
+        .find(Boolean);
+      toast.error(named ?? "Check the highlighted fields.");
+    },
   );
 
-  const buyersError = form.formState.errors.buyers?.message;
+  // "Commission %: Enter 0-100" reads better than a bare "Enter 0-100"
+  const describe = (field: keyof BookingValues, message: string) =>
+    FIELD_LABEL[field] && !message.toLowerCase().startsWith(FIELD_LABEL[field]!.toLowerCase())
+      ? `${FIELD_LABEL[field]}: ${message}`
+      : message;
+
+  const errors = form.formState.errors;
+  const buyersError = errors.buyers?.message;
+  const errorList = (Object.keys(errors) as (keyof BookingValues)[])
+    .map((n) => ({ field: n, message: errors[n]?.message }))
+    .filter((e): e is { field: keyof BookingValues; message: string } => typeof e.message === "string");
 
   return (
     <form onSubmit={submit} noValidate className="space-y-6">
@@ -166,6 +223,28 @@ export function BookingWizard({
           </li>
         ))}
       </ol>
+
+      {errorList.length > 0 && (
+        <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
+          <p className="font-medium">This booking can&apos;t be saved yet:</p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5">
+            {errorList.map((e) => (
+              <li key={e.field}>
+                {describe(e.field, e.message)}
+                {STEP_OF_FIELD[e.field] !== undefined && STEP_OF_FIELD[e.field] !== step && (
+                  <button
+                    type="button"
+                    className="ml-2 underline"
+                    onClick={() => setStep(STEP_OF_FIELD[e.field]!)}
+                  >
+                    go to {STEPS[STEP_OF_FIELD[e.field]!]}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <Card>
         <CardHeader>
@@ -211,6 +290,18 @@ export function BookingWizard({
                 <div className="text-xs text-muted-foreground">Sale price</div>
                 <div className="text-lg font-semibold tabular-nums">{formatPKR(finalPrice)}</div>
               </div>
+              {w.plan_kind === "full_cash" && fullPayment && (
+                <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/40 p-3 text-sm sm:col-span-2 lg:col-span-4">
+                  <span className="flex-1">
+                    Full payment: {formatPKR(unit.base_price)} plus {unit.fullPaymentPossessionChargePct}% possession charge
+                    = {formatPKR(fullPayment.listed)}, less the {unit.fullPaymentDiscountPct}% full-payment discount
+                    = <strong>{formatPKR(fullPayment.net)}</strong>.
+                  </span>
+                  <Button type="button" variant="outline" size="sm" onClick={applyFullPaymentPricing}>
+                    Apply this pricing
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
           <Card>
@@ -274,7 +365,7 @@ export function BookingWizard({
                 control={control}
                 name="dealer_id"
                 label="Dealer"
-                options={[{ value: "", label: "None" }, ...dealers.map((d) => ({ value: d.id, label: d.name }))]}
+                options={[{ value: NO_DEALER, label: "None" }, ...dealers.map((d) => ({ value: d.id, label: d.name }))]}
               />
               <TextareaField control={control} name="notes" label="Notes" rows={2} className="sm:col-span-2 lg:col-span-4" />
             </CardContent>

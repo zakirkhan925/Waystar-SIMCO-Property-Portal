@@ -88,3 +88,26 @@ SIMCO VILLAS letterhead (A4) received. Documents print in three modes: on the le
 - **Editable:** all of these in Settings → Documents & letters.
 - **Assumption:** every sheet of letterhead stock carries the tagline, so page 2+ also start at 80 mm.
   If later pages go on plain paper, the body can start higher. This would need a separate "continuation page" margin (not built).
+
+### Money rules confirmed 30-Oct-2026
+
+| # | Question | Answer | How it works |
+|---|---|---|---|
+| 1 | Days to pay the rest of the down payment after the booking amount | **At once ("ASAP")** | `down_payment_balance_days = 0` for Simco Villas. Where a booking amount is entered, the down payment splits into *at booking* and *balance*, both dated the booking day, so the balance shows in Recoveries the moment it is unpaid. Set a number of days if a grace period is ever wanted |
+| 2 | Is the 10% penalty per day or per month | **Per started month** | One day late = one whole month's penalty. 40 days = two months. `private.accrued_late_fee()` |
+| 3 | Does a payment settle the penalty or the installment first | **The installment** | Oldest installment first and, within it, the installment before its penalty. Allocations carry a `component` of `principal` or `late_fee` |
+| 4 | Full-payment discount | **5%** | SIMCO's order, per the booking form: list price **+ 5% possession charge**, then **− 5% discount**. The wizard shows the arithmetic and fills it in. Agents may apply this standard discount; anything beyond it still needs a Manager |
+
+**Penalties accrue and do not vanish.** Once a month has started the penalty for it is owed, so paying the
+installment later stops the penalty growing but does not erase what has already accrued. An installment is
+only **paid** once both the installment and its penalty are settled.
+
+**A unit still becomes `sold` on the down payment clearing**, penalty aside — the penalty is a separate debt.
+
+**Worth deciding:** at 10% a month with no cap, a year of non-payment costs more than the installment itself
+(on the seeded example, Rs 1,065,750 of penalty on a Rs 761,250 installment). `projects.late_fee_cap_pct` can
+cap the penalty at a percentage of the installment; it is currently unset, so penalties are uncapped.
+
+Still open:
+- Documents 02 and 04 of the Simco Villas set — the numbering skips them; the client was asked what they are
+- Whether penalties also apply to rent invoices (Phase 4)

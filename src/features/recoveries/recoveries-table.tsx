@@ -35,6 +35,8 @@ export function RecoveriesTable({ rows, companyName }: { rows: RecoveryRow[]; co
         label: row.label,
         dueDate: row.due_date,
         outstanding: row.outstanding,
+        principal: row.principal_outstanding,
+        lateFee: row.late_fee_outstanding,
         daysOverdue: row.days_overdue,
         companyName,
       }),
@@ -90,7 +92,14 @@ export function RecoveriesTable({ rows, companyName }: { rows: RecoveryRow[]; co
                     <div className="text-xs text-rose-600 dark:text-rose-400">{r.days_overdue} days late</div>
                   )}
                 </TableCell>
-                <TableCell className="text-right tabular-nums">{formatPKR(r.outstanding)}</TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {formatPKR(r.outstanding)}
+                  {Number(r.late_fee_outstanding ?? 0) > 0 && (
+                    <div className="text-xs text-destructive">
+                      includes {formatPKR(r.late_fee_outstanding)} penalty
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell>
                   <AgingBadge bucket={r.aging_bucket ?? "not_due"} />
                 </TableCell>

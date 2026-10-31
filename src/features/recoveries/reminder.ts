@@ -8,6 +8,8 @@ export type ReminderInput = {
   label: string | null;
   dueDate: string | null;
   outstanding: string | number | null;
+  principal?: string | number | null;
+  lateFee?: string | number | null;
   daysOverdue: number | null;
   companyName: string;
 };
@@ -27,8 +29,12 @@ export function reminderText(r: ReminderInput): string {
     "",
     `Installment: ${r.label ?? "—"}`,
     `Due date: ${r.dueDate ? formatDate(r.dueDate) : "—"}`,
-    `Amount payable: ${formatPKR(r.outstanding ?? 0)}`,
   ];
+  if (Number(r.lateFee ?? 0) > 0) {
+    lines.push(`Installment amount: ${formatPKR(r.principal ?? 0)}`);
+    lines.push(`Late payment penalty: ${formatPKR(r.lateFee ?? 0)}`);
+  }
+  lines.push(`Amount payable: ${formatPKR(r.outstanding ?? 0)}`);
   if (overdue) lines.push(`Days overdue: ${r.daysOverdue}`);
   lines.push(
     "",

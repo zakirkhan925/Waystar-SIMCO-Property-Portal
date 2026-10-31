@@ -297,14 +297,14 @@ isOneToOne: false
                   ]
                 },"installments": {
                   Row: {
-                    "amount_due": number,"amount_paid": number,"amount_pending": number,"created_at": string,"created_by": string | null,"days_overdue": number,"deleted_at": string | null,"due_date": string | null,"id": string,"label": string,"late_fee": number,"sale_id": string,"seq": number,"status": Database["public"]['Enums']["installment_status"],"type": Database["public"]['Enums']["installment_type"],"updated_at": string,"waived_amount": number
+                    "amount_due": number,"amount_paid": number,"amount_pending": number,"created_at": string,"created_by": string | null,"days_overdue": number,"deleted_at": string | null,"due_date": string | null,"id": string,"label": string,"late_fee": number,"late_fee_paid": number,"sale_id": string,"seq": number,"status": Database["public"]['Enums']["installment_status"],"type": Database["public"]['Enums']["installment_type"],"updated_at": string,"waived_amount": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount_due": number,"amount_paid"?: number,"amount_pending"?: number,"created_at"?: string,"created_by"?: string | null,"days_overdue"?: number,"deleted_at"?: string | null,"due_date"?: string | null,"id"?: string,"label": string,"late_fee"?: number,"sale_id": string,"seq": number,"status"?: Database["public"]['Enums']["installment_status"],"type": Database["public"]['Enums']["installment_type"],"updated_at"?: string,"waived_amount"?: number
+                    "amount_due": number,"amount_paid"?: number,"amount_pending"?: number,"created_at"?: string,"created_by"?: string | null,"days_overdue"?: number,"deleted_at"?: string | null,"due_date"?: string | null,"id"?: string,"label": string,"late_fee"?: number,"late_fee_paid"?: number,"sale_id": string,"seq": number,"status"?: Database["public"]['Enums']["installment_status"],"type": Database["public"]['Enums']["installment_type"],"updated_at"?: string,"waived_amount"?: number
                   }
                   Update: {
-                    "amount_due"?: number,"amount_paid"?: number,"amount_pending"?: number,"created_at"?: string,"created_by"?: string | null,"days_overdue"?: number,"deleted_at"?: string | null,"due_date"?: string | null,"id"?: string,"label"?: string,"late_fee"?: number,"sale_id"?: string,"seq"?: number,"status"?: Database["public"]['Enums']["installment_status"],"type"?: Database["public"]['Enums']["installment_type"],"updated_at"?: string,"waived_amount"?: number
+                    "amount_due"?: number,"amount_paid"?: number,"amount_pending"?: number,"created_at"?: string,"created_by"?: string | null,"days_overdue"?: number,"deleted_at"?: string | null,"due_date"?: string | null,"id"?: string,"label"?: string,"late_fee"?: number,"late_fee_paid"?: number,"sale_id"?: string,"seq"?: number,"status"?: Database["public"]['Enums']["installment_status"],"type"?: Database["public"]['Enums']["installment_type"],"updated_at"?: string,"waived_amount"?: number
                   }
                   Relationships: [
                     {
@@ -335,14 +335,14 @@ isOneToOne: false
                   ]
                 },"payment_allocations": {
                   Row: {
-                    "amount": number,"created_at": string,"created_by": string | null,"id": string,"installment_id": string,"payment_id": string
+                    "amount": number,"component": string,"created_at": string,"created_by": string | null,"id": string,"installment_id": string,"payment_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"created_at"?: string,"created_by"?: string | null,"id"?: string,"installment_id": string,"payment_id": string
+                    "amount": number,"component"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"installment_id": string,"payment_id": string
                   }
                   Update: {
-                    "amount"?: number,"created_at"?: string,"created_by"?: string | null,"id"?: string,"installment_id"?: string,"payment_id"?: string
+                    "amount"?: number,"component"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"installment_id"?: string,"payment_id"?: string
                   }
                   Relationships: [
                     {
@@ -531,14 +531,14 @@ isOneToOne: false
                   ]
                 },"projects": {
                   Row: {
-                    "cancel_after_consecutive_missed": number | null,"cancellation_deduction_pct": number | null,"code": string,"construction_min_paid_pct": number | null,"corner_premium_pct": number,"cover_image_path": string | null,"created_at": string,"created_by": string | null,"deleted_at": string | null,"description": string | null,"down_payment_balance_days": number | null,"full_payment_possession_charge_pct": number,"id": string,"is_active": boolean,"late_fee_cap_pct": number | null,"late_fee_grace_days": number,"late_fee_method": Database["public"]['Enums']["late_fee_method"],"late_fee_rate": number,"location": string | null,"logo_path": string | null,"marla_per_kanal": number,"name": string,"sort_order": number,"sqft_per_marla": number,"status": Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at": string
+                    "cancel_after_consecutive_missed": number | null,"cancellation_deduction_pct": number | null,"code": string,"construction_min_paid_pct": number | null,"corner_premium_pct": number,"cover_image_path": string | null,"created_at": string,"created_by": string | null,"deleted_at": string | null,"description": string | null,"down_payment_balance_days": number | null,"full_payment_discount_pct": number | null,"full_payment_possession_charge_pct": number,"id": string,"is_active": boolean,"late_fee_cap_pct": number | null,"late_fee_grace_days": number,"late_fee_method": Database["public"]['Enums']["late_fee_method"],"late_fee_rate": number,"location": string | null,"logo_path": string | null,"marla_per_kanal": number,"name": string,"sort_order": number,"sqft_per_marla": number,"status": Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "cancel_after_consecutive_missed"?: number | null,"cancellation_deduction_pct"?: number | null,"code": string,"construction_min_paid_pct"?: number | null,"corner_premium_pct"?: number,"cover_image_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"description"?: string | null,"down_payment_balance_days"?: number | null,"full_payment_possession_charge_pct"?: number,"id"?: string,"is_active"?: boolean,"late_fee_cap_pct"?: number | null,"late_fee_grace_days"?: number,"late_fee_method"?: Database["public"]['Enums']["late_fee_method"],"late_fee_rate"?: number,"location"?: string | null,"logo_path"?: string | null,"marla_per_kanal"?: number,"name": string,"sort_order"?: number,"sqft_per_marla"?: number,"status"?: Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at"?: string
+                    "cancel_after_consecutive_missed"?: number | null,"cancellation_deduction_pct"?: number | null,"code": string,"construction_min_paid_pct"?: number | null,"corner_premium_pct"?: number,"cover_image_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"description"?: string | null,"down_payment_balance_days"?: number | null,"full_payment_discount_pct"?: number | null,"full_payment_possession_charge_pct"?: number,"id"?: string,"is_active"?: boolean,"late_fee_cap_pct"?: number | null,"late_fee_grace_days"?: number,"late_fee_method"?: Database["public"]['Enums']["late_fee_method"],"late_fee_rate"?: number,"location"?: string | null,"logo_path"?: string | null,"marla_per_kanal"?: number,"name": string,"sort_order"?: number,"sqft_per_marla"?: number,"status"?: Database["public"]['Enums']["project_status"],"type": Database["public"]['Enums']["project_type"],"updated_at"?: string
                   }
                   Update: {
-                    "cancel_after_consecutive_missed"?: number | null,"cancellation_deduction_pct"?: number | null,"code"?: string,"construction_min_paid_pct"?: number | null,"corner_premium_pct"?: number,"cover_image_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"description"?: string | null,"down_payment_balance_days"?: number | null,"full_payment_possession_charge_pct"?: number,"id"?: string,"is_active"?: boolean,"late_fee_cap_pct"?: number | null,"late_fee_grace_days"?: number,"late_fee_method"?: Database["public"]['Enums']["late_fee_method"],"late_fee_rate"?: number,"location"?: string | null,"logo_path"?: string | null,"marla_per_kanal"?: number,"name"?: string,"sort_order"?: number,"sqft_per_marla"?: number,"status"?: Database["public"]['Enums']["project_status"],"type"?: Database["public"]['Enums']["project_type"],"updated_at"?: string
+                    "cancel_after_consecutive_missed"?: number | null,"cancellation_deduction_pct"?: number | null,"code"?: string,"construction_min_paid_pct"?: number | null,"corner_premium_pct"?: number,"cover_image_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"description"?: string | null,"down_payment_balance_days"?: number | null,"full_payment_discount_pct"?: number | null,"full_payment_possession_charge_pct"?: number,"id"?: string,"is_active"?: boolean,"late_fee_cap_pct"?: number | null,"late_fee_grace_days"?: number,"late_fee_method"?: Database["public"]['Enums']["late_fee_method"],"late_fee_rate"?: number,"location"?: string | null,"logo_path"?: string | null,"marla_per_kanal"?: number,"name"?: string,"sort_order"?: number,"sqft_per_marla"?: number,"status"?: Database["public"]['Enums']["project_status"],"type"?: Database["public"]['Enums']["project_type"],"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -806,7 +806,7 @@ isOneToOne: false
                   ]
                 },"v_receivables": {
                   Row: {
-                    "aging_bucket": string | null,"amount_pending": number | null,"client_id": string | null,"client_name": string | null,"client_phone": string | null,"client_whatsapp": string | null,"days_overdue": number | null,"due_date": string | null,"installment_id": string | null,"label": string | null,"outstanding": number | null,"project_code": string | null,"project_id": string | null,"project_name": string | null,"sale_id": string | null,"seq": number | null,"status": Database["public"]['Enums']["installment_status"] | null,"type": Database["public"]['Enums']["installment_type"] | null,"unit_id": string | null,"unit_no": string | null
+                    "aging_bucket": string | null,"amount_pending": number | null,"client_id": string | null,"client_name": string | null,"client_phone": string | null,"client_whatsapp": string | null,"days_overdue": number | null,"due_date": string | null,"installment_id": string | null,"label": string | null,"late_fee_outstanding": number | null,"outstanding": number | null,"principal_outstanding": number | null,"project_code": string | null,"project_id": string | null,"project_name": string | null,"sale_id": string | null,"seq": number | null,"status": Database["public"]['Enums']["installment_status"] | null,"type": Database["public"]['Enums']["installment_type"] | null,"unit_id": string | null,"unit_no": string | null
                   }
                   ComputedFields: never
                   Relationships: [
@@ -850,7 +850,7 @@ isOneToOne: false
                   ]
                 },"v_sale_ledger": {
                   Row: {
-                    "balance": number | null,"final_price": number | null,"max_days_overdue": number | null,"next_due_date": string | null,"overdue_amount": number | null,"pct_paid": number | null,"project_id": string | null,"sale_id": string | null,"total_late_fee": number | null,"total_paid": number | null,"total_pending": number | null,"total_waived": number | null,"unit_id": string | null
+                    "balance": number | null,"final_price": number | null,"max_days_overdue": number | null,"next_due_date": string | null,"overdue_amount": number | null,"pct_paid": number | null,"project_id": string | null,"sale_id": string | null,"total_late_fee": number | null,"total_late_fee_paid": number | null,"total_paid": number | null,"total_pending": number | null,"total_waived": number | null,"unit_id": string | null
                   }
                   ComputedFields: never
                   Relationships: [
@@ -876,7 +876,7 @@ isOneToOne: false
                   ]
                 },"v_sale_summary": {
                   Row: {
-                    "agent_id": string | null,"agent_name": string | null,"balance": number | null,"block_name": string | null,"booking_date": string | null,"booking_form_no": string | null,"buyer_count": number | null,"cancellation_due": boolean | null,"category": Database["public"]['Enums']["unit_category"] | null,"discount": number | null,"final_price": number | null,"floor_label": string | null,"next_due_date": string | null,"overdue_amount": number | null,"pct_paid": number | null,"plan_kind": Database["public"]['Enums']["plan_kind"] | null,"primary_client_cnic": string | null,"primary_client_id": string | null,"primary_client_name": string | null,"primary_client_phone": string | null,"project_code": string | null,"project_id": string | null,"project_name": string | null,"sale_id": string | null,"status": Database["public"]['Enums']["sale_status"] | null,"street": string | null,"total_paid": number | null,"unit_id": string | null,"unit_no": string | null
+                    "agent_id": string | null,"agent_name": string | null,"balance": number | null,"block_name": string | null,"booking_date": string | null,"booking_form_no": string | null,"buyer_count": number | null,"cancellation_due": boolean | null,"category": Database["public"]['Enums']["unit_category"] | null,"discount": number | null,"final_price": number | null,"floor_label": string | null,"next_due_date": string | null,"overdue_amount": number | null,"pct_paid": number | null,"plan_kind": Database["public"]['Enums']["plan_kind"] | null,"primary_client_cnic": string | null,"primary_client_id": string | null,"primary_client_name": string | null,"primary_client_phone": string | null,"project_code": string | null,"project_id": string | null,"project_name": string | null,"sale_id": string | null,"status": Database["public"]['Enums']["sale_status"] | null,"street": string | null,"total_late_fee": number | null,"total_paid": number | null,"unit_id": string | null,"unit_no": string | null
                   }
                   ComputedFields: never
                   Relationships: [
@@ -971,6 +971,7 @@ isOneToOne: false
 "id": string,
 "label": string,
 "late_fee": number,
+"late_fee_paid": number,
 "sale_id": string,
 "seq": number,
 "status": Database["public"]['Enums']["installment_status"],

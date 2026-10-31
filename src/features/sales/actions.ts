@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, hasRole } from "@/lib/auth/session";
 import { dbErrorMessage, type ActionResult } from "@/lib/action-result";
-import { bookingSchema, paymentSchema, reasonSchema } from "./schemas";
+import { bookingSchema, NO_DEALER, paymentSchema, reasonSchema } from "./schemas";
 
 const fieldErrors = (e: { flatten: () => { fieldErrors: Record<string, string[] | undefined> } }) =>
   e.flatten().fieldErrors as Record<string, string[]>;
@@ -34,7 +34,7 @@ export async function createBooking(input: unknown): Promise<ActionResult<{ id: 
       frequency: v.plan_kind === "installment" ? v.frequency : null,
       booking_amount: v.booking_amount || null,
       first_installment_date: v.first_installment_date || null,
-      dealer_id: v.dealer_id || null,
+      dealer_id: v.dealer_id && v.dealer_id !== NO_DEALER ? v.dealer_id : null,
       commission_pct: v.commission_pct,
       notes: v.notes || null,
       buyers: v.buyers.map((b) => ({ client_id: b.client_id, share_pct: b.share_pct, is_primary: b.is_primary })),

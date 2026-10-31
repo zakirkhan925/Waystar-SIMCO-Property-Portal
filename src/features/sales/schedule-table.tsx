@@ -5,14 +5,16 @@ import { cn } from "@/lib/utils";
 import { InstallmentStatusBadge } from "./badges";
 import type { InstallmentRow } from "./queries";
 
+/** What is still owed on an installment: the installment itself, plus any penalty on it. */
+const outstanding = (i: InstallmentRow) =>
+  Number(i.amount_due) + Number(i.late_fee) - Number(i.amount_paid) - Number(i.waived_amount) - Number(i.late_fee_paid);
+
 export function ScheduleTable({ installments }: { installments: InstallmentRow[] }) {
   if (installments.length === 0) {
     return <p className="rounded-lg border p-8 text-center text-sm text-muted-foreground">No schedule yet.</p>;
   }
-  const sum = (pick: (i: InstallmentRow) => number | string) =>
-    installments.reduce((n, i) => n + Number(pick(i)), 0);
-  const outstanding = (i: InstallmentRow) =>
-    Number(i.amount_due) + Number(i.late_fee) - Number(i.amount_paid) - Number(i.waived_amount);
+  const sum = (pick: (i: InstallmentRow) => number | string) => installments.reduce((n, i) => n + Number(pick(i)), 0);
+  const anyPenalty = sum((i) => i.late_fee) > 0;
 
   return (
     <div className="overflow-hidden rounded-lg border">
@@ -23,6 +25,7 @@ export function ScheduleTable({ installments }: { installments: InstallmentRow[]
             <TableHead>Milestone</TableHead>
             <TableHead>Due</TableHead>
             <TableHead className="text-right">Amount</TableHead>
+            {anyPenalty && <TableHead className="text-right">Penalty</TableHead>}
             <TableHead className="text-right">Paid</TableHead>
             <TableHead className="text-right">Outstanding</TableHead>
             <TableHead>Status</TableHead>
@@ -30,18 +33,25 @@ export function ScheduleTable({ installments }: { installments: InstallmentRow[]
         </TableHeader>
         <TableBody>
           {installments.map((i) => (
-            <TableRow key={i.id} className={cn(i.status === "overdue" && "bg-rose-50/60 dark:bg-rose-950/20")}>
+            <TableRow key={i.id} className={cn(i.status === "overdue" && "bg-destructive/5")}>
               <TableCell className="text-muted-foreground">{i.seq}</TableCell>
               <TableCell className="font-medium">{i.label}</TableCell>
               <TableCell>
                 {i.due_date ? formatDate(i.due_date) : <span className="text-muted-foreground">On notice</span>}
-                {i.days_overdue > 0 && (
-                  <div className="text-xs text-rose-600 dark:text-rose-400">{i.days_overdue} days late</div>
-                )}
+                {i.days_overdue > 0 && <div className="text-xs text-destructive">{i.days_overdue} days late</div>}
               </TableCell>
               <TableCell className="text-right tabular-nums">{formatPKR(i.amount_due)}</TableCell>
+              {anyPenalty && (
+                <TableCell className="text-right tabular-nums">
+                  {Number(i.late_fee) > 0 ? (
+                    <span className="text-destructive">{formatPKR(i.late_fee)}</span>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </TableCell>
+              )}
               <TableCell className="text-right tabular-nums">
-                {formatPKR(i.amount_paid)}
+                {formatPKR(Number(i.amount_paid) + Number(i.late_fee_paid))}
                 {Number(i.amount_pending) > 0 && (
                   <div className="text-xs text-amber-600 dark:text-amber-400">
                     {formatPKR(i.amount_pending)} awaiting clearance
@@ -59,7 +69,12 @@ export function ScheduleTable({ installments }: { installments: InstallmentRow[]
           <TableRow>
             <TableCell colSpan={3}>Total</TableCell>
             <TableCell className="text-right tabular-nums">{formatPKR(sum((i) => i.amount_due))}</TableCell>
-            <TableCell className="text-right tabular-nums">{formatPKR(sum((i) => i.amount_paid))}</TableCell>
+            {anyPenalty && (
+              <TableCell className="text-right tabular-nums text-destructive">{formatPKR(sum((i) => i.late_fee))}</TableCell>
+            )}
+            <TableCell className="text-right tabular-nums">
+              {formatPKR(sum((i) => Number(i.amount_paid) + Number(i.late_fee_paid)))}
+            </TableCell>
             <TableCell className="text-right tabular-nums">
               {formatPKR(installments.reduce((n, i) => n + Math.max(0, outstanding(i)), 0))}
             </TableCell>

@@ -49,8 +49,13 @@ export default async function SalePage({ params }: Props) {
   const activity = can(user).viewActivity ? await getActivity("sales", saleId) : [];
   const nextDue = installments.find((i) => ["pending", "partially_paid", "overdue"].includes(i.status));
   const nextDueAmount = nextDue
-    ? (Number(nextDue.amount_due) + Number(nextDue.late_fee) - Number(nextDue.amount_paid) - Number(nextDue.waived_amount)).toFixed(2)
+    ? (
+        Number(nextDue.amount_due) + Number(nextDue.late_fee) -
+        Number(nextDue.amount_paid) - Number(nextDue.waived_amount) - Number(nextDue.late_fee_paid)
+      ).toFixed(2)
     : null;
+  const penalty = Number(ledger?.total_late_fee ?? 0);
+  const penaltyPaid = Number(ledger?.total_late_fee_paid ?? 0);
 
   return (
     <>
@@ -114,7 +119,16 @@ export default async function SalePage({ params }: Props) {
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <StatCard label="Sale price" value={formatPKR(sale.final_price)} hint={Number(sale.discount) > 0 ? `after ${formatPKR(sale.discount)} discount` : undefined} />
         <StatCard label="Received" value={formatPKR(ledger?.total_paid ?? 0)} hint={`${Number(ledger?.pct_paid ?? 0)}% of price`} />
-        <StatCard label="Awaiting clearance" value={formatPKR(ledger?.total_pending ?? 0)} />
+        {penalty > 0 ? (
+          <StatCard
+            label="Late penalty"
+            value={formatPKR(penalty)}
+            hint={penaltyPaid > 0 ? `${formatPKR(penaltyPaid)} paid` : "unpaid"}
+            className="border-destructive/40"
+          />
+        ) : (
+          <StatCard label="Awaiting clearance" value={formatPKR(ledger?.total_pending ?? 0)} />
+        )}
         <StatCard label="Balance" value={formatPKR(ledger?.balance ?? 0)} />
         <StatCard
           label="Overdue"

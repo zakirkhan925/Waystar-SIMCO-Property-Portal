@@ -82,9 +82,9 @@ select throws_ok($$ select pg_temp.book() $$, null, null, 'the same plot cannot 
 select throws_ok($$ select public.create_sale(jsonb_build_object(
     'unit_id', (select u.id from public.units u where u.status = 'available' and u.category = 'plot' limit 1),
     'booking_date', (now() at time zone 'Asia/Karachi')::date, 'plan_kind', 'full_cash',
-    'list_price', 1000000, 'discount', 50000,
+    'list_price', 1000000, 'discount', 200000,
     'buyers', jsonb_build_array(jsonb_build_object('client_id', (select client_id from t), 'share_pct', 100, 'is_primary', true)))) $$,
-  '42501', null, 'an agent cannot give a discount');
+  '42501', null, 'an agent cannot give a negotiated discount (beyond the standard full-payment one)');
 
 select throws_ok($$ select public.record_payment(jsonb_build_object(
     'sale_id', (select id from public.sales where unit_id = (select unit_id from t)),

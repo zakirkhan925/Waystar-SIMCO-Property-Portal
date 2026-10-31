@@ -101,3 +101,40 @@ describe("project policy validation", async () => {
     expect(projectFormSchema.safeParse({ ...base, cancellation_deduction_pct: "120" }).success).toBe(false);
   });
 });
+
+describe("recovery reminder", async () => {
+  const { reminderText, whatsappLink } = await import("@/features/recoveries/reminder");
+  const base = {
+    clientName: "Saad Bin Zafar",
+    unitNo: "303",
+    projectName: "Simco Villas",
+    label: "Installment 1 of 8 (Quarterly)",
+    dueDate: "2025-09-16",
+    outstanding: "1522500",
+    principal: "761250",
+    lateFee: "761250",
+    daysOverdue: 408,
+    companyName: "Waystar Royco Marketing",
+  };
+
+  it("spells the penalty out separately rather than burying it", () => {
+    const text = reminderText(base);
+    expect(text).toContain("Installment amount: Rs 761,250");
+    expect(text).toContain("Late payment penalty: Rs 761,250");
+    expect(text).toContain("Amount payable: Rs 1,522,500");
+    expect(text).toContain("Days overdue: 408");
+    expect(text).toContain("is overdue");
+  });
+
+  it("stays simple when nothing is overdue and no penalty applies", () => {
+    const text = reminderText({ ...base, daysOverdue: 0, lateFee: 0, outstanding: "761250" });
+    expect(text).toContain("upcoming installment");
+    expect(text).not.toContain("Late payment penalty");
+    expect(text).not.toContain("Days overdue");
+  });
+
+  it("builds a WhatsApp link in international form", () => {
+    expect(whatsappLink("0300 5678901", "hi")).toBe("https://wa.me/923005678901?text=hi");
+    expect(whatsappLink("+92 300 5678901", "hi")).toBe("https://wa.me/923005678901?text=hi");
+  });
+});

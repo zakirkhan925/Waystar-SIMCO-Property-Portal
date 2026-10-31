@@ -143,7 +143,7 @@ export async function getUnitForBooking(unitId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("units")
-    .select("*, projects(id, name, code, type, corner_premium_pct, full_payment_possession_charge_pct, down_payment_balance_days), blocks(name), floors(label)")
+    .select("*, projects(id, name, code, type, corner_premium_pct, full_payment_possession_charge_pct, full_payment_discount_pct, down_payment_balance_days), blocks(name), floors(label)")
     .eq("id", unitId)
     .is("deleted_at", null)
     .maybeSingle();

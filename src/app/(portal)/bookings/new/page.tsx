@@ -94,6 +94,11 @@ export default async function NewBookingPage({ searchParams }: { searchParams: P
             isCorner: unit.is_corner,
             cornerPremiumPct: Number(project?.corner_premium_pct ?? 0),
             downPaymentBalanceDays: project?.down_payment_balance_days ?? null,
+            fullPaymentPossessionChargePct: Number(project?.full_payment_possession_charge_pct ?? 0),
+            fullPaymentDiscountPct:
+              project?.full_payment_discount_pct === null || project?.full_payment_discount_pct === undefined
+                ? null
+                : Number(project.full_payment_discount_pct),
           }}
           plans={plans}
           dealers={dealers ?? []}

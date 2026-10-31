@@ -27,6 +27,9 @@ const pct = z
   .trim()
   .refine((v) => /^\d{1,3}(\.\d{1,2})?$/.test(v) && Number(v) <= 100, "Enter 0–100");
 
+/** Radix selects cannot carry an empty value, so "no dealer" needs a real one. */
+export const NO_DEALER = "none";
+
 export const buyerSchema = z.object({
   client_id: z.string().uuid("Choose a client"),
   share_pct: pct,
