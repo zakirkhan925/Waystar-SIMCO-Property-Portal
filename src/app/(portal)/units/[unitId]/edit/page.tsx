@@ -53,6 +53,7 @@ export default async function EditUnitPage({ params }: { params: Promise<{ unitI
           is_park_facing: unit.is_park_facing,
           is_main_boulevard: unit.is_main_boulevard,
           base_price: String(unit.base_price),
+          cash_price: unit.cash_price === null ? "" : String(unit.cash_price),
           price_per_sqft: unit.price_per_sqft?.toString() ?? "",
           status: locked ? "available" : (unit.status as "available" | "on_hold" | "blocked"),
           notes: unit.notes ?? "",

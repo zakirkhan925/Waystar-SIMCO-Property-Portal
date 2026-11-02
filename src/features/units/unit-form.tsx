@@ -47,6 +47,7 @@ export function UnitForm({ projectId, isPlotSociety, sqftPerMarla, structure, un
       is_park_facing: false,
       is_main_boulevard: false,
       base_price: "",
+      cash_price: "",
       price_per_sqft: "",
       status: "available",
       notes: "",
@@ -169,6 +170,13 @@ export function UnitForm({ projectId, isPlotSociety, sqftPerMarla, structure, un
             label="Base price (Rs)"
             inputMode="decimal"
             description={price ? formatPKR(price) : undefined}
+          />
+          <TextField
+            control={control}
+            name="cash_price"
+            label="Full payment price (Rs)"
+            inputMode="decimal"
+            description="Optional: SIMCO's published cash price. Leave blank to use the base price less the full-payment discount."
           />
           <TextField
             control={control}

@@ -38,6 +38,7 @@ export const unitFormSchema = z
     is_park_facing: z.boolean(),
     is_main_boulevard: z.boolean(),
     base_price: money,
+    cash_price: optionalMoney,
     price_per_sqft: optionalMoney,
     status: z.enum(["available", "on_hold", "blocked"]),
     notes: z.string().trim().max(1000),

@@ -25,6 +25,7 @@ function toRow(v: UnitFormParsed) {
     is_park_facing: v.is_park_facing,
     is_main_boulevard: v.is_main_boulevard,
     base_price: v.base_price as unknown as number,
+    cash_price: v.cash_price === "" ? null : (v.cash_price as unknown as number),
     price_per_sqft: v.price_per_sqft === "" ? null : (v.price_per_sqft as unknown as number),
     status: v.status,
     notes: v.notes || null,
