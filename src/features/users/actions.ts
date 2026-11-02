@@ -75,7 +75,18 @@ export async function createUser(input: unknown): Promise<ActionResult<{ id: str
     user_metadata: { full_name: v.full_name, phone: v.phone || undefined },
   });
   if (error || !data.user) {
-    const exists = error?.message.toLowerCase().includes("already");
+    const msg = (error?.message ?? "").toLowerCase();
+    // Supabase answers a key it does not recognise with a bare "Invalid API key".
+    if (msg.includes("invalid api key") || msg.includes("invalid jwt")) {
+      return {
+        ok: false,
+        error:
+          "Supabase rejected the service-role key. It is well-formed but not a valid key for this project — " +
+          "check it was copied from Project Settings → API Keys of THIS project (service_role, not publishable), " +
+          "re-save it and redeploy.",
+      };
+    }
+    const exists = msg.includes("already");
     return {
       ok: false,
       error: exists ? "A user with this email already exists." : (error?.message ?? "Could not create user."),
