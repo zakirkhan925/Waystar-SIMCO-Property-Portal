@@ -15,7 +15,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     <Card>
       <CardHeader>
         <CardTitle>Sign in</CardTitle>
-        <CardDescription>Use the email and password provided by your administrator.</CardDescription>
+        <CardDescription>Use the username and password provided by your administrator.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {error && ERRORS[error] && (

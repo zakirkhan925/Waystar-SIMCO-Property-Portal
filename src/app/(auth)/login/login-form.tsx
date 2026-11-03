@@ -16,7 +16,7 @@ export function LoginForm({ next }: { next?: string }) {
   const [pending, startTransition] = useTransition();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { identifier: "", password: "" },
   });
   const { errors } = form.formState;
 
@@ -30,10 +30,19 @@ export function LoginForm({ next }: { next?: string }) {
   return (
     <form onSubmit={onSubmit} noValidate>
       <FieldGroup>
-        <Field data-invalid={!!errors.email}>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input id="email" type="email" autoComplete="email" autoFocus aria-invalid={!!errors.email} {...form.register("email")} />
-          <FieldError errors={[errors.email]} />
+        <Field data-invalid={!!errors.identifier}>
+          <FieldLabel htmlFor="identifier">Username</FieldLabel>
+          <Input
+            id="identifier"
+            type="text"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            autoFocus
+            aria-invalid={!!errors.identifier}
+            {...form.register("identifier")}
+          />
+          <FieldError errors={[errors.identifier]} />
         </Field>
         <Field data-invalid={!!errors.password}>
           <div className="flex items-center justify-between">

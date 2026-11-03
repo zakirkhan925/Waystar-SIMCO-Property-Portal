@@ -5,7 +5,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, hasRole } from "@/lib/auth/session";
 import { dbErrorMessage, type ActionResult } from "@/lib/action-result";
-import { userFormSchema } from "./schemas";
+import { toAuthEmail } from "@/lib/auth/identifier";
+import { createUserSchema, newPasswordSchema, temporaryPassword, userFormSchema } from "./schemas";
 
 const BAN_FOREVER = "876000h"; // ~100 years: blocks sign-in for deactivated staff
 
@@ -58,7 +59,7 @@ export async function createUser(input: unknown): Promise<ActionResult<{ id: str
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
-  const parsed = userFormSchema.safeParse(input);
+  const parsed = createUserSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "Check the highlighted fields.", fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
   }
@@ -68,11 +69,14 @@ export async function createUser(input: unknown): Promise<ActionResult<{ id: str
   const admin = a.admin;
 
   // Role lives in app_metadata (not editable by the user); the DB trigger copies it to profiles.
+  // No mail is ever sent: the account identifier is <username>@waystar.internal and the
+  // admin hands over the password directly. email_confirm skips verification entirely.
   const { data, error } = await admin.auth.admin.createUser({
-    email: v.email,
+    email: toAuthEmail(v.username),
+    password: v.password,
     email_confirm: true,
     app_metadata: { role: v.role },
-    user_metadata: { full_name: v.full_name, phone: v.phone || undefined },
+    user_metadata: { full_name: v.full_name, phone: v.phone || undefined, username: v.username },
   });
   if (error || !data.user) {
     const msg = (error?.message ?? "").toLowerCase();
@@ -89,8 +93,8 @@ export async function createUser(input: unknown): Promise<ActionResult<{ id: str
     const exists = msg.includes("already");
     return {
       ok: false,
-      error: exists ? "A user with this email already exists." : (error?.message ?? "Could not create user."),
-      fieldErrors: exists ? { email: ["Already registered"] } : undefined,
+      error: exists ? "That username is already taken." : (error?.message ?? "Could not create user."),
+      fieldErrors: exists ? { username: ["Already taken"] } : undefined,
     };
   }
 
@@ -100,13 +104,23 @@ export async function createUser(input: unknown): Promise<ActionResult<{ id: str
     return { ok: false, error: `User created, but project access failed: ${(e as Error).message}` };
   }
 
-  // Email a link to choose their own password (no admin-chosen passwords).
+  // The username, the real email (contact only) and the force-change flag live on the profile.
+  // The auth trigger created the row; this fills in what it could not know.
   const supabase = await createClient();
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
-  await supabase.auth.resetPasswordForEmail(v.email, { redirectTo: `${site}/auth/callback?next=/reset-password` });
+  const { error: profileErr } = await supabase
+    .from("profiles")
+    .update({ username: v.username, email: v.email || null, must_change_password: true })
+    .eq("id", data.user.id);
+  if (profileErr) {
+    return { ok: false, error: `Account created, but saving the username failed: ${dbErrorMessage(profileErr)}` };
+  }
 
   revalidatePath("/settings/users");
-  return { ok: true, data: { id: data.user.id }, message: `${v.full_name} added. A link to set their password was emailed.` };
+  return {
+    ok: true,
+    data: { id: data.user.id },
+    message: `${v.full_name} added. Give them the username "${v.username}" and the password you set — they must change it at first sign-in.`,
+  };
 }
 
 export async function updateUser(userId: string, input: unknown): Promise<ActionResult> {
@@ -134,7 +148,14 @@ export async function updateUser(userId: string, input: unknown): Promise<Action
   const supabase = await createClient();
   const { error } = await supabase
     .from("profiles")
-    .update({ full_name: v.full_name, phone: v.phone || null, role: v.role, is_active: v.is_active })
+    .update({
+      full_name: v.full_name,
+      phone: v.phone || null,
+      role: v.role,
+      is_active: v.is_active,
+      username: v.username,
+      email: v.email || null,
+    })
     .eq("id", userId);
   if (error) return { ok: false, error: dbErrorMessage(error) };
 
@@ -154,15 +175,58 @@ export async function updateUser(userId: string, input: unknown): Promise<Action
   return { ok: true, message: "User updated." };
 }
 
-export async function sendPasswordReset(email: string): Promise<ActionResult> {
+/**
+ * Issue a new temporary password. Staff sign in with a username and may have no email at
+ * all, so there is nowhere to send a reset link — the Super Admin sets one and hands it over.
+ * The force-change flag means the person still picks their own on next sign-in.
+ */
+export async function setTemporaryPassword(input: unknown): Promise<ActionResult> {
   try {
     await assertSuperAdmin();
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
-  const supabase = await createClient();
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${site}/auth/callback?next=/reset-password` });
+  const parsed = newPasswordSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Check the highlighted fields.", fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
+  }
+  const v = parsed.data;
+  const a = adminOrReason();
+  if (!a.admin) return { ok: false, error: a.reason };
+
+  const { error } = await a.admin.auth.admin.updateUserById(v.user_id, { password: v.password });
   if (error) return { ok: false, error: error.message };
-  return { ok: true, message: "Password reset link sent." };
+
+  const supabase = await createClient();
+  const { error: flagErr } = await supabase
+    .from("profiles")
+    .update({ must_change_password: true })
+    .eq("id", v.user_id);
+  if (flagErr) return { ok: false, error: dbErrorMessage(flagErr) };
+
+  revalidatePath("/settings/users");
+  return { ok: true, message: "New password set. They must change it at next sign-in." };
+}
+
+/** The person changes their own password, which clears the force-change flag. */
+export async function changeOwnPassword(password: string): Promise<ActionResult> {
+  const parsed = temporaryPassword.safeParse(password);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid password." };
+
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const userId = claims?.claims?.sub;
+  if (!userId) return { ok: false, error: "You are not signed in." };
+
+  const { error } = await supabase.auth.updateUser({ password: parsed.data });
+  if (error) return { ok: false, error: error.message };
+
+  const { error: flagErr } = await supabase
+    .from("profiles")
+    .update({ must_change_password: false })
+    .eq("id", userId);
+  if (flagErr) return { ok: false, error: dbErrorMessage(flagErr) };
+
+  revalidatePath("/", "layout");
+  return { ok: true, message: "Password changed." };
 }

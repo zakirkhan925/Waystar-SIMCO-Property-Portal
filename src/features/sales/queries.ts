@@ -52,7 +52,7 @@ export async function getSale(saleId: string) {
   const { data: sale } = await supabase
     .from("sales")
     .select(
-      `*, projects(id, name, code, type),
+      `*, projects(id, name, code, type, cancellation_deduction_pct),
        units(id, unit_no, street, category, size_value, size_unit, width_ft, depth_ft, area_sqft, status,
              blocks(name), floors(label)),
        sale_buyers(share_pct, is_primary, clients(id, full_name, cnic, passport_no, phone, whatsapp, email)),

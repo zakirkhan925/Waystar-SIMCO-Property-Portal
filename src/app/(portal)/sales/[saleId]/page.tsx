@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getSaleHistory } from "@/features/phase3/queries";
+import { CancelSaleDialog, PossessionDialog, TransferDialog } from "@/features/phase3/sale-actions";
 import { SaleStatusBadge } from "@/features/sales/badges";
 import { PaymentsList } from "@/features/sales/payments-list";
 import { getSale } from "@/features/sales/queries";
@@ -40,6 +42,7 @@ export default async function SalePage({ params }: Props) {
   const { saleId } = await params;
   const [user, detail] = await Promise.all([getCurrentUser(), getSale(saleId)]);
   if (!detail) notFound();
+  const { possession, transfers, cancellation } = await getSaleHistory(saleId);
 
   const { sale, ledger, installments, payments, agentName } = detail;
   const unit = sale.units;
@@ -54,6 +57,15 @@ export default async function SalePage({ params }: Props) {
         Number(nextDue.amount_paid) - Number(nextDue.waived_amount) - Number(nextDue.late_fee_paid)
       ).toFixed(2)
     : null;
+  const isManager = hasRole(user, "super_admin", "manager");
+  const isLive = sale.status === "booked" || sale.status === "active";
+  // mirrors private.sale_outstanding(): principal + penalties, less what is paid or waived
+  const outstanding = installments.reduce(
+    (n, i) =>
+      n + Number(i.amount_due) + Number(i.late_fee) -
+      Number(i.amount_paid) - Number(i.waived_amount) - Number(i.late_fee_paid),
+    0,
+  );
   const penalty = Number(ledger?.total_late_fee ?? 0);
   const penaltyPaid = Number(ledger?.total_late_fee_paid ?? 0);
 
@@ -92,6 +104,18 @@ export default async function SalePage({ params }: Props) {
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/units/${unit.id}`}>View unit</Link>
               </Button>
+            )}
+            {isManager && isLive && (
+              <>
+                <PossessionDialog saleId={saleId} outstanding={outstanding} />
+                <TransferDialog saleId={saleId} />
+                <CancelSaleDialog
+                  saleId={saleId}
+                  salePrice={Number(sale.final_price)}
+                  received={Number(ledger?.total_paid ?? 0)}
+                  defaultDeductionPct={Number(project?.cancellation_deduction_pct ?? 0)}
+                />
+              </>
             )}
             {canHandleMoney && sale.status !== "cancelled" && (
               <RecordPaymentDialog
@@ -147,6 +171,9 @@ export default async function SalePage({ params }: Props) {
           <TabsTrigger value="schedule">Schedule</TabsTrigger>
           <TabsTrigger value="payments">Receipts ({payments.length})</TabsTrigger>
           <TabsTrigger value="details">Details</TabsTrigger>
+          {(possession || transfers.length > 0 || cancellation) && (
+            <TabsTrigger value="history">History</TabsTrigger>
+          )}
           {can(user).viewActivity && <TabsTrigger value="activity">Activity</TabsTrigger>}
         </TabsList>
 
@@ -157,6 +184,91 @@ export default async function SalePage({ params }: Props) {
         <TabsContent value="payments" className="mt-4">
           <PaymentsList payments={payments} saleId={saleId} canHandleMoney={canHandleMoney} />
         </TabsContent>
+
+        {(possession || transfers.length > 0 || cancellation) && (
+          <TabsContent value="history" className="mt-4 grid gap-4 lg:grid-cols-2">
+            {possession && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Possession</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <dl className="grid grid-cols-2 gap-4">
+                    <Item label="Letter no." value={possession.letter_no} />
+                    <Item label="Handed over" value={formatDate(possession.handover_date)} />
+                    <Item
+                      label="Dues cleared"
+                      value={possession.dues_cleared_date ? formatDate(possession.dues_cleared_date) : null}
+                    />
+                    <Item
+                      label="Discrepancies by"
+                      value={possession.discrepancy_deadline ? formatDate(possession.discrepancy_deadline) : "Not set"}
+                    />
+                    <Item label="Notes" value={possession.notes} />
+                  </dl>
+                </CardContent>
+              </Card>
+            )}
+
+            {cancellation && (
+              <Card className="border-destructive/40">
+                <CardHeader>
+                  <CardTitle>Cancellation</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <dl className="grid grid-cols-2 gap-4">
+                    <Item label="Reference" value={cancellation.cancellation_no} />
+                    <Item label="Cancelled on" value={formatDate(cancellation.cancelled_on)} />
+                    <Item label="Received" value={formatPKR(cancellation.amount_received)} />
+                    <Item
+                      label={`Deduction (${Number(cancellation.deduction_pct)}% of price)`}
+                      value={formatPKR(cancellation.deduction_amount)}
+                    />
+                    <Item label="Refund due" value={formatPKR(cancellation.refund_due)} />
+                    <Item
+                      label="Refund status"
+                      value={
+                        cancellation.refund_status === "paid"
+                          ? `Paid ${cancellation.refunded_on ? formatDate(cancellation.refunded_on) : ""}`
+                          : cancellation.refund_status === "payable"
+                            ? `Payable${cancellation.refund_due_date ? ` by ${formatDate(cancellation.refund_due_date)}` : ""}`
+                            : "Awaiting re-sale"
+                      }
+                    />
+                    <Item label="Reason" value={cancellation.reason} />
+                  </dl>
+                  <Button variant="outline" size="sm" className="mt-4" asChild>
+                    <Link href="/refunds">View in refunds</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {transfers.length > 0 && (
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle>Transfers</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {transfers.map((t) => (
+                    <div key={t.id} className="flex flex-wrap items-start justify-between gap-2 border-b pb-3 last:border-0">
+                      <div>
+                        <div className="font-medium">{t.transfer_no}</div>
+                        <div className="text-xs text-muted-foreground">{t.reason}</div>
+                      </div>
+                      <div className="text-right text-sm">
+                        <div>{formatDate(t.transfer_date)}</div>
+                        {Number(t.transfer_fee) > 0 && (
+                          <div className="text-xs text-muted-foreground">fee {formatPKR(t.transfer_fee)}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        )}
 
         <TabsContent value="details" className="mt-4 grid gap-4 lg:grid-cols-2">
           <Card>

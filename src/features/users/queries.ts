@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function listUsers() {
   const supabase = await createClient();
   const [{ data: profiles }, { data: access }] = await Promise.all([
-    supabase.from("profiles").select("id, full_name, email, phone, role, is_active, created_at").neq("role", "client").order("full_name"),
+    supabase.from("profiles").select("id, full_name, username, email, phone, role, is_active, must_change_password, created_at").neq("role", "client").order("full_name"),
     supabase.from("user_project_access").select("user_id, project_id"),
   ]);
   const byUser = new Map<string, string[]>();

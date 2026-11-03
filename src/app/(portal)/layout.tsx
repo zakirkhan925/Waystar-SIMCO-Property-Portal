@@ -2,10 +2,14 @@ import { DesktopSidebar, MobileNav } from "@/components/layout/app-sidebar";
 import { GlobalSearch } from "@/components/layout/global-search";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
+  // Someone still on an admin-issued password gets no further than this. /change-password
+  // sits outside this layout, so there is nothing to loop against.
+  if (user.mustChangePassword) redirect("/change-password");
 
   return (
     <div className="flex min-h-dvh">
@@ -17,7 +21,7 @@ export default async function PortalLayout({ children }: { children: React.React
             <GlobalSearch />
           </div>
           <ThemeToggle />
-          <UserMenu name={user.fullName} email={user.email} role={user.role} />
+          <UserMenu name={user.fullName} email={user.email} username={user.username} role={user.role} />
         </header>
         <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">{children}</main>
       </div>

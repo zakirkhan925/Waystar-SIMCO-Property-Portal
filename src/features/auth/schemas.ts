@@ -1,7 +1,15 @@
 import { z } from "zod";
 
+/** Staff sign in with a username; an email is still accepted for accounts that have one. */
 export const loginSchema = z.object({
-  email: z.email("Enter a valid email address"),
+  identifier: z
+    .string()
+    .trim()
+    .min(1, "Enter your username")
+    .refine(
+      (v) => v.includes("@") || /^[A-Za-z0-9._-]{3,32}$/.test(v),
+      "Use your username, or your email address if you have one",
+    ),
   password: z.string().min(1, "Enter your password"),
 });
 

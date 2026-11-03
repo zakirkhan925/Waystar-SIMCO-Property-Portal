@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/action-result";
+import { toAuthEmail } from "@/lib/auth/identifier";
 import { forgotSchema, loginSchema, resetSchema } from "./schemas";
 
 function safeNext(next: unknown): string {
@@ -15,8 +16,12 @@ export async function signIn(input: unknown, next?: string): Promise<ActionResul
   if (!parsed.success) return { ok: false, error: "Check the highlighted fields." };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) return { ok: false, error: "Incorrect email or password." };
+  // a username becomes <username>@waystar.internal; a real email passes through unchanged
+  const { error } = await supabase.auth.signInWithPassword({
+    email: toAuthEmail(parsed.data.identifier),
+    password: parsed.data.password,
+  });
+  if (error) return { ok: false, error: "Incorrect username or password." };
 
   redirect(safeNext(next));
 }

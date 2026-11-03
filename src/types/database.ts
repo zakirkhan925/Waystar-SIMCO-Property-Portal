@@ -211,6 +211,42 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"possessions": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"deleted_at": string | null,"discrepancy_deadline": string | null,"dues_cleared_date": string | null,"handover_date": string,"id": string,"letter_no": string,"notes": string | null,"project_id": string,"sale_id": string,"unit_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"discrepancy_deadline"?: string | null,"dues_cleared_date"?: string | null,"handover_date": string,"id"?: string,"letter_no": string,"notes"?: string | null,"project_id": string,"sale_id": string,"unit_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"discrepancy_deadline"?: string | null,"dues_cleared_date"?: string | null,"handover_date"?: string,"id"?: string,"letter_no"?: string,"notes"?: string | null,"project_id"?: string,"sale_id"?: string,"unit_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: []
+                },"transfers": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"notes": string | null,"project_id": string,"reason": string,"sale_id": string,"transfer_date": string,"transfer_fee": number,"transfer_no": string,"unit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"notes"?: string | null,"project_id": string,"reason": string,"sale_id": string,"transfer_date": string,"transfer_fee"?: number,"transfer_no": string,"unit_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"notes"?: string | null,"project_id"?: string,"reason"?: string,"sale_id"?: string,"transfer_date"?: string,"transfer_fee"?: number,"transfer_no"?: string,"unit_id"?: string
+                  }
+                  Relationships: []
+                },"cancellations": {
+                  Row: {
+                    "amount_received": number,"cancellation_no": string,"cancelled_on": string,"created_at": string,"created_by": string | null,"deduction_amount": number,"deduction_pct": number,"id": string,"project_id": string,"reason": string,"refund_due": number,"refund_due_date": string | null,"refund_reference": string | null,"refund_status": Database["public"]['Enums']["refund_status"],"refunded_on": string | null,"resold_sale_id": string | null,"sale_id": string,"sale_price": number,"unit_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_received": number,"cancellation_no": string,"cancelled_on": string,"created_at"?: string,"created_by"?: string | null,"deduction_amount": number,"deduction_pct": number,"id"?: string,"project_id": string,"reason": string,"refund_due": number,"refund_due_date"?: string | null,"refund_reference"?: string | null,"refund_status"?: Database["public"]['Enums']["refund_status"],"refunded_on"?: string | null,"resold_sale_id"?: string | null,"sale_id": string,"sale_price": number,"unit_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount_received"?: number,"cancellation_no"?: string,"cancelled_on"?: string,"created_at"?: string,"created_by"?: string | null,"deduction_amount"?: number,"deduction_pct"?: number,"id"?: string,"project_id"?: string,"reason"?: string,"refund_due"?: number,"refund_due_date"?: string | null,"refund_reference"?: string | null,"refund_status"?: Database["public"]['Enums']["refund_status"],"refunded_on"?: string | null,"resold_sale_id"?: string | null,"sale_id"?: string,"sale_price"?: number,"unit_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: []
                 },"doc_sequences": {
                   Row: {
                     "doc_type": string,"last_no": number,"project_id": string,"year": number
@@ -485,14 +521,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "created_at": string,"email": string | null,"full_name": string,"id": string,"is_active": boolean,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
+                    "created_at": string,"email": string | null,"full_name": string,"id": string,"is_active": boolean,"username": string | null,"must_change_password": boolean,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"email"?: string | null,"full_name": string,"id": string,"is_active"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "created_at"?: string,"email"?: string | null,"full_name": string,"id": string,"is_active"?: boolean,"username"?: string | null,"must_change_password"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"email"?: string | null,"full_name"?: string,"id"?: string,"is_active"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "created_at"?: string,"email"?: string | null,"full_name"?: string,"id"?: string,"is_active"?: boolean,"username"?: string | null,"must_change_password"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -796,7 +832,12 @@ isOneToOne: false
                 }
           }
           Views: {
-            "v_project_inventory": {
+            "v_refunds_due": {
+                  Row: {
+                    "amount_received": number | null,"cancellation_id": string | null,"cancellation_no": string | null,"cancelled_on": string | null,"client_id": string | null,"client_name": string | null,"client_phone": string | null,"client_whatsapp": string | null,"days_overdue": number | null,"deduction_amount": number | null,"deduction_pct": number | null,"project_code": string | null,"project_id": string | null,"project_name": string | null,"reason": string | null,"refund_due": number | null,"refund_due_date": string | null,"refund_reference": string | null,"refund_status": Database["public"]['Enums']["refund_status"] | null,"refunded_on": string | null,"resold_sale_id": string | null,"sale_id": string | null,"sale_price": number | null,"unit_id": string | null,"unit_no": string | null
+                  }
+                  Relationships: []
+                },"v_project_inventory": {
                   Row: {
                     "available": number | null,"blocked": number | null,"booked": number | null,"code": string | null,"name": string | null,"on_hold": number | null,"project_id": string | null,"project_status": Database["public"]['Enums']["project_status"] | null,"rented": number | null,"sold": number | null,"sort_order": number | null,"total_area_sqft": number | null,"total_list_value": number | null,"total_units": number | null,"type": Database["public"]['Enums']["project_type"] | null,"unsold_inventory_value": number | null
                   }
@@ -921,7 +962,15 @@ isOneToOne: false
 "client_exists":
 { Args: { "p_cnic"?: string,"p_passport"?: string }; Returns: boolean
                            },
-"create_sale":
+"grant_possession":
+{ Args: { "p": Json }; Returns: Json
+                           },"transfer_sale":
+{ Args: { "p": Json }; Returns: Json
+                           },"cancel_sale":
+{ Args: { "p": Json }; Returns: Json
+                           },"settle_refund":
+{ Args: { "p_cancellation": string,"p_paid_on"?: string,"p_reference"?: string,"p_reason"?: string }; Returns: Json
+                           },"create_sale":
 { Args: { "p": Json }; Returns: {
               "agent_id": string | null,
 "booking_amount": number | null,
@@ -1096,7 +1145,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","commission_status": "pending"|"partially_received"|"received"|"cancelled","document_type": "booking_form"|"allotment_letter"|"sale_agreement"|"installment_schedule"|"possession_letter"|"ndc_letter"|"payment_receipt"|"transfer_letter"|"statement_of_account","installment_status": "pending"|"partially_paid"|"paid"|"overdue"|"waived","installment_type": "down_payment"|"installment"|"possession"|"balloon"|"other","instrument_status": "not_applicable"|"pending"|"cleared"|"bounced","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","ownership_via": "booking"|"transfer"|"correction","payment_mode": "cash"|"cheque"|"pay_order"|"bank_transfer"|"online","plan_frequency": "monthly"|"quarterly"|"bi_annual"|"annual","plan_kind": "full_cash"|"installment","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","record_status": "valid"|"reversed","sale_status": "booked"|"active"|"completed"|"cancelled"|"transferred","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
+            "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","commission_status": "pending"|"partially_received"|"received"|"cancelled","document_type": "booking_form"|"allotment_letter"|"sale_agreement"|"installment_schedule"|"possession_letter"|"ndc_letter"|"payment_receipt"|"transfer_letter"|"statement_of_account","installment_status": "pending"|"partially_paid"|"paid"|"overdue"|"waived","installment_type": "down_payment"|"installment"|"possession"|"balloon"|"other","instrument_status": "not_applicable"|"pending"|"cleared"|"bounced","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","ownership_via": "booking"|"transfer"|"correction","payment_mode": "cash"|"cheque"|"pay_order"|"bank_transfer"|"online","plan_frequency": "monthly"|"quarterly"|"bi_annual"|"annual","plan_kind": "full_cash"|"installment","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","record_status": "valid"|"reversed","refund_status": "pending_resale"|"payable"|"paid"|"waived","sale_status": "booked"|"active"|"completed"|"cancelled"|"transferred","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1216,7 +1265,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["super_admin", "manager", "sales_agent", "accounts", "viewer", "client"],"audit_action": ["insert", "update", "delete"],"block_kind": ["block", "tower", "phase", "sector"],"commission_status": ["pending", "partially_received", "received", "cancelled"],"document_type": ["booking_form", "allotment_letter", "sale_agreement", "installment_schedule", "possession_letter", "ndc_letter", "payment_receipt", "transfer_letter", "statement_of_account"],"installment_status": ["pending", "partially_paid", "paid", "overdue", "waived"],"installment_type": ["down_payment", "installment", "possession", "balloon", "other"],"instrument_status": ["not_applicable", "pending", "cleared", "bounced"],"late_fee_method": ["none", "flat_per_installment", "pct_of_overdue_per_month", "pct_per_day"],"ownership_via": ["booking", "transfer", "correction"],"payment_mode": ["cash", "cheque", "pay_order", "bank_transfer", "online"],"plan_frequency": ["monthly", "quarterly", "bi_annual", "annual"],"plan_kind": ["full_cash", "installment"],"project_status": ["off_plan", "under_construction", "completed"],"project_type": ["plot_society", "high_rise"],"record_status": ["valid", "reversed"],"sale_status": ["booked", "active", "completed", "cancelled", "transferred"],"size_unit": ["marla", "kanal", "sqft"],"unit_category": ["plot", "apartment", "shop", "office", "penthouse", "other"],"unit_status": ["available", "on_hold", "booked", "sold", "rented", "blocked"],"unit_use": ["residential", "commercial"]
+            "app_role": ["super_admin", "manager", "sales_agent", "accounts", "viewer", "client"],"audit_action": ["insert", "update", "delete"],"block_kind": ["block", "tower", "phase", "sector"],"commission_status": ["pending", "partially_received", "received", "cancelled"],"document_type": ["booking_form", "allotment_letter", "sale_agreement", "installment_schedule", "possession_letter", "ndc_letter", "payment_receipt", "transfer_letter", "statement_of_account"],"installment_status": ["pending", "partially_paid", "paid", "overdue", "waived"],"installment_type": ["down_payment", "installment", "possession", "balloon", "other"],"instrument_status": ["not_applicable", "pending", "cleared", "bounced"],"late_fee_method": ["none", "flat_per_installment", "pct_of_overdue_per_month", "pct_per_day"],"ownership_via": ["booking", "transfer", "correction"],"payment_mode": ["cash", "cheque", "pay_order", "bank_transfer", "online"],"plan_frequency": ["monthly", "quarterly", "bi_annual", "annual"],"plan_kind": ["full_cash", "installment"],"project_status": ["off_plan", "under_construction", "completed"],"project_type": ["plot_society", "high_rise"],"record_status": ["valid", "reversed"],"refund_status": ["pending_resale", "payable", "paid", "waived"],"sale_status": ["booked", "active", "completed", "cancelled", "transferred"],"size_unit": ["marla", "kanal", "sqft"],"unit_category": ["plot", "apartment", "shop", "office", "penthouse", "other"],"unit_status": ["available", "on_hold", "booked", "sold", "rented", "blocked"],"unit_use": ["residential", "commercial"]
           }
         }
 } as const

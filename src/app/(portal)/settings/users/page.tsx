@@ -50,7 +50,7 @@ export default async function UsersPage() {
               <TableRow key={u.id}>
                 <TableCell>
                   <div className="font-medium">{u.full_name}</div>
-                  <div className="text-xs text-muted-foreground">{u.email}</div>
+                  <div className="text-xs text-muted-foreground">{u.username ?? u.email}</div>
                 </TableCell>
                 <TableCell>{ROLE_LABELS[u.role]}</TableCell>
                 <TableCell className="whitespace-normal">
@@ -75,6 +75,7 @@ export default async function UsersPage() {
                     user={{
                       id: u.id,
                       full_name: u.full_name,
+                      username: u.username ?? "",
                       email: u.email ?? "",
                       phone: u.phone ?? "",
                       role: u.role as (typeof STAFF_ROLES)[number],

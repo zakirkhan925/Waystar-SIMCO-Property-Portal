@@ -13,9 +13,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/features/auth/actions";
+import { isInternalEmail } from "@/lib/auth/identifier";
 import { ROLE_LABELS, type AppRole } from "@/lib/labels";
 
-export function UserMenu({ name, email, role }: { name: string; email: string | null; role: AppRole }) {
+export function UserMenu({
+  name,
+  email,
+  username,
+  role,
+}: {
+  name: string;
+  email: string | null;
+  username?: string | null;
+  role: AppRole;
+}) {
+  // The internal <username>@waystar.internal address is plumbing, never shown.
+  const subtitle = username ?? (isInternalEmail(email) ? null : email);
   const initials = name
     .split(/\s+/)
     .slice(0, 2)
@@ -34,7 +47,7 @@ export function UserMenu({ name, email, role }: { name: string; email: string | 
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="text-sm font-medium">{name}</div>
-          <div className="truncate text-xs text-muted-foreground">{email}</div>
+          <div className="truncate text-xs text-muted-foreground">{subtitle}</div>
           <div className="mt-1 text-xs text-muted-foreground">{ROLE_LABELS[role]}</div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

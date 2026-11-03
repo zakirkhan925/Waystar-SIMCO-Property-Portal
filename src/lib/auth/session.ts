@@ -7,8 +7,11 @@ import type { AppRole } from "@/lib/labels";
 export type CurrentUser = {
   id: string;
   email: string | null;
+  username: string | null;
   fullName: string;
   role: AppRole;
+  /** Still on a password an admin issued: the portal forces a change before anything else. */
+  mustChangePassword: boolean;
 };
 
 /** The logged-in staff member (cached per request). Redirects to /login if missing or deactivated. */
@@ -20,7 +23,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser> => {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, email, full_name, role, is_active")
+    .select("id, email, username, full_name, role, is_active, must_change_password")
     .eq("id", userId)
     .single();
 
@@ -28,7 +31,14 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser> => {
     await supabase.auth.signOut();
     redirect("/login?error=inactive");
   }
-  return { id: profile.id, email: profile.email, fullName: profile.full_name, role: profile.role };
+  return {
+    id: profile.id,
+    email: profile.email,
+    username: profile.username,
+    fullName: profile.full_name,
+    role: profile.role,
+    mustChangePassword: profile.must_change_password,
+  };
 });
 
 export function hasRole(user: CurrentUser, ...roles: AppRole[]) {

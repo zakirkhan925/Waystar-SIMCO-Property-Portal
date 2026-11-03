@@ -19,8 +19,16 @@ import {
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { applyServerErrors, CheckboxField, SelectField, TextField } from "@/components/forms/fields";
 import { ROLE_LABELS } from "@/lib/labels";
-import { createUser, sendPasswordReset, updateUser } from "./actions";
-import { ROLE_DESCRIPTIONS, STAFF_ROLES, userFormSchema, type UserFormParsed, type UserFormValues } from "./schemas";
+import { createUser, setTemporaryPassword, updateUser } from "./actions";
+import {
+  createUserSchema,
+  ROLE_DESCRIPTIONS,
+  STAFF_ROLES,
+  userFormSchema,
+  type CreateUserParsed,
+  type CreateUserValues,
+  type UserFormValues,
+} from "./schemas";
 
 type Project = { id: string; name: string; code: string };
 
@@ -36,9 +44,12 @@ export function UserDialog({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
-  const form = useForm<UserFormValues, unknown, UserFormParsed>({
-    resolver: zodResolver(userFormSchema),
-    defaultValues: user ?? { full_name: "", email: "", phone: "", role: "sales_agent", is_active: true, project_ids: [] },
+  // Creating an account also sets its first password; editing one never touches it.
+  const form = useForm<CreateUserValues, unknown, CreateUserParsed>({
+    resolver: zodResolver(user ? (userFormSchema as unknown as typeof createUserSchema) : createUserSchema),
+    defaultValues: user
+      ? { ...user, password: "" }
+      : { full_name: "", username: "", email: "", phone: "", role: "sales_agent", is_active: true, project_ids: [], password: "" },
   });
   const { control } = form;
   const role = useWatch({ control, name: "role" });
@@ -66,12 +77,31 @@ export function UserDialog({
         <DialogHeader>
           <DialogTitle>{user ? `Edit ${user.full_name}` : "Add user"}</DialogTitle>
           <DialogDescription>
-            {user ? "Change role, project access or deactivate." : "They'll get an email with a link to set their password."}
+            {user
+              ? "Change role, project access or deactivate."
+              : "They sign in with this username and password. No email is involved — give them the details yourself. They must change the password at first sign-in."}
           </DialogDescription>
         </DialogHeader>
         <form id="user-form" onSubmit={onSubmit} noValidate className="grid gap-4 sm:grid-cols-2">
           <TextField control={control} name="full_name" label="Full name" className="sm:col-span-2" />
-          <TextField control={control} name="email" label="Email" type="email" disabled={!!user} />
+          <TextField
+            control={control}
+            name="username"
+            label="Username"
+            autoComplete="off"
+            description={user ? undefined : "What they type to sign in, e.g. mobeen"}
+          />
+          {!user && (
+            <TextField
+              control={control}
+              name="password"
+              label="Temporary password"
+              type="text"
+              autoComplete="new-password"
+              description="Give this to them directly. They must change it at first sign-in."
+            />
+          )}
+          <TextField control={control} name="email" label="Email (optional)" type="email" description="Contact only — not used to sign in" />
           <TextField control={control} name="phone" label="Phone" type="tel" />
           <SelectField
             control={control}
@@ -118,15 +148,21 @@ export function UserDialog({
               type="button"
               variant="ghost"
               disabled={pending}
-              onClick={() =>
+              onClick={() => {
+                // No email to send a link to, so a Super Admin issues a new one by hand.
+                const next = window.prompt(
+                  `New temporary password for ${user.full_name}.
+At least 8 characters with a letter and a number. They must change it at next sign-in.`,
+                );
+                if (!next) return;
                 startTransition(async () => {
-                  const res = await sendPasswordReset(user.email);
+                  const res = await setTemporaryPassword({ user_id: user.id, password: next });
                   if (res.ok) toast.success(res.message);
                   else toast.error(res.error);
-                })
-              }
+                });
+              }}
             >
-              Send password reset
+              Set new password
             </Button>
           ) : (
             <span />
