@@ -44,7 +44,13 @@ function describeKey(key: string, url: string): string | null {
 
   const parts = key.split(".");
   if (parts.length !== 3) {
-    return "That does not look like a Supabase API key. Expected a JWT or a key starting sb_secret_.";
+    // The length alone usually identifies the mistake and gives nothing away: a real key is
+    // 40+ characters, whereas the row's NAME on the new API Keys page is "default" (7).
+    const hint =
+      key.length < 20
+        ? ` The stored value is only ${key.length} characters, so it looks like the key's NAME was copied rather than the key itself — on the new API Keys page the "default" label sits right next to the key.`
+        : ` The stored value is ${key.length} characters.`;
+    return `That does not look like a Supabase API key. Expected a JWT or a key starting sb_secret_.${hint}`;
   }
   try {
     const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8")) as {
