@@ -962,7 +962,11 @@ isOneToOne: false
 "client_exists":
 { Args: { "p_cnic"?: string,"p_passport"?: string }; Returns: boolean
                            },
-"grant_possession":
+"admin_create_staff":
+{ Args: { "p": Json }; Returns: Json
+                           },"admin_set_password":
+{ Args: { "p_user": string,"p_password": string }; Returns: undefined
+                           },"grant_possession":
 { Args: { "p": Json }; Returns: Json
                            },"transfer_sale":
 { Args: { "p": Json }; Returns: Json
