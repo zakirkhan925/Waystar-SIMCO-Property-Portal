@@ -182,8 +182,10 @@ export function Signatures({ labels, compact = false }: { labels: string[]; comp
 const footerLine = (ctx: DocContext) =>
   [
     pdfSafe(`${ctx.template.title} · ${ctx.refNo ?? "unnumbered"} · template v${ctx.template.version}`),
-    ctx.verifyUrl ? `Verify authenticity: ${ctx.verifyUrl}` : "Specimen - not a valid document",
-  ].join("\n");
+    ctx.verifyUrl ? `Verify authenticity: ${ctx.verifyUrl}` : ctx.specimen ? "Specimen - not a valid document" : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 
 /** Height of the QR / verification strip kept above the letterhead footer. */
 const STRIP = 30;

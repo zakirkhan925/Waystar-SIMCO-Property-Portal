@@ -27,17 +27,26 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { letterheadPath, ...ctxBase } = base;
   const layout = layoutFor(request.nextUrl.searchParams.get("mode"), base.settings);
   const today = todayPK();
-  const buffer = await renderDocumentPdf(
-    {
-      ...ctxBase,
-      ...sampleDeal(today),
-      docType,
-      template,
-      layout,
-      verifyUrl: null,
-      qrDataUrl: await qrDataUrl(`SPECIMEN ${base.project.code} ${template.ref_prefix}`),
-    },
-    layout.mode === "letterhead" ? await loadLetterhead(letterheadPath) : null,
-  );
-  return pdfResponse(buffer, `${base.project.code}-${template.ref_prefix}-${layout.mode}-SPECIMEN.pdf`);
+  try {
+    const buffer = await renderDocumentPdf(
+      {
+        ...ctxBase,
+        ...sampleDeal(today),
+        docType,
+        template,
+        layout,
+        verifyUrl: null,
+        qrDataUrl: await qrDataUrl(`SPECIMEN ${base.project.code} ${template.ref_prefix}`),
+      },
+      layout.mode === "letterhead" ? await loadLetterhead(letterheadPath) : null,
+    );
+    return pdfResponse(buffer, `${base.project.code}-${template.ref_prefix}-${layout.mode}-SPECIMEN.pdf`);
+  } catch (e) {
+    // show the real cause on screen and in the Vercel logs, instead of a blank 500
+    console.error("[pdf/preview]", docType, e);
+    return new Response(`The preview could not be generated: ${(e as Error).message}`, {
+      status: 500,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
 }

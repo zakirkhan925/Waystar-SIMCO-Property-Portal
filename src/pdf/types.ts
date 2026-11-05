@@ -80,4 +80,13 @@ export type DocContext = {
   };
   schedule: ScheduleRow[];
   ndcPurpose: string | null;
+  /** Present only on a payment receipt. */
+  receipt?: {
+    amount: string;
+    mode: string;
+    bank: string | null;
+    instrumentNo: string | null;
+    instrumentDate: string | null;
+    status: string;
+  };
 };

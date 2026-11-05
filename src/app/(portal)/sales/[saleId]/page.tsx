@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, FileText } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { ActivityList } from "@/components/activity-list";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatCard } from "@/components/stat-card";
@@ -15,6 +15,7 @@ import { SaleStatusBadge } from "@/features/sales/badges";
 import { PaymentsList } from "@/features/sales/payments-list";
 import { getSale } from "@/features/sales/queries";
 import { RecordPaymentDialog } from "@/features/sales/record-payment-dialog";
+import { SaleDocumentsMenu } from "@/features/sales/sale-documents-menu";
 import { ScheduleTable } from "@/features/sales/schedule-table";
 import { getActivity } from "@/features/units/queries";
 import { formatSize } from "@/features/units/format";
@@ -95,11 +96,9 @@ export default async function SalePage({ params }: Props) {
         }
         actions={
           <>
-            <Button variant="outline" size="sm" asChild>
-              <a href={`/api/pdf/sale/${saleId}/booking_form`} target="_blank" rel="noopener noreferrer">
-                <FileText /> Documents
-              </a>
-            </Button>
+            {sale.status !== "cancelled" && (
+              <SaleDocumentsMenu saleId={saleId} hasPossession={Boolean(possession)} isSettled={outstanding <= 0} />
+            )}
             {unit && (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/units/${unit.id}`}>View unit</Link>

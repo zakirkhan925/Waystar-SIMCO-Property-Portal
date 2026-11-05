@@ -310,6 +310,45 @@ function NdcLetter({ ctx }: { ctx: DocContext }) {
   );
 }
 
+// ---------------------------------------------------------------- Payment Receipt
+function PaymentReceipt({ ctx }: { ctx: DocContext }) {
+  const compact = ctx.layout.mode !== "plain";
+  const r = ctx.receipt;
+  return (
+    <DocPage ctx={ctx}>
+      <DocHead ctx={ctx}>
+        <TitleBlock ctx={ctx} />
+        <RefRow ctx={ctx} label="Receipt No." />
+      </DocHead>
+      <Particulars
+        compact={compact}
+        heading="RECEIVED FROM"
+        rows={[
+          ["Name", ctx.applicant.name],
+          ["CNIC No.", ctx.applicant.cnic ?? ctx.applicant.passport],
+          ["Project", ctx.project.displayName],
+          ["Plot No.", [ctx.plot.no, ctx.plot.block, ctx.plot.street].filter(Boolean).join(" · ")],
+          ["Booking Ref.", ctx.sale.bookingRef],
+        ]}
+      />
+      <Particulars
+        compact={compact}
+        heading="PAYMENT DETAILS"
+        rows={[
+          ["Amount", pkr(r?.amount)],
+          ["Amount in Words", r ? rupeesInWords(r.amount) : null],
+          ["Mode", r?.mode],
+          ["Bank", r?.bank ?? "N/A"],
+          ["Instrument No.", r?.instrumentNo ?? "N/A"],
+          ["Instrument Date", d(r?.instrumentDate) ?? "N/A"],
+          ["Status", r?.status],
+        ]}
+      />
+      <Signatures compact={compact} labels={["Received by (Accounts)", "Company Stamp"]} />
+    </DocPage>
+  );
+}
+
 const DOCS = {
   booking_form: BookingForm,
   allotment_letter: AllotmentLetter,
@@ -332,7 +371,7 @@ export const DOC_LABELS: Record<PrintableDocType, string> = {
 };
 
 export function DocumentPdf({ ctx }: { ctx: DocContext }) {
-  const Body = DOCS[ctx.docType as PrintableDocType];
+  const Body = ctx.docType === "payment_receipt" ? PaymentReceipt : DOCS[ctx.docType as PrintableDocType];
   return (
     <Document title={`${ctx.template.title} ${ctx.refNo ?? ""}`.trim()} author={ctx.company.partnerName} creator="Waystar Property Portal">
       <Body ctx={ctx} />
