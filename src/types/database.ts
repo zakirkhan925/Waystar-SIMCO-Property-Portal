@@ -1438,6 +1438,9 @@ isOneToOne: false
 "reverse_payment":
 { Args: { "p_payment": string,"p_reason": string }; Returns: undefined
                            },
+"revoke_document":
+{ Args: { "p_reason": string,"p_token": string }; Returns: undefined
+                           },
 "save_document_template":
 { Args: { "p_doc_type": Database["public"]['Enums']["document_type"],"p_project_id": string,"p_reason": string,"p_ref_prefix": string,"p_sections": Json,"p_title": string }; Returns: {
               "created_at": string,
