@@ -392,7 +392,6 @@ function StatementOfAccount({ ctx }: { ctx: DocContext }) {
           pkr(payment.amount) ?? "-", payment.status,
         ])}
       />
-      {/* TODO(owner): confirm wording/period */}
       <Text style={[s.para, { marginTop: 8 }]}>
         This statement reflects payments recorded up to {date}. Please report any discrepancy within 15 days.
       </Text>
