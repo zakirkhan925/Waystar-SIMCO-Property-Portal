@@ -240,6 +240,11 @@ export default async function SalePage({ params }: Props) {
                     <Item label="Reason" value={cancellation.reason} />
                   </dl>
                   <Button variant="outline" size="sm" className="mt-4" asChild>
+                      <Link href={`/api/pdf/cancellation/${cancellation.id}`} target="_blank" rel="noopener noreferrer">
+                        Cancellation Letter
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="mt-4 ml-2" asChild>
                     <Link href="/refunds">View in refunds</Link>
                   </Button>
                 </CardContent>

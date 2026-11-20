@@ -373,6 +373,38 @@ function TransferLetter({ ctx }: { ctx: DocContext }) {
   );
 }
 
+function CancellationLetter({ ctx }: { ctx: DocContext }) {
+  const cancellation = ctx.cancellation;
+  if (!cancellation) throw new Error("Cancellation data is required.");
+  const compact = ctx.layout.mode !== "plain";
+
+  return (
+    <DocPage ctx={ctx}>
+      <DocHead ctx={ctx}>
+        <TitleBlock ctx={ctx} />
+        <RefRow ctx={ctx} />
+      </DocHead>
+      <Particulars compact={compact} heading="CANCELLED BOOKING" rows={[
+        ...ownerRows([ctx.applicant, ...ctx.jointApplicants], "Buyer"),
+        ["Project", ctx.project.displayName],
+        ["Plot No.", ctx.plot.no],
+        ["Booking Ref.", ctx.sale.bookingRef],
+        ["Booking date", d(ctx.sale.bookingDate)],
+        ["Cancellation date", d(cancellation.cancelledOn)],
+        ["Reason", cancellation.reason],
+      ]} />
+      <Particulars compact={compact} heading="REFUND CALCULATION" rows={[
+        ["Total sale price", pkr(cancellation.salePrice)],
+        ["Amount received", pkr(cancellation.received)],
+        [`Deduction (${cancellation.deductionPct}% of sale price)`, pkr(cancellation.deduction)],
+        ["Refund due", pkr(cancellation.refundDue)],
+      ]} />
+      <Text style={s.para}>{pdfSafe(cancellation.refundWording)}</Text>
+      <Signatures labels={[...letterSignatories, "Buyer acknowledgement signature"]} compact={compact} />
+    </DocPage>
+  );
+}
+
 function StatementOfAccount({ ctx }: { ctx: DocContext }) {
   const statement = ctx.statement;
   if (!statement) throw new Error("Statement data is required.");
@@ -501,6 +533,7 @@ export const DOC_LABELS: Record<PrintableDocType, string> = {
 
 export function DocumentPdf({ ctx }: { ctx: DocContext }) {
   const Body = ctx.docType === "payment_receipt" ? PaymentReceipt
+    : ctx.docType === "cancellation_letter" ? CancellationLetter
     : ctx.docType === "transfer_letter" ? TransferLetter
     : ctx.docType === "statement_of_account" ? StatementOfAccount
     : DOCS[ctx.docType as PrintableDocType];

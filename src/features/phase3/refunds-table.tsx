@@ -118,6 +118,13 @@ export function RefundsTable({ rows, canSettle }: { rows: RefundRow[]; canSettle
                   )}
                 </TableCell>
                 <TableCell className="text-right">
+                  {r.cancellation_id && (
+                    <Button size="sm" variant="link" asChild>
+                      <Link href={`/api/pdf/cancellation/${r.cancellation_id}`} target="_blank" rel="noopener noreferrer">
+                        Cancellation Letter
+                      </Link>
+                    </Button>
+                  )}
                   {canSettle && r.refund_status !== "paid" && r.refund_status !== "waived" && Number(r.refund_due) > 0 && (
                     <Button size="sm" variant="outline" onClick={() => openFor(r)}>
                       Record refund
