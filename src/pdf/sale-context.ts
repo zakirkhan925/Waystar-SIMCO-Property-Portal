@@ -53,7 +53,7 @@ export async function loadSaleDeal(saleId: string, today: string) {
   const { data: sale } = await supabase
     .from("sales")
     .select(
-      `*, units(unit_no, street, size_value, size_unit, width_ft, depth_ft, area_sqft, is_corner, blocks(name)),
+      `*, payment_plans(name), units(unit_no, street, size_value, size_unit, width_ft, depth_ft, area_sqft, is_corner, blocks(name)),
        sale_buyers(share_pct, is_primary, clients(full_name, relation_type, guardian_name, cnic, passport_no,
          nationality, phone, email, address, city, country))`,
     )
@@ -62,11 +62,11 @@ export async function loadSaleDeal(saleId: string, today: string) {
     .maybeSingle();
   if (!sale || !sale.units) return null;
 
-  const [{ data: installments }, { data: payments }, { data: possession }] = await Promise.all([
+  const [{ data: installments, error: installmentsError }, { data: payments, error: paymentsError }, { data: possession }] = await Promise.all([
     supabase.from("installments").select("*").eq("sale_id", saleId).is("deleted_at", null).order("seq"),
     supabase
       .from("payments")
-      .select("received_on, mode, instrument_no, status, instrument_status, payment_allocations(installment_id)")
+      .select("received_on, receipt_no, amount, mode, instrument_no, status, instrument_status, payment_allocations(installment_id)")
       .eq("sale_id", saleId)
       .order("received_on"),
     supabase
@@ -148,6 +148,10 @@ export async function loadSaleDeal(saleId: string, today: string) {
     projectId: sale.project_id,
     status: sale.status,
     bookingFormNo: sale.booking_form_no,
+    paymentPlanName: sale.payment_plans?.name ?? null,
+    installments: rows,
+    payments: payments ?? [],
+    ledgerError: installmentsError ?? paymentsError,
     outstanding,
     hasPossession: Boolean(possession),
     deal,

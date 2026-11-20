@@ -310,6 +310,96 @@ function NdcLetter({ ctx }: { ctx: DocContext }) {
   );
 }
 
+function StatementTable({ title, columns, rows }: { title: string; columns: string[]; rows: string[][] }) {
+  return (
+    <View>
+      <View wrap={false} minPresenceAhead={24}>
+        <Text style={s.heading}>{title}</Text>
+        <View style={s.tr}>
+          {columns.map((column) => (
+            <Text key={column} style={[s.bold, { flex: 1, padding: 3, fontSize: 8 }]}>{column}</Text>
+          ))}
+        </View>
+      </View>
+      {rows.length === 0 && <Text style={s.para}>No records.</Text>}
+      {rows.map((row, index) => (
+        <View key={index} style={s.tr} wrap={false}>
+          {row.map((cell, i) => (
+            <Text key={i} style={{ flex: 1, padding: 3, fontSize: 8 }}>{pdfSafe(cell)}</Text>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function StatementOfAccount({ ctx }: { ctx: DocContext }) {
+  const statement = ctx.statement;
+  if (!statement) throw new Error("Statement data is required.");
+  const compact = ctx.layout.mode !== "plain";
+  const buyers = [ctx.applicant, ...ctx.jointApplicants];
+  const date = formatDate(ctx.date);
+
+  return (
+    <DocPage ctx={ctx}>
+      <DocHead ctx={ctx}>
+        <TitleBlock ctx={ctx} subtitle={`Statement as of ${date}`} />
+        {statement.cancelled && (
+          <Text style={s.subtitle}>
+            BOOKING CANCELLED{statement.cancelledOn ? ` on ${formatDate(statement.cancelledOn)}` : ""}
+          </Text>
+        )}
+        <RefRow ctx={ctx} />
+      </DocHead>
+      <Particulars compact={compact} heading="BUYER AND PROPERTY" rows={[
+        ...buyers.map((buyer, i): [string, string] => [
+          i === 0 ? "Buyer" : `Joint buyer ${i}`,
+          `${buyer.name} (CNIC ${buyer.cnic ?? "not recorded"})`,
+        ]),
+        ["Project", ctx.project.displayName],
+        ["Plot No.", ctx.plot.no],
+        ["Size", ctx.plot.sizeLabel],
+        ["Booking Ref.", ctx.sale.bookingRef],
+        ["Booking Date", d(ctx.sale.bookingDate)],
+        ["Payment Plan", statement.paymentPlan],
+      ]} />
+      <Particulars compact={compact} heading="SUMMARY" rows={[
+        ["Total Sale Price", pkr(ctx.sale.totalPrice)],
+        ["Total Received (Cleared)", pkr(statement.received)],
+        ...(statement.received !== statement.receivedForSale
+          ? [["Received Toward Sale Price", pkr(statement.receivedForSale)] as [string, string | null]]
+          : []),
+        ...(statement.waived !== "0.00" ? [["Principal Waived", pkr(statement.waived)] as [string, string | null]] : []),
+        ["Outstanding Sale Balance", pkr(statement.outstanding)],
+        ["Overdue as of Today", pkr(statement.overdue)],
+        ["Late Charges Accrued", pkr(statement.feesAccrued)],
+        ["Late Charges Outstanding", pkr(statement.feesOutstanding)],
+        ["Next Due", statement.nextDue ? `${formatDate(statement.nextDue.date)} / ${pkr(statement.nextDue.amount)}` : "None"],
+      ]} />
+      <StatementTable
+        title="INSTALLMENT SCHEDULE"
+        columns={["No.", "Description", "Due Date", "Amount Due", "Paid", "Balance", "Status"]}
+        rows={statement.schedule.map((row) => [
+          String(row.no), row.label, d(row.dueDate) ?? "-", pkr(row.due) ?? "-", pkr(row.paid) ?? "-",
+          pkr(row.balance) ?? "-", row.status,
+        ])}
+      />
+      <StatementTable
+        title="PAYMENTS RECEIVED"
+        columns={["Date", "Receipt No.", "Mode", "Instrument No.", "Amount", "Status"]}
+        rows={statement.payments.map((payment) => [
+          formatDate(payment.date), payment.receiptNo, payment.mode, payment.instrumentNo ?? "-",
+          pkr(payment.amount) ?? "-", payment.status,
+        ])}
+      />
+      {/* TODO(owner): confirm wording/period */}
+      <Text style={[s.para, { marginTop: 8 }]}>
+        This statement reflects payments recorded up to {date}. Please report any discrepancy within 15 days.
+      </Text>
+    </DocPage>
+  );
+}
+
 // ---------------------------------------------------------------- Payment Receipt
 function PaymentReceipt({ ctx }: { ctx: DocContext }) {
   const compact = ctx.layout.mode !== "plain";
@@ -371,7 +461,9 @@ export const DOC_LABELS: Record<PrintableDocType, string> = {
 };
 
 export function DocumentPdf({ ctx }: { ctx: DocContext }) {
-  const Body = ctx.docType === "payment_receipt" ? PaymentReceipt : DOCS[ctx.docType as PrintableDocType];
+  const Body = ctx.docType === "payment_receipt" ? PaymentReceipt
+    : ctx.docType === "statement_of_account" ? StatementOfAccount
+    : DOCS[ctx.docType as PrintableDocType];
   return (
     <Document title={`${ctx.template.title} ${ctx.refNo ?? ""}`.trim()} author={ctx.company.partnerName} creator="Waystar Property Portal">
       <Body ctx={ctx} />

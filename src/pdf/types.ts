@@ -1,4 +1,5 @@
 import type { DocumentTemplate } from "./template";
+import type { summarizeStatement } from "./statement";
 
 export type Party = {
   name: string;
@@ -80,6 +81,12 @@ export type DocContext = {
   };
   schedule: ScheduleRow[];
   ndcPurpose: string | null;
+  statement?: ReturnType<typeof summarizeStatement> & {
+    cancelled: boolean;
+    cancelledOn: string | null;
+    paymentPlan: string;
+    payments: { date: string; receiptNo: string; mode: string; instrumentNo: string | null; amount: string; status: string }[];
+  };
   /** Present only on a payment receipt. */
   receipt?: {
     amount: string;

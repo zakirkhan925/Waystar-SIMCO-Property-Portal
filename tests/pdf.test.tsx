@@ -7,6 +7,7 @@ import { PDFDocument, rgb } from "pdf-lib";
 import { DocumentPdf, PRINTABLE_DOC_TYPES, templateVars } from "@/pdf/documents";
 import { layoutFor, placeOnLetterhead } from "@/pdf/letterhead";
 import { sampleDeal } from "@/pdf/sample";
+import { summarizeStatement } from "@/pdf/statement";
 import { BLANK, fillPlaceholders, type DocumentTemplate } from "@/pdf/template";
 import type { DocContext, PageLayout } from "@/pdf/types";
 
@@ -56,6 +57,29 @@ async function letterheadBytes(): Promise<Uint8Array> {
 }
 
 describe("PDF documents", () => {
+  it.each(["plain", "letterhead", "preprinted"] as const)("renders a cancelled statement in %s mode", async (mode) => {
+    const ctx = ctxFor("statement_of_account", mode === "plain" ? layoutFor("plain", {}) : { ...SIMCO, mode });
+    ctx.template = { ...ctx.template, title: "STATEMENT OF ACCOUNT", ref_prefix: "SOA" };
+    ctx.statement = {
+      ...summarizeStatement(ctx.sale.totalPrice, [], ctx.schedule.map((row) => ({
+        seq: row.no, label: row.label, due_date: row.dueDate, amount_due: Number(row.amount),
+        amount_paid: 0, waived_amount: 0, late_fee: 0, late_fee_paid: 0,
+      })), ctx.date),
+      cancelled: true,
+      cancelledOn: ctx.date,
+      paymentPlan: "Quarterly installments",
+      payments: [{ date: ctx.date, receiptNo: "SV-RCPT-2026-000001", mode: "Cheque", instrumentNo: "123456", amount: "250", status: "Bounced" }],
+    };
+    const content = await renderToBuffer(<DocumentPdf ctx={ctx} />);
+    const out = mode === "letterhead" ? await placeOnLetterhead(content, await letterheadBytes()) : content;
+    const pdf = await PDFDocument.load(out);
+    expect(pdf.getPageCount()).toBeGreaterThan(0);
+    if (process.env.PDF_OUT) {
+      mkdirSync(process.env.PDF_OUT, { recursive: true });
+      writeFileSync(join(process.env.PDF_OUT, `statement_of_account-${mode}.pdf`), out);
+    }
+  }, 30_000);
+
   it.each(PRINTABLE_DOC_TYPES)("renders %s", async (docType) => {
     const buf = await renderToBuffer(<DocumentPdf ctx={ctxFor(docType)} />);
     expect(buf.subarray(0, 4).toString()).toBe("%PDF");
