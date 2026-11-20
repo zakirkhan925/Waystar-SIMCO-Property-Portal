@@ -8,7 +8,11 @@ type Cancellation = Pick<Tables<"cancellations">,
   "refund_status" | "refund_due_date" | "refunded_on" | "refund_reference"
 >;
 
-function refundWording(row: Cancellation) {
+function refundWording(row: Cancellation, refundDue: Decimal) {
+  // Nothing to pay back: say so plainly, rather than promising a refund "after re-sale".
+  if (refundDue.isZero() && row.refund_status !== "paid") {
+    return "No refund is due, because the deduction is equal to or more than the amount received.";
+  }
   switch (row.refund_status) {
     case "pending_resale":
       return "The refund will become payable after the plot is re-sold.";
@@ -26,12 +30,13 @@ function refundWording(row: Cancellation) {
 export function summarizeCancellation(row: Cancellation) {
   const received = toDecimal(row.amount_received);
   const deduction = toDecimal(row.deduction_amount);
+  const refundDue = Decimal.max(received.minus(deduction), 0);
   return {
     salePrice: toDecimal(row.sale_price).toFixed(2),
     received: received.toFixed(2),
     deductionPct: toDecimal(row.deduction_pct).toString(),
     deduction: deduction.toFixed(2),
-    refundDue: Decimal.max(received.minus(deduction), 0).toFixed(2),
-    refundWording: refundWording(row),
+    refundDue: refundDue.toFixed(2),
+    refundWording: refundWording(row, refundDue),
   };
 }

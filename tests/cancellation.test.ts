@@ -24,4 +24,11 @@ describe("cancellation and refund letter", () => {
     });
     expect(summarizeCancellation({ ...row, amount_received: 500000 }).refundDue).toBe("0.00");
   });
+
+  it("does not promise a refund after re-sale when nothing is due", () => {
+    const row = { ...cancellation, amount_received: 0, refund_status: "pending_resale" } as const;
+    expect(summarizeCancellation(row).refundWording).toBe(
+      "No refund is due, because the deduction is equal to or more than the amount received.",
+    );
+  });
 });
