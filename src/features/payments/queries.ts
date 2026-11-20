@@ -9,6 +9,7 @@ const REGISTER_COLUMNS = `id, sale_id, received_on, receipt_no, mode, bank_name,
   instrument_date, amount::text, status, instrument_status,
   sales(units(unit_no, projects(name)), sale_buyers(is_primary, clients(full_name)))`;
 const TOTAL_COLUMNS = "id, received_on, amount::text, status, instrument_status";
+const REPORT_COLUMNS = "id, received_on, project_id, mode, amount::text, status, instrument_status";
 const SEARCH_EMBEDS = ", plot_match:sales(units!inner()), buyer_match:sales(sale_buyers!inner(clients!inner()))";
 const BATCH_SIZE = 500;
 
@@ -78,7 +79,7 @@ function registerRow({ sales, ...payment }: RegisterPayment) {
   return { ...payment, buyer, plot: sales?.units?.unit_no, project: sales?.units?.projects?.name };
 }
 
-async function* paymentBatches<Columns extends typeof REGISTER_COLUMNS | typeof TOTAL_COLUMNS>(
+async function* paymentBatches<Columns extends typeof REGISTER_COLUMNS | typeof TOTAL_COLUMNS | typeof REPORT_COLUMNS>(
   filters: PaymentFilters,
   columns: Columns,
 ) {
@@ -102,6 +103,12 @@ export async function listPaymentsAll(filters: PaymentFilters) {
   const rows: PaymentRow[] = [];
   for await (const batch of paymentBatches(filters, REGISTER_COLUMNS)) rows.push(...batch.map(registerRow));
   return rows;
+}
+
+export async function listPaymentReportRows(filters: PaymentFilters) {
+  const batches = [];
+  for await (const batch of paymentBatches(filters, REPORT_COLUMNS)) batches.push(batch);
+  return batches.flat();
 }
 
 export async function paymentTotals(filters: PaymentFilters) {

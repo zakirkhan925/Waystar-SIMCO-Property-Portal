@@ -33,6 +33,42 @@ export function ConfirmDelete({
   redirectTo?: string;
   trigger?: React.ReactNode;
 }) {
+  return (
+    <ConfirmWithReason
+      title={title}
+      description={description}
+      action={action}
+      redirectTo={redirectTo}
+      trigger={trigger ?? <Button variant="destructive" size="sm"><Trash2 /> Delete</Button>}
+      label="Delete"
+      pendingLabel="Deleting…"
+      reasonLabel="Reason for deletion"
+      minLength={3}
+    />
+  );
+}
+
+export function ConfirmWithReason({
+  title,
+  description,
+  action,
+  redirectTo,
+  trigger,
+  label,
+  pendingLabel,
+  reasonLabel,
+  minLength = 1,
+}: {
+  title: string;
+  description: string;
+  action: (reason: string) => Promise<ActionResult>;
+  redirectTo?: string;
+  trigger: React.ReactNode;
+  label: string;
+  pendingLabel: string;
+  reasonLabel: string;
+  minLength?: number;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -54,11 +90,7 @@ export function ConfirmDelete({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        {trigger ?? (
-          <Button variant="destructive" size="sm">
-            <Trash2 /> Delete
-          </Button>
-        )}
+        {trigger}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -69,13 +101,13 @@ export function ConfirmDelete({
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder="Reason (required, kept in the activity log)"
-          aria-label="Reason for deletion"
+          aria-label={reasonLabel}
           rows={2}
         />
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
-          <Button variant="destructive" onClick={confirm} disabled={pending || reason.trim().length < 3}>
-            {pending ? "Deleting…" : "Delete"}
+          <Button variant="destructive" onClick={confirm} disabled={pending || reason.trim().length < minLength}>
+            {pending ? pendingLabel : label}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

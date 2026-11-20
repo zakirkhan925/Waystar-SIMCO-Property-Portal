@@ -1,3 +1,4 @@
+import type { summarizeCancellation } from "./cancellation";
 import type { DocumentTemplate } from "./template";
 import type { summarizeStatement } from "./statement";
 
@@ -81,6 +82,13 @@ export type DocContext = {
   };
   schedule: ScheduleRow[];
   ndcPurpose: string | null;
+  cancellation?: ReturnType<typeof summarizeCancellation> & { cancelledOn: string; reason: string };
+  transfer?: {
+    previousOwners: Party[];
+    newOwners: Party[];
+    transferDate: string;
+    fee: string | null;
+  };
   statement?: ReturnType<typeof summarizeStatement> & {
     cancelled: boolean;
     cancelledOn: string | null;

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Building, Building2, UserCog } from "lucide-react";
+import { Building, Building2, FileCheck, UserCog } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { can, requireRole } from "@/lib/auth/session";
@@ -14,6 +14,7 @@ export default async function SettingsPage() {
     { href: "/settings/projects", icon: Building2, title: "Projects", desc: "Projects, blocks, towers and floors", show: perms.manageProjects },
     { href: "/settings/users", icon: UserCog, title: "Users & roles", desc: "Staff accounts, roles and project access", show: perms.manageUsers },
     { href: "/settings/company", icon: Building, title: "Company", desc: "Company details and default rates", show: perms.manageSettings },
+    { href: "/settings/issued-documents", icon: FileCheck, title: "Issued documents", desc: "Review and revoke issued letters and receipts", show: perms.manageSettings },
   ].filter((i) => i.show);
 
   return (
