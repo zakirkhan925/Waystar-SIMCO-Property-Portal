@@ -260,6 +260,11 @@ export default async function SalePage({ params }: Props) {
                       </div>
                       <div className="text-right text-sm">
                         <div>{formatDate(t.transfer_date)}</div>
+                        <Button asChild variant="link" size="sm">
+                          <Link href={`/api/pdf/transfer/${t.id}`} target="_blank" rel="noopener noreferrer">
+                            Transfer Letter
+                          </Link>
+                        </Button>
                         {Number(t.transfer_fee) > 0 && (
                           <div className="text-xs text-muted-foreground">fee {formatPKR(t.transfer_fee)}</div>
                         )}

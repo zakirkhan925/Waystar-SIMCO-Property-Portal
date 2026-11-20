@@ -333,6 +333,46 @@ function StatementTable({ title, columns, rows }: { title: string; columns: stri
   );
 }
 
+const letterSignatories = [
+  "Authorised Signatory — Waystar Royco Marketing Pvt Ltd",
+  "For SIMCO Developers",
+];
+
+function ownerRows(owners: Party[], label: string): [string, string][] {
+  return owners.map((owner) => [label, `${owner.name} (CNIC ${owner.cnic ?? "not recorded"})`]);
+}
+
+function TransferLetter({ ctx }: { ctx: DocContext }) {
+  const transfer = ctx.transfer;
+  if (!transfer) throw new Error("Transfer data is required.");
+  const compact = ctx.layout.mode !== "plain";
+
+  return (
+    <DocPage ctx={ctx}>
+      <DocHead ctx={ctx}>
+        <TitleBlock ctx={ctx} />
+        <RefRow ctx={ctx} />
+      </DocHead>
+      <Text style={s.para}>To whom it may concern</Text>
+      <Particulars compact={compact} heading="BOOKING TRANSFER" rows={[
+        ["Project", ctx.project.displayName],
+        ["Plot No.", ctx.plot.no],
+        ["Size", ctx.plot.sizeLabel],
+        ["Booking Ref.", ctx.sale.bookingRef],
+        ...ownerRows(transfer.previousOwners, "Transferred from"),
+        ...ownerRows(transfer.newOwners, "Transferred to"),
+        ["Transfer date", d(transfer.transferDate)],
+        ...(transfer.fee ? [["Transfer fee received", pkr(transfer.fee)] as [string, string | null]] : []),
+      ]} />
+      <Text style={s.para}>
+        All rights and obligations under the original booking, including the remaining installments,
+        now rest with the new owner(s).
+      </Text>
+      <Signatures labels={letterSignatories} compact={compact} />
+    </DocPage>
+  );
+}
+
 function StatementOfAccount({ ctx }: { ctx: DocContext }) {
   const statement = ctx.statement;
   if (!statement) throw new Error("Statement data is required.");
@@ -461,6 +501,7 @@ export const DOC_LABELS: Record<PrintableDocType, string> = {
 
 export function DocumentPdf({ ctx }: { ctx: DocContext }) {
   const Body = ctx.docType === "payment_receipt" ? PaymentReceipt
+    : ctx.docType === "transfer_letter" ? TransferLetter
     : ctx.docType === "statement_of_account" ? StatementOfAccount
     : DOCS[ctx.docType as PrintableDocType];
   return (

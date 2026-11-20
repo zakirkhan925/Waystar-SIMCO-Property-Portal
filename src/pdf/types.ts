@@ -81,6 +81,12 @@ export type DocContext = {
   };
   schedule: ScheduleRow[];
   ndcPurpose: string | null;
+  transfer?: {
+    previousOwners: Party[];
+    newOwners: Party[];
+    transferDate: string;
+    fee: string | null;
+  };
   statement?: ReturnType<typeof summarizeStatement> & {
     cancelled: boolean;
     cancelledOn: string | null;
