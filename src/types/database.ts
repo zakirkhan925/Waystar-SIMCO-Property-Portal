@@ -69,6 +69,80 @@ isOneToOne: false
       referencedColumns: ["project_id"]
     }
                   ]
+                },"cancellations": {
+                  Row: {
+                    "amount_received": number,"cancellation_no": string,"cancelled_on": string,"created_at": string,"created_by": string | null,"deduction_amount": number,"deduction_pct": number,"id": string,"project_id": string,"reason": string,"refund_due": number,"refund_due_date": string | null,"refund_reference": string | null,"refund_status": Database["public"]['Enums']["refund_status"],"refunded_on": string | null,"resold_sale_id": string | null,"sale_id": string,"sale_price": number,"unit_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_received": number,"cancellation_no": string,"cancelled_on": string,"created_at"?: string,"created_by"?: string | null,"deduction_amount": number,"deduction_pct": number,"id"?: string,"project_id": string,"reason": string,"refund_due": number,"refund_due_date"?: string | null,"refund_reference"?: string | null,"refund_status"?: Database["public"]['Enums']["refund_status"],"refunded_on"?: string | null,"resold_sale_id"?: string | null,"sale_id": string,"sale_price": number,"unit_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount_received"?: number,"cancellation_no"?: string,"cancelled_on"?: string,"created_at"?: string,"created_by"?: string | null,"deduction_amount"?: number,"deduction_pct"?: number,"id"?: string,"project_id"?: string,"reason"?: string,"refund_due"?: number,"refund_due_date"?: string | null,"refund_reference"?: string | null,"refund_status"?: Database["public"]['Enums']["refund_status"],"refunded_on"?: string | null,"resold_sale_id"?: string | null,"sale_id"?: string,"sale_price"?: number,"unit_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "cancellations_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cancellations_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cancellations_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "cancellations_resold_sale_id_fkey"
+      columns: ["resold_sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cancellations_resold_sale_id_fkey"
+      columns: ["resold_sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "cancellations_resold_sale_id_fkey"
+      columns: ["resold_sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "cancellations_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: true
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cancellations_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: true
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "cancellations_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: true
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "cancellations_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "units"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"clients": {
                   Row: {
                     "address": string | null,"auth_user_id": string | null,"city": string | null,"cnic": string | null,"cnic_back_path": string | null,"cnic_front_path": string | null,"country": string,"created_at": string,"created_by": string | null,"deleted_at": string | null,"email": string | null,"full_name": string,"guardian_name": string | null,"id": string,"is_overseas": boolean,"nationality": string,"nok_cnic": string | null,"nok_name": string | null,"nok_phone": string | null,"nok_relation": string | null,"notes": string | null,"passport_no": string | null,"phone": string,"photo_path": string | null,"relation_type": string | null,"search_digits": string | null,"updated_at": string,"whatsapp": string | null
@@ -211,42 +285,6 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"possessions": {
-                  Row: {
-                    "created_at": string,"created_by": string | null,"deleted_at": string | null,"discrepancy_deadline": string | null,"dues_cleared_date": string | null,"handover_date": string,"id": string,"letter_no": string,"notes": string | null,"project_id": string,"sale_id": string,"unit_id": string,"updated_at": string
-                  }
-                  ComputedFields: never
-                  Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"discrepancy_deadline"?: string | null,"dues_cleared_date"?: string | null,"handover_date": string,"id"?: string,"letter_no": string,"notes"?: string | null,"project_id": string,"sale_id": string,"unit_id": string,"updated_at"?: string
-                  }
-                  Update: {
-                    "created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"discrepancy_deadline"?: string | null,"dues_cleared_date"?: string | null,"handover_date"?: string,"id"?: string,"letter_no"?: string,"notes"?: string | null,"project_id"?: string,"sale_id"?: string,"unit_id"?: string,"updated_at"?: string
-                  }
-                  Relationships: []
-                },"transfers": {
-                  Row: {
-                    "created_at": string,"created_by": string | null,"id": string,"notes": string | null,"project_id": string,"reason": string,"sale_id": string,"transfer_date": string,"transfer_fee": number,"transfer_no": string,"unit_id": string
-                  }
-                  ComputedFields: never
-                  Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"notes"?: string | null,"project_id": string,"reason": string,"sale_id": string,"transfer_date": string,"transfer_fee"?: number,"transfer_no": string,"unit_id": string
-                  }
-                  Update: {
-                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"notes"?: string | null,"project_id"?: string,"reason"?: string,"sale_id"?: string,"transfer_date"?: string,"transfer_fee"?: number,"transfer_no"?: string,"unit_id"?: string
-                  }
-                  Relationships: []
-                },"cancellations": {
-                  Row: {
-                    "amount_received": number,"cancellation_no": string,"cancelled_on": string,"created_at": string,"created_by": string | null,"deduction_amount": number,"deduction_pct": number,"id": string,"project_id": string,"reason": string,"refund_due": number,"refund_due_date": string | null,"refund_reference": string | null,"refund_status": Database["public"]['Enums']["refund_status"],"refunded_on": string | null,"resold_sale_id": string | null,"sale_id": string,"sale_price": number,"unit_id": string,"updated_at": string
-                  }
-                  ComputedFields: never
-                  Insert: {
-                    "amount_received": number,"cancellation_no": string,"cancelled_on": string,"created_at"?: string,"created_by"?: string | null,"deduction_amount": number,"deduction_pct": number,"id"?: string,"project_id": string,"reason": string,"refund_due": number,"refund_due_date"?: string | null,"refund_reference"?: string | null,"refund_status"?: Database["public"]['Enums']["refund_status"],"refunded_on"?: string | null,"resold_sale_id"?: string | null,"sale_id": string,"sale_price": number,"unit_id": string,"updated_at"?: string
-                  }
-                  Update: {
-                    "amount_received"?: number,"cancellation_no"?: string,"cancelled_on"?: string,"created_at"?: string,"created_by"?: string | null,"deduction_amount"?: number,"deduction_pct"?: number,"id"?: string,"project_id"?: string,"reason"?: string,"refund_due"?: number,"refund_due_date"?: string | null,"refund_reference"?: string | null,"refund_status"?: Database["public"]['Enums']["refund_status"],"refunded_on"?: string | null,"resold_sale_id"?: string | null,"sale_id"?: string,"sale_price"?: number,"unit_id"?: string,"updated_at"?: string
-                  }
-                  Relationships: []
                 },"doc_sequences": {
                   Row: {
                     "doc_type": string,"last_no": number,"project_id": string,"year": number
@@ -369,6 +407,62 @@ isOneToOne: false
       referencedColumns: ["sale_id"]
     }
                   ]
+                },"issued_documents": {
+                  Row: {
+                    "buyer_display_name": string | null,"doc_type": string,"id": string,"issued_at": string,"issued_by": string | null,"payment_id": string | null,"project_id": string,"ref_no": string,"revoked_at": string | null,"revoked_reason": string | null,"sale_id": string | null,"token": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "buyer_display_name"?: string | null,"doc_type": string,"id"?: string,"issued_at"?: string,"issued_by"?: string | null,"payment_id"?: string | null,"project_id": string,"ref_no": string,"revoked_at"?: string | null,"revoked_reason"?: string | null,"sale_id"?: string | null,"token"?: string
+                  }
+                  Update: {
+                    "buyer_display_name"?: string | null,"doc_type"?: string,"id"?: string,"issued_at"?: string,"issued_by"?: string | null,"payment_id"?: string | null,"project_id"?: string,"ref_no"?: string,"revoked_at"?: string | null,"revoked_reason"?: string | null,"sale_id"?: string | null,"token"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "issued_documents_issued_by_fkey"
+      columns: ["issued_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "issued_documents_payment_id_fkey"
+      columns: ["payment_id"]
+isOneToOne: false
+      referencedRelation: "payments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "issued_documents_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "issued_documents_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "issued_documents_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "issued_documents_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "issued_documents_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    }
+                  ]
                 },"payment_allocations": {
                   Row: {
                     "amount": number,"component": string,"created_at": string,"created_by": string | null,"id": string,"installment_id": string,"payment_id": string
@@ -473,6 +567,12 @@ isOneToOne: false
       foreignKeyName: "payments_payer_client_id_fkey"
       columns: ["payer_client_id"]
 isOneToOne: false
+      referencedRelation: "v_refunds_due"
+      referencedColumns: ["client_id"]
+    },{
+      foreignKeyName: "payments_payer_client_id_fkey"
+      columns: ["payer_client_id"]
+isOneToOne: false
       referencedRelation: "v_sale_summary"
       referencedColumns: ["primary_client_id"]
     },{
@@ -519,16 +619,72 @@ isOneToOne: false
       referencedColumns: ["sale_id"]
     }
                   ]
-                },"profiles": {
+                },"possessions": {
                   Row: {
-                    "created_at": string,"email": string | null,"full_name": string,"id": string,"is_active": boolean,"username": string | null,"must_change_password": boolean,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
+                    "created_at": string,"created_by": string | null,"deleted_at": string | null,"discrepancy_deadline": string | null,"dues_cleared_date": string | null,"handover_date": string,"id": string,"letter_no": string,"notes": string | null,"project_id": string,"sale_id": string,"unit_id": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"email"?: string | null,"full_name": string,"id": string,"is_active"?: boolean,"username"?: string | null,"must_change_password"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"discrepancy_deadline"?: string | null,"dues_cleared_date"?: string | null,"handover_date": string,"id"?: string,"letter_no": string,"notes"?: string | null,"project_id": string,"sale_id": string,"unit_id": string,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"email"?: string | null,"full_name"?: string,"id"?: string,"is_active"?: boolean,"username"?: string | null,"must_change_password"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"discrepancy_deadline"?: string | null,"dues_cleared_date"?: string | null,"handover_date"?: string,"id"?: string,"letter_no"?: string,"notes"?: string | null,"project_id"?: string,"sale_id"?: string,"unit_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "possessions_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "possessions_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "possessions_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "possessions_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: true
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "possessions_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: true
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "possessions_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: true
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "possessions_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "units"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"profiles": {
+                  Row: {
+                    "created_at": string,"email": string | null,"full_name": string,"id": string,"is_active": boolean,"must_change_password": boolean,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string,"username": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"email"?: string | null,"full_name": string,"id": string,"is_active"?: boolean,"must_change_password"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string,"username"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"email"?: string | null,"full_name"?: string,"id"?: string,"is_active"?: boolean,"must_change_password"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string,"username"?: string | null
                   }
                   Relationships: [
                     
@@ -613,6 +769,12 @@ isOneToOne: false
       foreignKeyName: "sale_buyers_client_id_fkey"
       columns: ["client_id"]
 isOneToOne: false
+      referencedRelation: "v_refunds_due"
+      referencedColumns: ["client_id"]
+    },{
+      foreignKeyName: "sale_buyers_client_id_fkey"
+      columns: ["client_id"]
+isOneToOne: false
       referencedRelation: "v_sale_summary"
       referencedColumns: ["primary_client_id"]
     },{
@@ -691,6 +853,62 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"transfers": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"notes": string | null,"project_id": string,"reason": string,"sale_id": string,"transfer_date": string,"transfer_fee": number,"transfer_no": string,"unit_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"notes"?: string | null,"project_id": string,"reason": string,"sale_id": string,"transfer_date": string,"transfer_fee"?: number,"transfer_no": string,"unit_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"notes"?: string | null,"project_id"?: string,"reason"?: string,"sale_id"?: string,"transfer_date"?: string,"transfer_fee"?: number,"transfer_no"?: string,"unit_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "transfers_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "transfers_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "transfers_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "transfers_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "transfers_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "transfers_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "transfers_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "units"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"unit_ownerships": {
                   Row: {
                     "acquired_via": Database["public"]['Enums']["ownership_via"],"client_id": string,"created_at": string,"created_by": string | null,"id": string,"sale_id": string,"share_pct": number,"transfer_id": string | null,"unit_id": string,"valid_from": string,"valid_to": string | null
@@ -714,6 +932,12 @@ isOneToOne: false
       columns: ["client_id"]
 isOneToOne: false
       referencedRelation: "v_receivables"
+      referencedColumns: ["client_id"]
+    },{
+      foreignKeyName: "unit_ownerships_client_id_fkey"
+      columns: ["client_id"]
+isOneToOne: false
+      referencedRelation: "v_refunds_due"
       referencedColumns: ["client_id"]
     },{
       foreignKeyName: "unit_ownerships_client_id_fkey"
@@ -746,6 +970,12 @@ isOneToOne: false
       referencedRelation: "v_sale_summary"
       referencedColumns: ["sale_id"]
     },{
+      foreignKeyName: "unit_ownerships_transfer_fk"
+      columns: ["transfer_id"]
+isOneToOne: false
+      referencedRelation: "transfers"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "unit_ownerships_unit_id_fkey"
       columns: ["unit_id"]
 isOneToOne: false
@@ -755,14 +985,14 @@ isOneToOne: false
                   ]
                 },"units": {
                   Row: {
-                    "area_sqft": number,"base_price": number,"cash_price": number | null,"bathrooms": number | null,"bedrooms": number | null,"block_id": string | null,"category": Database["public"]['Enums']["unit_category"],"created_at": string,"created_by": string | null,"deleted_at": string | null,"depth_ft": number | null,"floor_id": string | null,"id": string,"is_corner": boolean,"is_main_boulevard": boolean,"is_park_facing": boolean,"notes": string | null,"price_per_sqft": number | null,"project_id": string,"size_unit": Database["public"]['Enums']["size_unit"],"size_value": number,"status": Database["public"]['Enums']["unit_status"],"street": string | null,"unit_no": string,"updated_at": string,"use": Database["public"]['Enums']["unit_use"],"width_ft": number | null
+                    "area_sqft": number,"base_price": number,"bathrooms": number | null,"bedrooms": number | null,"block_id": string | null,"cash_price": number | null,"category": Database["public"]['Enums']["unit_category"],"created_at": string,"created_by": string | null,"deleted_at": string | null,"depth_ft": number | null,"floor_id": string | null,"id": string,"is_corner": boolean,"is_main_boulevard": boolean,"is_park_facing": boolean,"notes": string | null,"price_per_sqft": number | null,"project_id": string,"size_unit": Database["public"]['Enums']["size_unit"],"size_value": number,"status": Database["public"]['Enums']["unit_status"],"street": string | null,"unit_no": string,"updated_at": string,"use": Database["public"]['Enums']["unit_use"],"width_ft": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "area_sqft"?: number,"base_price": number,"cash_price"?: number | null,"bathrooms"?: number | null,"bedrooms"?: number | null,"block_id"?: string | null,"category": Database["public"]['Enums']["unit_category"],"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"depth_ft"?: number | null,"floor_id"?: string | null,"id"?: string,"is_corner"?: boolean,"is_main_boulevard"?: boolean,"is_park_facing"?: boolean,"notes"?: string | null,"price_per_sqft"?: number | null,"project_id": string,"size_unit": Database["public"]['Enums']["size_unit"],"size_value": number,"status"?: Database["public"]['Enums']["unit_status"],"street"?: string | null,"unit_no": string,"updated_at"?: string,"use": Database["public"]['Enums']["unit_use"],"width_ft"?: number | null
+                    "area_sqft"?: number,"base_price": number,"bathrooms"?: number | null,"bedrooms"?: number | null,"block_id"?: string | null,"cash_price"?: number | null,"category": Database["public"]['Enums']["unit_category"],"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"depth_ft"?: number | null,"floor_id"?: string | null,"id"?: string,"is_corner"?: boolean,"is_main_boulevard"?: boolean,"is_park_facing"?: boolean,"notes"?: string | null,"price_per_sqft"?: number | null,"project_id": string,"size_unit": Database["public"]['Enums']["size_unit"],"size_value": number,"status"?: Database["public"]['Enums']["unit_status"],"street"?: string | null,"unit_no": string,"updated_at"?: string,"use": Database["public"]['Enums']["unit_use"],"width_ft"?: number | null
                   }
                   Update: {
-                    "area_sqft"?: number,"base_price"?: number,"cash_price"?: number | null,"bathrooms"?: number | null,"bedrooms"?: number | null,"block_id"?: string | null,"category"?: Database["public"]['Enums']["unit_category"],"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"depth_ft"?: number | null,"floor_id"?: string | null,"id"?: string,"is_corner"?: boolean,"is_main_boulevard"?: boolean,"is_park_facing"?: boolean,"notes"?: string | null,"price_per_sqft"?: number | null,"project_id"?: string,"size_unit"?: Database["public"]['Enums']["size_unit"],"size_value"?: number,"status"?: Database["public"]['Enums']["unit_status"],"street"?: string | null,"unit_no"?: string,"updated_at"?: string,"use"?: Database["public"]['Enums']["unit_use"],"width_ft"?: number | null
+                    "area_sqft"?: number,"base_price"?: number,"bathrooms"?: number | null,"bedrooms"?: number | null,"block_id"?: string | null,"cash_price"?: number | null,"category"?: Database["public"]['Enums']["unit_category"],"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"depth_ft"?: number | null,"floor_id"?: string | null,"id"?: string,"is_corner"?: boolean,"is_main_boulevard"?: boolean,"is_park_facing"?: boolean,"notes"?: string | null,"price_per_sqft"?: number | null,"project_id"?: string,"size_unit"?: Database["public"]['Enums']["size_unit"],"size_value"?: number,"status"?: Database["public"]['Enums']["unit_status"],"street"?: string | null,"unit_no"?: string,"updated_at"?: string,"use"?: Database["public"]['Enums']["unit_use"],"width_ft"?: number | null
                   }
                   Relationships: [
                     {
@@ -832,12 +1062,7 @@ isOneToOne: false
                 }
           }
           Views: {
-            "v_refunds_due": {
-                  Row: {
-                    "amount_received": number | null,"cancellation_id": string | null,"cancellation_no": string | null,"cancelled_on": string | null,"client_id": string | null,"client_name": string | null,"client_phone": string | null,"client_whatsapp": string | null,"days_overdue": number | null,"deduction_amount": number | null,"deduction_pct": number | null,"project_code": string | null,"project_id": string | null,"project_name": string | null,"reason": string | null,"refund_due": number | null,"refund_due_date": string | null,"refund_reference": string | null,"refund_status": Database["public"]['Enums']["refund_status"] | null,"refunded_on": string | null,"resold_sale_id": string | null,"sale_id": string | null,"sale_price": number | null,"unit_id": string | null,"unit_no": string | null
-                  }
-                  Relationships: []
-                },"v_project_inventory": {
+            "v_project_inventory": {
                   Row: {
                     "available": number | null,"blocked": number | null,"booked": number | null,"code": string | null,"name": string | null,"on_hold": number | null,"project_id": string | null,"project_status": Database["public"]['Enums']["project_status"] | null,"rented": number | null,"sold": number | null,"sort_order": number | null,"total_area_sqft": number | null,"total_list_value": number | null,"total_units": number | null,"type": Database["public"]['Enums']["project_type"] | null,"unsold_inventory_value": number | null
                   }
@@ -883,6 +1108,68 @@ isOneToOne: false
       referencedColumns: ["project_id"]
     },{
       foreignKeyName: "sales_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "units"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"v_refunds_due": {
+                  Row: {
+                    "amount_received": number | null,"cancellation_id": string | null,"cancellation_no": string | null,"cancelled_on": string | null,"client_id": string | null,"client_name": string | null,"client_phone": string | null,"client_whatsapp": string | null,"days_overdue": number | null,"deduction_amount": number | null,"deduction_pct": number | null,"project_code": string | null,"project_id": string | null,"project_name": string | null,"reason": string | null,"refund_due": number | null,"refund_due_date": string | null,"refund_reference": string | null,"refund_status": Database["public"]['Enums']["refund_status"] | null,"refunded_on": string | null,"resold_sale_id": string | null,"sale_id": string | null,"sale_price": number | null,"unit_id": string | null,"unit_no": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "cancellations_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cancellations_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "cancellations_resold_sale_id_fkey"
+      columns: ["resold_sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cancellations_resold_sale_id_fkey"
+      columns: ["resold_sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "cancellations_resold_sale_id_fkey"
+      columns: ["resold_sale_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "cancellations_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: true
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cancellations_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: true
+      referencedRelation: "v_sale_ledger"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "cancellations_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: true
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "cancellations_unit_id_fkey"
       columns: ["unit_id"]
 isOneToOne: false
       referencedRelation: "units"
@@ -950,31 +1237,70 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "allocate_payment":
+            "admin_create_staff":
+{ Args: { "p": Json }; Returns: {
+              "created_at": string,
+"email": string | null,
+"full_name": string,
+"id": string,
+"is_active": boolean,
+"must_change_password": boolean,
+"phone": string | null,
+"role": Database["public"]['Enums']["app_role"],
+"updated_at": string,
+"username": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "profiles"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"admin_set_password":
+{ Args: { "p_password": string,"p_user": string }; Returns: undefined
+                           },
+"allocate_payment":
 { Args: { "p_payment": string }; Returns: undefined
                            },
 "bounce_instrument":
 { Args: { "p_payment": string,"p_reason": string }; Returns: undefined
                            },
+"cancel_sale":
+{ Args: { "p": Json }; Returns: {
+              "amount_received": number,
+"cancellation_no": string,
+"cancelled_on": string,
+"created_at": string,
+"created_by": string | null,
+"deduction_amount": number,
+"deduction_pct": number,
+"id": string,
+"project_id": string,
+"reason": string,
+"refund_due": number,
+"refund_due_date": string | null,
+"refund_reference": string | null,
+"refund_status": Database["public"]['Enums']["refund_status"],
+"refunded_on": string | null,
+"resold_sale_id": string | null,
+"sale_id": string,
+"sale_price": number,
+"unit_id": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "cancellations"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "clear_instrument":
 { Args: { "p_cleared_on"?: string,"p_payment": string }; Returns: undefined
                            },
 "client_exists":
 { Args: { "p_cnic"?: string,"p_passport"?: string }; Returns: boolean
                            },
-"admin_create_staff":
-{ Args: { "p": Json }; Returns: Json
-                           },"admin_set_password":
-{ Args: { "p_user": string,"p_password": string }; Returns: undefined
-                           },"grant_possession":
-{ Args: { "p": Json }; Returns: Json
-                           },"transfer_sale":
-{ Args: { "p": Json }; Returns: Json
-                           },"cancel_sale":
-{ Args: { "p": Json }; Returns: Json
-                           },"settle_refund":
-{ Args: { "p_cancellation": string,"p_paid_on"?: string,"p_reference"?: string,"p_reason"?: string }; Returns: Json
-                           },"create_sale":
+"create_sale":
 { Args: { "p": Json }; Returns: {
               "agent_id": string | null,
 "booking_amount": number | null,
@@ -1043,8 +1369,33 @@ isOneToOne: false
               "id": string,"kind": string,"project_id": string,"subtitle": string,"title": string
             }[]
                            },
+"grant_possession":
+{ Args: { "p": Json }; Returns: {
+              "created_at": string,
+"created_by": string | null,
+"deleted_at": string | null,
+"discrepancy_deadline": string | null,
+"dues_cleared_date": string | null,
+"handover_date": string,
+"id": string,
+"letter_no": string,
+"notes": string | null,
+"project_id": string,
+"sale_id": string,
+"unit_id": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "possessions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "install_document_templates":
 { Args: { "p_project_id": string,"p_set": string }; Returns: number
+                           },
+"issue_document":
+{ Args: { "p": Json }; Returns: string
                            },
 "mark_overdue":
 { Args: Record<PropertyKey, never>; Returns: number
@@ -1109,8 +1460,60 @@ isOneToOne: false
 "set_payment_allocations":
 { Args: { "p_alloc": Json,"p_payment": string,"p_reason": string }; Returns: undefined
                            },
+"settle_refund":
+{ Args: { "p_cancellation": string,"p_paid_on": string,"p_reason": string,"p_reference": string }; Returns: {
+              "amount_received": number,
+"cancellation_no": string,
+"cancelled_on": string,
+"created_at": string,
+"created_by": string | null,
+"deduction_amount": number,
+"deduction_pct": number,
+"id": string,
+"project_id": string,
+"reason": string,
+"refund_due": number,
+"refund_due_date": string | null,
+"refund_reference": string | null,
+"refund_status": Database["public"]['Enums']["refund_status"],
+"refunded_on": string | null,
+"resold_sale_id": string | null,
+"sale_id": string,
+"sale_price": number,
+"unit_id": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "cancellations"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "soft_delete":
 { Args: { "p_id": string,"p_reason": string,"p_table": string }; Returns: undefined
+                           },
+"transfer_sale":
+{ Args: { "p": Json }; Returns: {
+              "created_at": string,
+"created_by": string | null,
+"id": string,
+"notes": string | null,
+"project_id": string,
+"reason": string,
+"sale_id": string,
+"transfer_date": string,
+"transfer_fee": number,
+"transfer_no": string,
+"unit_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "transfers"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"unit_list_price":
+{ Args: { "p_plan_kind": Database["public"]['Enums']["plan_kind"],"p_unit": string }; Returns: number
                            },
 "update_unit":
 { Args: { "p_id": string,"p_patch": Json,"p_reason"?: string }; Returns: {
@@ -1119,6 +1522,7 @@ isOneToOne: false
 "bathrooms": number | null,
 "bedrooms": number | null,
 "block_id": string | null,
+"cash_price": number | null,
 "category": Database["public"]['Enums']["unit_category"],
 "created_at": string,
 "created_by": string | null,
@@ -1146,7 +1550,10 @@ isOneToOne: false
         to: "units"
         isOneToOne: true
         isSetofReturn: false
-      } }
+      } },
+"verify_document":
+{ Args: { "p_token": string }; Returns: Json
+                           }
           }
           Enums: {
             "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","commission_status": "pending"|"partially_received"|"received"|"cancelled","document_type": "booking_form"|"allotment_letter"|"sale_agreement"|"installment_schedule"|"possession_letter"|"ndc_letter"|"payment_receipt"|"transfer_letter"|"statement_of_account","installment_status": "pending"|"partially_paid"|"paid"|"overdue"|"waived","installment_type": "down_payment"|"installment"|"possession"|"balloon"|"other","instrument_status": "not_applicable"|"pending"|"cleared"|"bounced","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","ownership_via": "booking"|"transfer"|"correction","payment_mode": "cash"|"cheque"|"pay_order"|"bank_transfer"|"online","plan_frequency": "monthly"|"quarterly"|"bi_annual"|"annual","plan_kind": "full_cash"|"installment","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","record_status": "valid"|"reversed","refund_status": "pending_resale"|"payable"|"paid"|"waived","sale_status": "booked"|"active"|"completed"|"cancelled"|"transferred","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
