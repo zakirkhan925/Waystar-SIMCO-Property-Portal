@@ -26,3 +26,10 @@ next-env.d.ts
 
 # local tooling
 .claude/
+
+# HR documents: kept on this computer, never pushed to the public repository
+Job Descriptions/
+
+# Working notes for AI coding tools (task briefs and reports) — not part of the app
+CODEX-TASKS.md
+CODEX-REPORT.md
