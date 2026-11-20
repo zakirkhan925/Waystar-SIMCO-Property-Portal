@@ -96,9 +96,12 @@ export default async function SalePage({ params }: Props) {
         }
         actions={
           <>
-            {sale.status !== "cancelled" && (
-              <SaleDocumentsMenu saleId={saleId} hasPossession={Boolean(possession)} isSettled={outstanding <= 0} />
-            )}
+            <SaleDocumentsMenu
+              saleId={saleId}
+              hasPossession={Boolean(possession)}
+              isSettled={outstanding <= 0}
+              isCancelled={sale.status === "cancelled"}
+            />
             {unit && (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/units/${unit.id}`}>View unit</Link>

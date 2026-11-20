@@ -6,6 +6,7 @@ import { layoutFor } from "@/pdf/letterhead";
 import { loadDocContextBase, loadLetterhead } from "@/pdf/load";
 import { pdfResponse, renderDocumentPdf } from "@/pdf/render";
 import { loadSaleDeal, paymentModeLabel } from "@/pdf/sale-context";
+import { issueDocument } from "@/pdf/verification";
 
 export const runtime = "nodejs";
 
@@ -36,6 +37,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const { letterheadPath, ...ctxBase } = base;
     const layout = layoutFor(request.nextUrl.searchParams.get("mode"), base.settings);
+    const verification = await issueDocument({
+      docType: "payment_receipt", refNo: p.receipt_no, saleId: p.sale_id, projectId: p.project_id, paymentId,
+    });
     const buffer = await renderDocumentPdf(
       {
         ...ctxBase,
@@ -46,8 +50,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         layout,
         refNo: p.receipt_no,
         ndcPurpose: null,
-        verifyUrl: null,
-        qrDataUrl: null,
+        ...verification,
         receipt: {
           amount: String(p.amount),
           mode: paymentModeLabel(p.mode),

@@ -23,12 +23,15 @@ export function SaleDocumentsMenu({
   saleId,
   hasPossession,
   isSettled,
+  isCancelled,
 }: {
   saleId: string;
   hasPossession: boolean;
   isSettled: boolean;
+  isCancelled: boolean;
 }) {
   const available = DOCUMENTS.filter(([doc]) => {
+    if (isCancelled) return false;
     if (doc === "possession_letter") return hasPossession;
     if (doc === "ndc_letter") return isSettled;
     return true;
@@ -48,6 +51,11 @@ export function SaleDocumentsMenu({
             </a>
           </DropdownMenuItem>
         ))}
+        <DropdownMenuItem asChild>
+          <a href={`/api/pdf/statement/${saleId}`} target="_blank" rel="noopener noreferrer">
+            Statement of Account
+          </a>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

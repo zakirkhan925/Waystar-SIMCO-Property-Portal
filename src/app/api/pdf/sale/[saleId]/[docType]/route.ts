@@ -7,6 +7,7 @@ import { layoutFor } from "@/pdf/letterhead";
 import { loadDocContextBase, loadLetterhead, loadTemplate } from "@/pdf/load";
 import { pdfResponse, renderDocumentPdf } from "@/pdf/render";
 import { documentRef, loadSaleDeal } from "@/pdf/sale-context";
+import { issueDocument } from "@/pdf/verification";
 
 export const runtime = "nodejs";
 
@@ -50,6 +51,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { letterheadPath, ...ctxBase } = base;
     const layout = layoutFor(request.nextUrl.searchParams.get("mode"), base.settings);
     const refNo = docType === "booking_form" ? loaded.bookingFormNo : documentRef(loaded.bookingFormNo, template.ref_prefix);
+    const verification = await issueDocument({ docType, refNo, saleId, projectId: loaded.projectId });
     const buffer = await renderDocumentPdf(
       {
         ...ctxBase,
@@ -59,9 +61,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         layout,
         refNo,
         ndcPurpose: request.nextUrl.searchParams.get("purpose"),
-        // no public verification page exists yet, so no QR that scans to nothing
-        verifyUrl: null,
-        qrDataUrl: null,
+        ...verification,
       },
       layout.mode === "letterhead" ? await loadLetterhead(letterheadPath) : null,
     );

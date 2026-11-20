@@ -6,8 +6,8 @@ import { DocumentPdf } from "./documents";
 import { placeOnLetterhead } from "./letterhead";
 import type { DocContext } from "./types";
 
-export async function qrDataUrl(text: string) {
-  return QRCode.toDataURL(text, { margin: 0, width: 160, errorCorrectionLevel: "M" });
+export async function qrDataUrl(text: string, margin = 0) {
+  return QRCode.toDataURL(text, { margin, width: 160, errorCorrectionLevel: "M" });
 }
 
 /** Render a document; in "letterhead" mode the project's letterhead PDF is placed behind every page. */
