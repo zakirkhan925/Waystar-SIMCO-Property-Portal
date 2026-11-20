@@ -1,5 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { toDecimal } from "@/lib/money";
+import { readBatches } from "@/lib/query-batches";
 
 export type RecoveryBucket = "all" | "due_week" | "overdue" | "0_30" | "31_60" | "61_90" | "90_plus";
 
@@ -25,17 +27,22 @@ export type RecoveryRow = Awaited<ReturnType<typeof listRecoveries>>[number];
 /** Totals per aging bucket, for the summary strip. */
 export async function recoverySummary(projectId?: string) {
   const supabase = await createClient();
-  let q = supabase.from("v_receivables").select("aging_bucket, outstanding");
-  if (projectId) q = q.eq("project_id", projectId);
-  const { data } = await q;
-
-  const empty = { not_due: 0, "0_30": 0, "31_60": 0, "61_90": 0, "90_plus": 0 };
-  const totals: Record<string, number> = { ...empty };
-  const counts: Record<string, number> = { ...empty };
-  for (const r of data ?? []) {
+  const rows = await readBatches((from, to) => {
+    let query = supabase.from("v_receivables").select("aging_bucket, outstanding::text, late_fee_outstanding::text");
+    if (projectId) query = query.eq("project_id", projectId);
+    return query.order("installment_id").range(from, to);
+  });
+  const totals = { not_due: toDecimal(0), "0_30": toDecimal(0), "31_60": toDecimal(0), "61_90": toDecimal(0), "90_plus": toDecimal(0) };
+  const counts = { not_due: 0, "0_30": 0, "31_60": 0, "61_90": 0, "90_plus": 0 };
+  let lateCharges = toDecimal(0);
+  for (const r of rows) {
     const b = r.aging_bucket ?? "not_due";
-    totals[b] = (totals[b] ?? 0) + Number(r.outstanding ?? 0);
-    counts[b] = (counts[b] ?? 0) + 1;
+    if (!(b in totals)) throw new Error("Unknown receivables ageing bucket.");
+    const bucket = b as keyof typeof totals;
+    totals[bucket] = totals[bucket].plus(toDecimal(r.outstanding));
+    counts[bucket] += 1;
+    lateCharges = lateCharges.plus(toDecimal(r.late_fee_outstanding));
   }
-  return { totals, counts };
+  const overdue = totals["0_30"].plus(totals["31_60"]).plus(totals["61_90"]).plus(totals["90_plus"]);
+  return { totals, counts, lateCharges, overdue, outstanding: overdue.plus(totals.not_due) };
 }

@@ -73,7 +73,7 @@ export default async function RecoveriesPage({ searchParams }: { searchParams: P
             label={{ not_due: "Not yet due", "0_30": "1–30 days", "31_60": "31–60 days", "61_90": "61–90 days", "90_plus": "90+ days" }[b]}
             value={formatPKRShort(summary.totals[b] ?? 0)}
             hint={`${summary.counts[b] ?? 0} installments`}
-            className={b === "90_plus" && (summary.totals[b] ?? 0) > 0 ? "border-destructive/40" : undefined}
+            className={b === "90_plus" && summary.totals[b].gt(0) ? "border-destructive/40" : undefined}
           />
         ))}
       </div>

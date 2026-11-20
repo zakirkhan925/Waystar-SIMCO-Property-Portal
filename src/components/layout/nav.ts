@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   Building2,
   HandCoins,
   LayoutDashboard,
@@ -19,7 +20,7 @@ export type NavItem = {
   roles?: AppRole[]; // omitted = every staff role
 };
 
-// Later phases add: Rentals, Reports.
+// Later phases add Rentals.
 // Possession, transfers and cancellations live on the sale they belong to rather than as
 // screens of their own; only refunds need a list, because Accounts chase them.
 export const NAV_ITEMS: NavItem[] = [
@@ -29,6 +30,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/payments", label: "Payments", icon: Wallet, roles: PAYMENTS_ROLES },
   { href: "/recoveries", label: "Recoveries", icon: HandCoins, roles: ["super_admin", "manager", "accounts", "viewer"] },
   { href: "/refunds", label: "Refunds", icon: Undo2, roles: ["super_admin", "manager", "accounts", "viewer"] },
+  { href: "/reports", label: "Reports", icon: BarChart3, roles: PAYMENTS_ROLES },
   { href: "/clients", label: "Clients", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings, roles: ["super_admin", "manager"] },
 ];
