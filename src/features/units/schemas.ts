@@ -56,6 +56,17 @@ export const unitFormSchema = z
 export type UnitFormValues = z.input<typeof unitFormSchema>;
 export type UnitFormParsed = z.output<typeof unitFormSchema>;
 
+/** Bulk pricing: a rate per sq ft applied to every free unit in the chosen tower / floor / category. */
+export const unitRateSchema = z.object({
+  rate: money.refine((v) => Number(v) > 0, "Enter a rate greater than zero"),
+  block_id: z.union([z.literal(""), z.string().uuid()]),
+  floor_id: z.union([z.literal(""), z.string().uuid()]),
+  category: z.union([z.literal(""), z.enum(["plot", "apartment", "shop", "office", "penthouse", "other"])]),
+  reason: z.string().trim().max(500),
+});
+
+export type UnitRateValues = z.input<typeof unitRateSchema>;
+
 export const unitStatusChangeSchema = z.object({
   status: z.enum(["available", "on_hold", "blocked"]),
   reason: z.string().trim().min(3, "Give a short reason").max(500),

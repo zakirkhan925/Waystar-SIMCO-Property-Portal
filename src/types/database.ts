@@ -1463,6 +1463,9 @@ isOneToOne: false
 "set_payment_allocations":
 { Args: { "p_alloc": Json,"p_payment": string,"p_reason": string }; Returns: undefined
                            },
+"set_unit_rate":
+{ Args: { "p_block_id"?: string,"p_category"?: Database["public"]['Enums']["unit_category"],"p_dry_run"?: boolean,"p_floor_id"?: string,"p_project_id": string,"p_rate": number,"p_reason"?: string }; Returns: Json
+                           },
 "settle_refund":
 { Args: { "p_cancellation": string,"p_paid_on": string,"p_reason": string,"p_reference": string }; Returns: {
               "amount_received": number,

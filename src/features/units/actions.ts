@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, hasRole } from "@/lib/auth/session";
 import { dbErrorMessage, type ActionResult } from "@/lib/action-result";
-import { unitFormSchema, unitStatusChangeSchema, type UnitFormParsed } from "./schemas";
+import { unitFormSchema, unitRateSchema, unitStatusChangeSchema, type UnitFormParsed } from "./schemas";
 
 function toRow(v: UnitFormParsed) {
   return {
@@ -99,6 +99,49 @@ export async function changeUnitStatus(unitId: string, input: unknown): Promise<
   revalidatePath(`/units/${unitId}`);
   if (data) revalidatePath(`/projects/${data.project_id}`);
   return { ok: true, message: "Status updated." };
+}
+
+export type UnitRateResult = { units: number; totalValue: string; skippedSold: number };
+
+/**
+ * Price every free unit matching the scope at `rate` per sq ft (base price = area x rate, whole rupees).
+ * With `dryRun` nothing is saved: it returns what would change, for the confirmation step.
+ */
+export async function setUnitRate(
+  projectId: string,
+  input: unknown,
+  dryRun: boolean,
+): Promise<ActionResult<UnitRateResult>> {
+  const user = await getCurrentUser();
+  if (!hasRole(user, "super_admin", "manager")) return { ok: false, error: "Only managers can set unit prices." };
+
+  const parsed = unitRateSchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error.flatten().fieldErrors);
+  const v = parsed.data;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("set_unit_rate", {
+    p_project_id: projectId,
+    // sent as a string so Postgres parses the rate exactly
+    p_rate: v.rate as unknown as number,
+    p_block_id: v.block_id || undefined,
+    p_floor_id: v.floor_id || undefined,
+    p_category: v.category || undefined,
+    p_reason: v.reason || undefined,
+    p_dry_run: dryRun,
+  });
+  if (error) return { ok: false, error: dbErrorMessage(error) };
+
+  const r = data as { units: number; total_value: string; skipped_sold: number };
+  const result = { units: r.units, totalValue: r.total_value, skippedSold: r.skipped_sold };
+  if (dryRun) return { ok: true, data: result };
+
+  revalidatePath(`/projects/${projectId}`);
+  return {
+    ok: true,
+    data: result,
+    message: r.units === 1 ? "1 unit repriced." : `${r.units} units repriced.`,
+  };
 }
 
 export async function deleteUnit(unitId: string, reason: string): Promise<ActionResult> {

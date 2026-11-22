@@ -10,6 +10,7 @@ import { parseUnitFilters } from "@/features/units/filters";
 import { listUnitsAll, listUnitsPage } from "@/features/units/queries";
 import { UnitFiltersBar } from "@/features/units/unit-filters-bar";
 import { UnitGrid } from "@/features/units/unit-grid";
+import { UnitRateDialog } from "@/features/units/unit-rate-dialog";
 import { UnitsTable } from "@/features/units/units-table";
 import { can, getCurrentUser } from "@/lib/auth/session";
 import { PROJECT_STATUS_LABELS } from "@/lib/labels";
@@ -61,6 +62,9 @@ export default async function ProjectInventoryPage({ params, searchParams }: Pro
                   <Pencil /> Edit project
                 </Link>
               </Button>
+            )}
+            {can(user).manageInventory && (
+              <UnitRateDialog projectId={projectId} structure={structure} isPlotSociety={isPlotSociety} />
             )}
             {can(user).manageInventory && (
               <Button size="sm" asChild>
