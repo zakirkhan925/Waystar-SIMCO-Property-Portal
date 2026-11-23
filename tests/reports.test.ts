@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aggregateCollections, aggregateProjectReports, aggregateRefunds } from "@/features/reports/aggregation";
+import { aggregateCollections, aggregateProjectReports, aggregateRefunds, aggregateRentals } from "@/features/reports/aggregation";
 
 const projects = [{ id: "a", name: "Project A" }, { id: "b", name: "Project B" }];
 
@@ -48,5 +48,20 @@ describe("report aggregation", () => {
     ]);
     expect(refunds.map(({ count, amount }) => [count, amount.toFixed(2)]))
       .toEqual([[1, "10.50"], [1, "20.00"], [1, "30.25"]]);
+  });
+
+  it("reconciles each project's billed rent, overdue invoices and live landlord balances", () => {
+    const [a, b] = aggregateRentals(projects, {
+      invoices: [
+        { project_id: "a", rent_amount: "50000.10", outstanding: "40000.10", days_overdue: 5 },
+        { project_id: "a", rent_amount: "50000.20", outstanding: "50000.20", days_overdue: 0 },
+      ],
+      payments: [{ project_id: "a", rent_collected: "10000.00", commission_earned: "500.00" }],
+      balances: [{ project_id: "a", owed_to_landlord: "9500.00" }, { project_id: "b", owed_to_landlord: "-500.00" }],
+    });
+    expect([a.billed, a.collected, a.overdue, a.commission, a.owed].map((value) => value.toFixed(2)))
+      .toEqual(["100000.30", "10000.00", "40000.10", "500.00", "9500.00"]);
+    expect(b.billed.toFixed(2)).toBe("0.00");
+    expect(b.owed.toFixed(2)).toBe("-500.00");
   });
 });

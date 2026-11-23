@@ -24,7 +24,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <PageHeader title="Reports" description="Inventory, sales, collections, recoveries and refunds by project." />
+      <PageHeader title="Reports" description="Inventory, sales, collections, recoveries, refunds and rentals by project." />
       <form action="/reports" className="mb-4 flex flex-wrap items-end gap-2">
         <label className="grid gap-1 text-sm">
           Project

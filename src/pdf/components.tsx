@@ -1,7 +1,7 @@
 import { Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { formatDate } from "@/lib/dates";
 import { BLANK, fillPlaceholders, type TemplateSection } from "./template";
-import { A4, type DocContext } from "./types";
+import { A4, type DocPageContext } from "./types";
 
 // Built-in Helvetica covers WinAnsi only; map the few typographic characters it lacks.
 export function pdfSafe(s: string): string {
@@ -44,7 +44,7 @@ export const s = StyleSheet.create({
   watermark: { position: "absolute", top: 360, left: 40, right: 40, textAlign: "center", fontSize: 54, color: "#ef4444", opacity: 0.12, transform: "rotate(-30deg)", fontFamily: "Helvetica-Bold" },
 });
 
-export function Letterhead({ ctx }: { ctx: DocContext }) {
+export function Letterhead({ ctx }: { ctx: DocPageContext }) {
   return (
     <View style={s.letterhead} fixed>
       <View>
@@ -64,7 +64,7 @@ export function Letterhead({ ctx }: { ctx: DocContext }) {
  * beside the letterhead artwork, so the body can use the rest of the page; otherwise it flows normally.
  * Absolutely positioned and not "fixed", so it appears on page 1 only.
  */
-export function DocHead({ ctx, children }: { ctx: DocContext; children: React.ReactNode }) {
+export function DocHead({ ctx, children }: { ctx: DocPageContext; children: React.ReactNode }) {
   const L = ctx.layout;
   if (L.mode === "plain" || !L.head) return <>{children}</>;
   return (
@@ -74,7 +74,7 @@ export function DocHead({ ctx, children }: { ctx: DocContext; children: React.Re
   );
 }
 
-export function TitleBlock({ ctx, subtitle }: { ctx: DocContext; subtitle?: string }) {
+export function TitleBlock({ ctx, subtitle }: { ctx: DocPageContext; subtitle?: string }) {
   return (
     <View>
       <Text style={s.title}>{ctx.template.title}</Text>
@@ -83,7 +83,7 @@ export function TitleBlock({ ctx, subtitle }: { ctx: DocContext; subtitle?: stri
   );
 }
 
-export function RefRow({ ctx, label = "Ref. No." }: { ctx: DocContext; label?: string }) {
+export function RefRow({ ctx, label = "Ref. No." }: { ctx: DocPageContext; label?: string }) {
   return (
     <View style={s.refRow}>
       <Text>
@@ -179,7 +179,7 @@ export function Signatures({ labels, compact = false }: { labels: string[]; comp
   );
 }
 
-const footerLine = (ctx: DocContext) =>
+const footerLine = (ctx: DocPageContext) =>
   [
     pdfSafe(`${ctx.template.title} · ${ctx.refNo ?? "unnumbered"} · template v${ctx.template.version}`),
     ctx.verifyUrl ? `Verify authenticity: ${ctx.verifyUrl}` : ctx.specimen ? "Specimen - not a valid document" : "",
@@ -190,7 +190,7 @@ const footerLine = (ctx: DocContext) =>
 /** Height of the QR / verification strip kept above the letterhead footer. */
 const STRIP = 30;
 
-export function DocPage({ ctx, children }: { ctx: DocContext; children: React.ReactNode }) {
+export function DocPage({ ctx, children }: { ctx: DocPageContext; children: React.ReactNode }) {
   const L = ctx.layout;
   const watermark = ctx.specimen && (
     <Text style={s.watermark} fixed>

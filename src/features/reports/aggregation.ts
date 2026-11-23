@@ -85,3 +85,32 @@ export function aggregateRefunds(refunds: { refund_status: Enums<"refund_status"
   }
   return Object.values(totals);
 }
+
+export function aggregateRentals(projects: Project[], records: {
+  invoices: { project_id: string | null; rent_amount: MoneyInput; outstanding: MoneyInput; days_overdue: number | null }[];
+  payments: { project_id: string | null; rent_collected: MoneyInput; commission_earned: MoneyInput }[];
+  balances: { project_id: string | null; owed_to_landlord: MoneyInput }[];
+}) {
+  const groups = new Map(projects.map(({ id, name }) => [id, {
+    name, billed: toDecimal(0), collected: toDecimal(0), overdue: toDecimal(0),
+    commission: toDecimal(0), owed: toDecimal(0),
+  }]));
+
+  for (const invoice of records.invoices) {
+    const group = groups.get(invoice.project_id ?? "");
+    if (!group) continue;
+    group.billed = group.billed.plus(toDecimal(invoice.rent_amount));
+    if ((invoice.days_overdue ?? 0) > 0) group.overdue = group.overdue.plus(toDecimal(invoice.outstanding));
+  }
+  for (const payment of records.payments) {
+    const group = groups.get(payment.project_id ?? "");
+    if (!group) continue;
+    group.collected = group.collected.plus(toDecimal(payment.rent_collected));
+    group.commission = group.commission.plus(toDecimal(payment.commission_earned));
+  }
+  for (const balance of records.balances) {
+    const group = groups.get(balance.project_id ?? "");
+    if (group) group.owed = group.owed.plus(toDecimal(balance.owed_to_landlord));
+  }
+  return [...groups.values()];
+}

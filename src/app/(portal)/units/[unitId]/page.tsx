@@ -14,6 +14,7 @@ import { deleteUnit } from "@/features/units/actions";
 import { formatSize, unitFeatures, unitTitle } from "@/features/units/format";
 import { getActivity, getUnit } from "@/features/units/queries";
 import { getOwnershipHistory, getUnitSale } from "@/features/sales/queries";
+import { listLeases } from "@/features/rentals/queries";
 import { UnitSalePanel } from "@/features/sales/unit-sale-panel";
 import { UnitStatusDialog } from "@/features/units/status-dialog";
 import { can, getCurrentUser } from "@/lib/auth/session";
@@ -43,12 +44,15 @@ export default async function UnitPage({ params }: Props) {
   if (!unit) notFound();
 
   const perms = can(user);
-  const [activity, sale, ownership] = await Promise.all([
+  const [activity, sale, ownership, leases] = await Promise.all([
     perms.viewActivity ? getActivity("units", unitId) : Promise.resolve([]),
     getUnitSale(unitId),
     getOwnershipHistory(unitId),
+    unit.status === "rented" ? listLeases({ unitId, status: "active" }) : Promise.resolve([]),
   ]);
   const canBook = perms.createClients && unit.status === "available";
+  const canRent = perms.manageInventory && (["available", "on_hold"].includes(unit.status)
+    || (unit.status === "sold" && ownership.some((owner) => owner.valid_to === null && owner.clients)));
   const manualStatus = ["available", "on_hold", "blocked"].includes(unit.status);
   const features = unitFeatures(unit);
 
@@ -71,6 +75,16 @@ export default async function UnitPage({ params }: Props) {
             {canBook && (
               <Button size="sm" asChild>
                 <Link href={`/bookings/new?unit=${unit.id}`}>Book this unit</Link>
+              </Button>
+            )}
+            {canRent && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/rentals/new?unit=${unit.id}`}>Rent out this unit</Link>
+              </Button>
+            )}
+            {leases[0] && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/rentals/${leases[0].id}`}>View lease</Link>
               </Button>
             )}
             {perms.manageInventory && (
