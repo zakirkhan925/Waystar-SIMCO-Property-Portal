@@ -110,4 +110,20 @@ cap the penalty at a percentage of the installment; it is currently unset, so pe
 
 Still open:
 - Documents 02 and 04 of the Simco Villas set — the numbering skips them; the client was asked what they are
-- Whether penalties also apply to rent invoices (Phase 4)
+
+### Rentals — rules confirmed 23-Nov-2026
+
+| # | Question | Answer | How it works |
+|---|---|---|---|
+| 1 | Who collects the rent | **Waystar collects it** on behalf of the owner (a client) or SIMCO | Every rent receipt is Waystar's; what is collected, less Waystar's commission, is owed to the landlord and paid out separately (owner payouts are recorded) |
+| 2 | Who can be the landlord | **A client who owns the unit, or SIMCO** for its own unsold units | A lease names a landlord client; no landlord client = SIMCO |
+| 3 | Lease commission | **5% of the rent** | 5% of each rent payment as it clears (deposits excluded). Default 5%, editable per lease |
+| 4 | Late rent penalty | **Yes, but entered by hand** | Never calculated automatically. A Manager or Accounts adds a penalty amount to a rent invoice, with a reason; it can be waived the same way |
+| 5 | Yearly increase | **10% a year** | On each lease anniversary the monthly rent rises by the lease's increment % (default 10%, editable per lease), compounding |
+| 6 | Security deposit | **Entered by hand** | The amount is typed per lease; received / adjusted / refunded entries are recorded by hand with a reason. Not counted as rent and earns no commission |
+| 7 | Maintenance charges | **Not now** | Left out of Phase 4 |
+| 8 | Rent receipt numbers | **Separate series** | Rent receipts `<CODE>-RENT-<year>-000001`, rent invoices `<CODE>-RINV-<year>-000001`, separate from sale receipts (`RCPT`) |
+
+Assumptions to confirm (chosen so work can start): a unit shows **Rented** while it has an active lease, and
+goes back to Sold / Available when the lease ends; rent is billed monthly on a due day set per lease (default the 1st).
+
