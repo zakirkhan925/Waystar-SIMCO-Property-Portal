@@ -220,6 +220,18 @@ isOneToOne: false
       referencedRelation: "dealers"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "commissions_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "commissions_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
       foreignKeyName: "commissions_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false
@@ -283,6 +295,38 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"deposit_transactions": {
+                  Row: {
+                    "amount": number,"created_at": string,"created_by": string | null,"id": string,"lease_id": string,"reason": string,"reference_no": string | null,"txn_date": string,"type": Database["public"]['Enums']["deposit_txn_type"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"created_at"?: string,"created_by"?: string | null,"id"?: string,"lease_id": string,"reason": string,"reference_no"?: string | null,"txn_date": string,"type": Database["public"]['Enums']["deposit_txn_type"]
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"created_by"?: string | null,"id"?: string,"lease_id"?: string,"reason"?: string,"reference_no"?: string | null,"txn_date"?: string,"type"?: Database["public"]['Enums']["deposit_txn_type"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "deposit_transactions_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "deposit_transactions_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "deposit_transactions_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
     }
                   ]
                 },"doc_sequences": {
@@ -461,6 +505,204 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "v_sale_summary"
       referencedColumns: ["sale_id"]
+    }
+                  ]
+                },"lease_events": {
+                  Row: {
+                    "amount": number | null,"created_at": string,"created_by": string | null,"details": string | null,"event_date": string,"id": string,"lease_id": string,"lease_year": number | null,"new_rent": number | null,"old_rent": number | null,"rent_invoice_id": string | null,"type": Database["public"]['Enums']["lease_event_type"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount"?: number | null,"created_at"?: string,"created_by"?: string | null,"details"?: string | null,"event_date": string,"id"?: string,"lease_id": string,"lease_year"?: number | null,"new_rent"?: number | null,"old_rent"?: number | null,"rent_invoice_id"?: string | null,"type": Database["public"]['Enums']["lease_event_type"]
+                  }
+                  Update: {
+                    "amount"?: number | null,"created_at"?: string,"created_by"?: string | null,"details"?: string | null,"event_date"?: string,"id"?: string,"lease_id"?: string,"lease_year"?: number | null,"new_rent"?: number | null,"old_rent"?: number | null,"rent_invoice_id"?: string | null,"type"?: Database["public"]['Enums']["lease_event_type"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "lease_events_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "lease_events_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "lease_events_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "lease_events_rent_invoice_id_fkey"
+      columns: ["rent_invoice_id"]
+isOneToOne: false
+      referencedRelation: "rent_invoices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "lease_events_rent_invoice_id_fkey"
+      columns: ["rent_invoice_id"]
+isOneToOne: false
+      referencedRelation: "v_rent_invoice_balances"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "lease_events_rent_invoice_id_fkey"
+      columns: ["rent_invoice_id"]
+isOneToOne: false
+      referencedRelation: "v_rent_receivables"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"leases": {
+                  Row: {
+                    "agent_id": string | null,"agreement_no": string,"commission_pct": number,"created_at": string,"created_by": string | null,"current_rent": number,"dealer_id": string | null,"end_date": string,"id": string,"increment_pct": number,"landlord_client_id": string | null,"monthly_rent": number,"notes": string | null,"project_id": string,"renewed_from_id": string | null,"rent_due_day": number,"security_deposit": number,"start_date": string,"status": Database["public"]['Enums']["lease_status"],"tenant_client_id": string,"terminated_on": string | null,"termination_reason": string | null,"unit_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agent_id"?: string | null,"agreement_no": string,"commission_pct": number,"created_at"?: string,"created_by"?: string | null,"current_rent": number,"dealer_id"?: string | null,"end_date": string,"id"?: string,"increment_pct": number,"landlord_client_id"?: string | null,"monthly_rent": number,"notes"?: string | null,"project_id": string,"renewed_from_id"?: string | null,"rent_due_day"?: number,"security_deposit"?: number,"start_date": string,"status"?: Database["public"]['Enums']["lease_status"],"tenant_client_id": string,"terminated_on"?: string | null,"termination_reason"?: string | null,"unit_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "agent_id"?: string | null,"agreement_no"?: string,"commission_pct"?: number,"created_at"?: string,"created_by"?: string | null,"current_rent"?: number,"dealer_id"?: string | null,"end_date"?: string,"id"?: string,"increment_pct"?: number,"landlord_client_id"?: string | null,"monthly_rent"?: number,"notes"?: string | null,"project_id"?: string,"renewed_from_id"?: string | null,"rent_due_day"?: number,"security_deposit"?: number,"start_date"?: string,"status"?: Database["public"]['Enums']["lease_status"],"tenant_client_id"?: string,"terminated_on"?: string | null,"termination_reason"?: string | null,"unit_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "leases_agent_id_fkey"
+      columns: ["agent_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_dealer_id_fkey"
+      columns: ["dealer_id"]
+isOneToOne: false
+      referencedRelation: "dealers"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_landlord_client_id_fkey"
+      columns: ["landlord_client_id"]
+isOneToOne: false
+      referencedRelation: "clients"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_landlord_client_id_fkey"
+      columns: ["landlord_client_id"]
+isOneToOne: false
+      referencedRelation: "v_receivables"
+      referencedColumns: ["client_id"]
+    },{
+      foreignKeyName: "leases_landlord_client_id_fkey"
+      columns: ["landlord_client_id"]
+isOneToOne: false
+      referencedRelation: "v_refunds_due"
+      referencedColumns: ["client_id"]
+    },{
+      foreignKeyName: "leases_landlord_client_id_fkey"
+      columns: ["landlord_client_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["primary_client_id"]
+    },{
+      foreignKeyName: "leases_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "leases_renewed_from_id_fkey"
+      columns: ["renewed_from_id"]
+isOneToOne: true
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_renewed_from_id_fkey"
+      columns: ["renewed_from_id"]
+isOneToOne: true
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "leases_tenant_client_id_fkey"
+      columns: ["tenant_client_id"]
+isOneToOne: false
+      referencedRelation: "clients"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_tenant_client_id_fkey"
+      columns: ["tenant_client_id"]
+isOneToOne: false
+      referencedRelation: "v_receivables"
+      referencedColumns: ["client_id"]
+    },{
+      foreignKeyName: "leases_tenant_client_id_fkey"
+      columns: ["tenant_client_id"]
+isOneToOne: false
+      referencedRelation: "v_refunds_due"
+      referencedColumns: ["client_id"]
+    },{
+      foreignKeyName: "leases_tenant_client_id_fkey"
+      columns: ["tenant_client_id"]
+isOneToOne: false
+      referencedRelation: "v_sale_summary"
+      referencedColumns: ["primary_client_id"]
+    },{
+      foreignKeyName: "leases_unit_id_fkey"
+      columns: ["unit_id"]
+isOneToOne: false
+      referencedRelation: "units"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"owner_payouts": {
+                  Row: {
+                    "amount": number,"created_at": string,"created_by": string | null,"id": string,"lease_id": string,"mode": Database["public"]['Enums']["payment_mode"],"paid_on": string,"reference_no": string,"reversal_reason": string | null,"reversed_at": string | null,"reversed_by": string | null,"status": Database["public"]['Enums']["record_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"created_at"?: string,"created_by"?: string | null,"id"?: string,"lease_id": string,"mode": Database["public"]['Enums']["payment_mode"],"paid_on": string,"reference_no": string,"reversal_reason"?: string | null,"reversed_at"?: string | null,"reversed_by"?: string | null,"status"?: Database["public"]['Enums']["record_status"]
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"created_by"?: string | null,"id"?: string,"lease_id"?: string,"mode"?: Database["public"]['Enums']["payment_mode"],"paid_on"?: string,"reference_no"?: string,"reversal_reason"?: string | null,"reversed_at"?: string | null,"reversed_by"?: string | null,"status"?: Database["public"]['Enums']["record_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "owner_payouts_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "owner_payouts_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "owner_payouts_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "owner_payouts_reversed_by_fkey"
+      columns: ["reversed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
     }
                   ]
                 },"payment_allocations": {
@@ -736,6 +978,126 @@ isOneToOne: false
                     {
       foreignKeyName: "projects_created_by_fkey"
       columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"rent_invoices": {
+                  Row: {
+                    "amount_due": number | null,"created_at": string,"created_by": string | null,"due_date": string,"id": string,"invoice_no": string,"late_fee": number,"lease_id": string,"period": string,"rent_amount": number,"waived_amount": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_due"?: never,"created_at"?: string,"created_by"?: string | null,"due_date": string,"id"?: string,"invoice_no": string,"late_fee"?: number,"lease_id": string,"period": string,"rent_amount": number,"waived_amount"?: number
+                  }
+                  Update: {
+                    "amount_due"?: never,"created_at"?: string,"created_by"?: string | null,"due_date"?: string,"id"?: string,"invoice_no"?: string,"late_fee"?: number,"lease_id"?: string,"period"?: string,"rent_amount"?: number,"waived_amount"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "rent_invoices_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_invoices_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_invoices_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    }
+                  ]
+                },"rent_payment_allocations": {
+                  Row: {
+                    "amount": number,"component": string,"created_at": string,"created_by": string | null,"id": string,"rent_invoice_id": string,"rent_payment_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"component": string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"rent_invoice_id": string,"rent_payment_id": string
+                  }
+                  Update: {
+                    "amount"?: number,"component"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"rent_invoice_id"?: string,"rent_payment_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "rent_payment_allocations_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_payment_allocations_rent_invoice_id_fkey"
+      columns: ["rent_invoice_id"]
+isOneToOne: false
+      referencedRelation: "rent_invoices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_payment_allocations_rent_invoice_id_fkey"
+      columns: ["rent_invoice_id"]
+isOneToOne: false
+      referencedRelation: "v_rent_invoice_balances"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_payment_allocations_rent_invoice_id_fkey"
+      columns: ["rent_invoice_id"]
+isOneToOne: false
+      referencedRelation: "v_rent_receivables"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_payment_allocations_rent_payment_id_fkey"
+      columns: ["rent_payment_id"]
+isOneToOne: false
+      referencedRelation: "rent_payments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_payment_allocations_rent_payment_id_fkey"
+      columns: ["rent_payment_id"]
+isOneToOne: false
+      referencedRelation: "v_rent_payment_totals"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"rent_payments": {
+                  Row: {
+                    "amount": number,"bank_name": string | null,"bounced_reason": string | null,"cleared_on": string | null,"created_at": string,"created_by": string | null,"id": string,"instrument_date": string | null,"instrument_no": string | null,"instrument_status": Database["public"]['Enums']["instrument_status"],"lease_id": string,"mode": Database["public"]['Enums']["payment_mode"],"notes": string | null,"receipt_no": string,"received_on": string,"reversal_reason": string | null,"reversed_at": string | null,"reversed_by": string | null,"status": Database["public"]['Enums']["record_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"bank_name"?: string | null,"bounced_reason"?: string | null,"cleared_on"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"instrument_date"?: string | null,"instrument_no"?: string | null,"instrument_status": Database["public"]['Enums']["instrument_status"],"lease_id": string,"mode": Database["public"]['Enums']["payment_mode"],"notes"?: string | null,"receipt_no": string,"received_on": string,"reversal_reason"?: string | null,"reversed_at"?: string | null,"reversed_by"?: string | null,"status"?: Database["public"]['Enums']["record_status"]
+                  }
+                  Update: {
+                    "amount"?: number,"bank_name"?: string | null,"bounced_reason"?: string | null,"cleared_on"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"instrument_date"?: string | null,"instrument_no"?: string | null,"instrument_status"?: Database["public"]['Enums']["instrument_status"],"lease_id"?: string,"mode"?: Database["public"]['Enums']["payment_mode"],"notes"?: string | null,"receipt_no"?: string,"received_on"?: string,"reversal_reason"?: string | null,"reversed_at"?: string | null,"reversed_by"?: string | null,"status"?: Database["public"]['Enums']["record_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "rent_payments_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_payments_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_payments_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "rent_payments_reversed_by_fkey"
+      columns: ["reversed_by"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
@@ -1062,7 +1424,27 @@ isOneToOne: false
                 }
           }
           Views: {
-            "v_project_inventory": {
+            "v_lease_ledger": {
+                  Row: {
+                    "commission_earned": number | null,"deposit_held": number | null,"lease_id": string | null,"outstanding": number | null,"overdue": number | null,"owed_to_landlord": number | null,"paid_out": number | null,"penalties_collected": number | null,"pending_clearance": number | null,"project_id": string | null,"rent_billed": number | null,"rent_collected": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "leases_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    }
+                  ]
+                },"v_project_inventory": {
                   Row: {
                     "available": number | null,"blocked": number | null,"booked": number | null,"code": string | null,"name": string | null,"on_hold": number | null,"project_id": string | null,"project_status": Database["public"]['Enums']["project_status"] | null,"rented": number | null,"sold": number | null,"sort_order": number | null,"total_area_sqft": number | null,"total_list_value": number | null,"total_units": number | null,"type": Database["public"]['Enums']["project_type"] | null,"unsold_inventory_value": number | null
                   }
@@ -1176,6 +1558,126 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"v_rent_invoice_balances": {
+                  Row: {
+                    "amount_due": number | null,"amount_paid": number | null,"created_at": string | null,"created_by": string | null,"days_overdue": number | null,"due_date": string | null,"id": string | null,"invoice_no": string | null,"late_fee": number | null,"lease_id": string | null,"outstanding": number | null,"period": string | null,"project_id": string | null,"rent_amount": number | null,"waived_amount": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "leases_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "rent_invoices_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_invoices_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_invoices_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    }
+                  ]
+                },"v_rent_payment_totals": {
+                  Row: {
+                    "amount": number | null,"bank_name": string | null,"bounced_reason": string | null,"cleared_on": string | null,"commission_earned": number | null,"created_at": string | null,"created_by": string | null,"effective_date": string | null,"id": string | null,"instrument_date": string | null,"instrument_no": string | null,"instrument_status": Database["public"]['Enums']["instrument_status"] | null,"lease_id": string | null,"mode": Database["public"]['Enums']["payment_mode"] | null,"notes": string | null,"penalties_collected": number | null,"project_id": string | null,"receipt_no": string | null,"received_on": string | null,"rent_collected": number | null,"reversal_reason": string | null,"reversed_at": string | null,"reversed_by": string | null,"status": Database["public"]['Enums']["record_status"] | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "leases_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "rent_payments_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_payments_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_payments_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "rent_payments_reversed_by_fkey"
+      columns: ["reversed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"v_rent_receivables": {
+                  Row: {
+                    "ageing_bucket": string | null,"amount_due": number | null,"amount_paid": number | null,"created_at": string | null,"created_by": string | null,"days_overdue": number | null,"due_date": string | null,"id": string | null,"invoice_no": string | null,"late_fee": number | null,"lease_id": string | null,"outstanding": number | null,"period": string | null,"project_id": string | null,"rent_amount": number | null,"waived_amount": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "leases_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leases_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "v_project_inventory"
+      referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "rent_invoices_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_invoices_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_invoices_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    }
+                  ]
                 },"v_sale_ledger": {
                   Row: {
                     "balance": number | null,"final_price": number | null,"max_days_overdue": number | null,"next_due_date": string | null,"overdue_amount": number | null,"pct_paid": number | null,"project_id": string | null,"sale_id": string | null,"total_late_fee": number | null,"total_late_fee_paid": number | null,"total_paid": number | null,"total_pending": number | null,"total_waived": number | null,"unit_id": string | null
@@ -1237,7 +1739,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "admin_create_staff":
+            "add_rent_penalty":
+{ Args: { "p_amount": number,"p_invoice": string,"p_reason": string }; Returns: undefined
+                           },
+"admin_create_staff":
 { Args: { "p": Json }; Returns: {
               "created_at": string,
 "email": string | null,
@@ -1263,6 +1768,9 @@ isOneToOne: false
 { Args: { "p_payment": string }; Returns: undefined
                            },
 "bounce_instrument":
+{ Args: { "p_payment": string,"p_reason": string }; Returns: undefined
+                           },
+"bounce_rent_instrument":
 { Args: { "p_payment": string,"p_reason": string }; Returns: undefined
                            },
 "cancel_sale":
@@ -1297,9 +1805,45 @@ isOneToOne: false
 "clear_instrument":
 { Args: { "p_cleared_on"?: string,"p_payment": string }; Returns: undefined
                            },
+"clear_rent_instrument":
+{ Args: { "p_cleared_on"?: string,"p_payment": string }; Returns: undefined
+                           },
 "client_exists":
 { Args: { "p_cnic"?: string,"p_passport"?: string }; Returns: boolean
                            },
+"create_lease":
+{ Args: { "p": Json }; Returns: {
+              "agent_id": string | null,
+"agreement_no": string,
+"commission_pct": number,
+"created_at": string,
+"created_by": string | null,
+"current_rent": number,
+"dealer_id": string | null,
+"end_date": string,
+"id": string,
+"increment_pct": number,
+"landlord_client_id": string | null,
+"monthly_rent": number,
+"notes": string | null,
+"project_id": string,
+"renewed_from_id": string | null,
+"rent_due_day": number,
+"security_deposit": number,
+"start_date": string,
+"status": Database["public"]['Enums']["lease_status"],
+"tenant_client_id": string,
+"terminated_on": string | null,
+"termination_reason": string | null,
+"unit_id": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "leases"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "create_sale":
 { Args: { "p": Json }; Returns: {
               "agent_id": string | null,
@@ -1364,6 +1908,9 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"generate_rent_invoices":
+{ Args: { "p_lease": string }; Returns: number
+                           },
 "global_search":
 { Args: { "p_limit"?: number,"p_q": string }; Returns: {
               "id": string,"kind": string,"project_id": string,"subtitle": string,"title": string
@@ -1403,6 +1950,45 @@ isOneToOne: false
 "next_doc_no":
 { Args: { "p_doc_type": string,"p_project": string }; Returns: string
                            },
+"record_deposit":
+{ Args: { "p": Json }; Returns: {
+              "amount": number,
+"created_at": string,
+"created_by": string | null,
+"id": string,
+"lease_id": string,
+"reason": string,
+"reference_no": string | null,
+"txn_date": string,
+"type": Database["public"]['Enums']["deposit_txn_type"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "deposit_transactions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"record_owner_payout":
+{ Args: { "p": Json }; Returns: {
+              "amount": number,
+"created_at": string,
+"created_by": string | null,
+"id": string,
+"lease_id": string,
+"mode": Database["public"]['Enums']["payment_mode"],
+"paid_on": string,
+"reference_no": string,
+"reversal_reason": string | null,
+"reversed_at": string | null,
+"reversed_by": string | null,
+"status": Database["public"]['Enums']["record_status"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "owner_payouts"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "record_payment":
 { Args: { "p": Json }; Returns: {
               "amount": number,
@@ -1435,7 +2021,74 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"record_rent_payment":
+{ Args: { "p": Json }; Returns: {
+              "amount": number,
+"bank_name": string | null,
+"bounced_reason": string | null,
+"cleared_on": string | null,
+"created_at": string,
+"created_by": string | null,
+"id": string,
+"instrument_date": string | null,
+"instrument_no": string | null,
+"instrument_status": Database["public"]['Enums']["instrument_status"],
+"lease_id": string,
+"mode": Database["public"]['Enums']["payment_mode"],
+"notes": string | null,
+"receipt_no": string,
+"received_on": string,
+"reversal_reason": string | null,
+"reversed_at": string | null,
+"reversed_by": string | null,
+"status": Database["public"]['Enums']["record_status"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "rent_payments"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"renew_lease":
+{ Args: { "p": Json }; Returns: {
+              "agent_id": string | null,
+"agreement_no": string,
+"commission_pct": number,
+"created_at": string,
+"created_by": string | null,
+"current_rent": number,
+"dealer_id": string | null,
+"end_date": string,
+"id": string,
+"increment_pct": number,
+"landlord_client_id": string | null,
+"monthly_rent": number,
+"notes": string | null,
+"project_id": string,
+"renewed_from_id": string | null,
+"rent_due_day": number,
+"security_deposit": number,
+"start_date": string,
+"status": Database["public"]['Enums']["lease_status"],
+"tenant_client_id": string,
+"terminated_on": string | null,
+"termination_reason": string | null,
+"unit_id": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "leases"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"reverse_owner_payout":
+{ Args: { "p_payout": string,"p_reason": string }; Returns: undefined
+                           },
 "reverse_payment":
+{ Args: { "p_payment": string,"p_reason": string }; Returns: undefined
+                           },
+"reverse_rent_payment":
 { Args: { "p_payment": string,"p_reason": string }; Returns: undefined
                            },
 "revoke_document":
@@ -1498,6 +2151,9 @@ isOneToOne: false
 "soft_delete":
 { Args: { "p_id": string,"p_reason": string,"p_table": string }; Returns: undefined
                            },
+"terminate_lease":
+{ Args: { "p_date": string,"p_lease": string,"p_reason": string }; Returns: undefined
+                           },
 "transfer_sale":
 { Args: { "p": Json }; Returns: {
               "created_at": string,
@@ -1559,10 +2215,13 @@ isOneToOne: false
       } },
 "verify_document":
 { Args: { "p_token": string }; Returns: Json
+                           },
+"waive_rent":
+{ Args: { "p_amount": number,"p_invoice": string,"p_reason": string }; Returns: undefined
                            }
           }
           Enums: {
-            "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","commission_status": "pending"|"partially_received"|"received"|"cancelled","document_type": "booking_form"|"allotment_letter"|"sale_agreement"|"installment_schedule"|"possession_letter"|"ndc_letter"|"payment_receipt"|"transfer_letter"|"statement_of_account"|"cancellation_letter","installment_status": "pending"|"partially_paid"|"paid"|"overdue"|"waived","installment_type": "down_payment"|"installment"|"possession"|"balloon"|"other","instrument_status": "not_applicable"|"pending"|"cleared"|"bounced","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","ownership_via": "booking"|"transfer"|"correction","payment_mode": "cash"|"cheque"|"pay_order"|"bank_transfer"|"online","plan_frequency": "monthly"|"quarterly"|"bi_annual"|"annual","plan_kind": "full_cash"|"installment","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","record_status": "valid"|"reversed","refund_status": "pending_resale"|"payable"|"paid"|"waived","sale_status": "booked"|"active"|"completed"|"cancelled"|"transferred","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
+            "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","commission_status": "pending"|"partially_received"|"received"|"cancelled","deposit_txn_type": "received"|"adjusted"|"refunded","document_type": "booking_form"|"allotment_letter"|"sale_agreement"|"installment_schedule"|"possession_letter"|"ndc_letter"|"payment_receipt"|"transfer_letter"|"statement_of_account"|"cancellation_letter","installment_status": "pending"|"partially_paid"|"paid"|"overdue"|"waived","installment_type": "down_payment"|"installment"|"possession"|"balloon"|"other","instrument_status": "not_applicable"|"pending"|"cleared"|"bounced","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","lease_event_type": "created"|"rent_increased"|"penalty_added"|"penalty_waived"|"expired"|"terminated"|"renewed","lease_status": "draft"|"active"|"expired"|"terminated"|"renewed","ownership_via": "booking"|"transfer"|"correction","payment_mode": "cash"|"cheque"|"pay_order"|"bank_transfer"|"online","plan_frequency": "monthly"|"quarterly"|"bi_annual"|"annual","plan_kind": "full_cash"|"installment","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","record_status": "valid"|"reversed","refund_status": "pending_resale"|"payable"|"paid"|"waived","sale_status": "booked"|"active"|"completed"|"cancelled"|"transferred","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1682,7 +2341,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["super_admin", "manager", "sales_agent", "accounts", "viewer", "client"],"audit_action": ["insert", "update", "delete"],"block_kind": ["block", "tower", "phase", "sector"],"commission_status": ["pending", "partially_received", "received", "cancelled"],"document_type": ["booking_form", "allotment_letter", "sale_agreement", "installment_schedule", "possession_letter", "ndc_letter", "payment_receipt", "transfer_letter", "statement_of_account", "cancellation_letter"],"installment_status": ["pending", "partially_paid", "paid", "overdue", "waived"],"installment_type": ["down_payment", "installment", "possession", "balloon", "other"],"instrument_status": ["not_applicable", "pending", "cleared", "bounced"],"late_fee_method": ["none", "flat_per_installment", "pct_of_overdue_per_month", "pct_per_day"],"ownership_via": ["booking", "transfer", "correction"],"payment_mode": ["cash", "cheque", "pay_order", "bank_transfer", "online"],"plan_frequency": ["monthly", "quarterly", "bi_annual", "annual"],"plan_kind": ["full_cash", "installment"],"project_status": ["off_plan", "under_construction", "completed"],"project_type": ["plot_society", "high_rise"],"record_status": ["valid", "reversed"],"refund_status": ["pending_resale", "payable", "paid", "waived"],"sale_status": ["booked", "active", "completed", "cancelled", "transferred"],"size_unit": ["marla", "kanal", "sqft"],"unit_category": ["plot", "apartment", "shop", "office", "penthouse", "other"],"unit_status": ["available", "on_hold", "booked", "sold", "rented", "blocked"],"unit_use": ["residential", "commercial"]
+            "app_role": ["super_admin", "manager", "sales_agent", "accounts", "viewer", "client"],"audit_action": ["insert", "update", "delete"],"block_kind": ["block", "tower", "phase", "sector"],"commission_status": ["pending", "partially_received", "received", "cancelled"],"deposit_txn_type": ["received", "adjusted", "refunded"],"document_type": ["booking_form", "allotment_letter", "sale_agreement", "installment_schedule", "possession_letter", "ndc_letter", "payment_receipt", "transfer_letter", "statement_of_account", "cancellation_letter"],"installment_status": ["pending", "partially_paid", "paid", "overdue", "waived"],"installment_type": ["down_payment", "installment", "possession", "balloon", "other"],"instrument_status": ["not_applicable", "pending", "cleared", "bounced"],"late_fee_method": ["none", "flat_per_installment", "pct_of_overdue_per_month", "pct_per_day"],"lease_event_type": ["created", "rent_increased", "penalty_added", "penalty_waived", "expired", "terminated", "renewed"],"lease_status": ["draft", "active", "expired", "terminated", "renewed"],"ownership_via": ["booking", "transfer", "correction"],"payment_mode": ["cash", "cheque", "pay_order", "bank_transfer", "online"],"plan_frequency": ["monthly", "quarterly", "bi_annual", "annual"],"plan_kind": ["full_cash", "installment"],"project_status": ["off_plan", "under_construction", "completed"],"project_type": ["plot_society", "high_rise"],"record_status": ["valid", "reversed"],"refund_status": ["pending_resale", "payable", "paid", "waived"],"sale_status": ["booked", "active", "completed", "cancelled", "transferred"],"size_unit": ["marla", "kanal", "sqft"],"unit_category": ["plot", "apartment", "shop", "office", "penthouse", "other"],"unit_status": ["available", "on_hold", "booked", "sold", "rented", "blocked"],"unit_use": ["residential", "commercial"]
           }
         }
 } as const
