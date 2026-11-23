@@ -132,5 +132,14 @@ select is((select status::text from public.units join fixture on units.id = unit
 select public.terminate_lease(lease_id, (now() at time zone 'Asia/Karachi')::date, 'Lease ended') from fixture;
 select is((select status::text from public.units join fixture on units.id = unit_id), 'sold', 'terminated unit returns to sold');
 
+reset role;
+update public.leases set agent_id = (select id from auth.users where email = 'agent@waystar.test')
+where id = (select lease_id from fixture);
+select pg_temp.login('agent@waystar.test');
+select is((select count(*) from public.v_lease_party_names), 1::bigint,
+  'an agent sees party names only for the assigned lease');
+select ok((select tenant_name is not null and landlord_name is not null from public.v_lease_party_names
+  where lease_id = (select lease_id from fixture)), 'assigned agent sees both named parties');
+
 select * from finish();
 rollback;

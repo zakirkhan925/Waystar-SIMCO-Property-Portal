@@ -15,6 +15,8 @@ import { ClientDocuments } from "@/features/clients/client-documents";
 import { getClient, getClientDocUrls } from "@/features/clients/queries";
 import { getActivity } from "@/features/units/queries";
 import { getClientSales } from "@/features/sales/queries";
+import { listLeases } from "@/features/rentals/queries";
+import { LEASE_STATUS_LABELS } from "@/features/rentals/terms";
 import { SaleStatusBadge } from "@/features/sales/badges";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { can, getCurrentUser } from "@/lib/auth/session";
@@ -46,10 +48,11 @@ export default async function ClientPage({ params }: Props) {
 
   const perms = can(user);
   const canEdit = perms.manageInventory || (user.role === "sales_agent" && client.created_by === user.id);
-  const [docUrls, activity, sales] = await Promise.all([
+  const [docUrls, activity, sales, leases] = await Promise.all([
     getClientDocUrls({ photo: client.photo_path, cnic_front: client.cnic_front_path, cnic_back: client.cnic_back_path }),
     perms.viewActivity ? getActivity("clients", clientId) : Promise.resolve([]),
     getClientSales(clientId),
+    listLeases({ clientId }),
   ]);
   const owned = sales.filter((s) => s.status !== "cancelled");
   const totalPaid = owned.reduce((n, s) => n + Number(s.total_paid ?? 0), 0);
@@ -100,7 +103,7 @@ export default async function ClientPage({ params }: Props) {
 
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Units owned" value={owned.length} />
-        <StatCard label="Units rented" value="0" hint="Rentals arrive in Phase 4" />
+        <StatCard label="Units rented" value={leases.filter((lease) => lease.status === "active" && lease.tenant_client_id === clientId).length} />
         <StatCard label="Total paid" value={formatPKR(totalPaid)} />
         <StatCard label="Outstanding" value={formatPKR(outstanding)} />
       </div>
@@ -109,6 +112,7 @@ export default async function ClientPage({ params }: Props) {
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="units">Units</TabsTrigger>
+          <TabsTrigger value="leases">Leases</TabsTrigger>
           {perms.viewActivity && <TabsTrigger value="activity">Activity</TabsTrigger>}
         </TabsList>
 
@@ -201,6 +205,41 @@ export default async function ClientPage({ params }: Props) {
               </Table>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="leases" className="mt-4">
+          <div className="overflow-hidden rounded-lg border">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead>Agreement</TableHead>
+                  <TableHead>Unit</TableHead>
+                  <TableHead>Client role</TableHead>
+                  <TableHead>Starts</TableHead>
+                  <TableHead>Ends</TableHead>
+                  <TableHead>Monthly rent</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {leases.map((lease) => (
+                  <TableRow key={lease.id}>
+                    <TableCell><Link href={`/rentals/${lease.id}`} className="font-medium hover:underline">{lease.agreement_no}</Link></TableCell>
+                    <TableCell>{lease.units?.unit_no} · {lease.projects?.name}</TableCell>
+                    <TableCell>{[
+                      lease.tenant_client_id === clientId && "Tenant",
+                      lease.landlord_client_id === clientId && "Landlord",
+                    ].filter(Boolean).join(", ")}</TableCell>
+                    <TableCell>{formatDate(lease.start_date)}</TableCell>
+                    <TableCell>{formatDate(lease.end_date)}</TableCell>
+                    <TableCell>{formatPKR(lease.current_rent)}</TableCell>
+                    <TableCell>{LEASE_STATUS_LABELS[lease.status]}</TableCell>
+                  </TableRow>
+                ))}
+                {!leases.length && <TableRow><TableCell colSpan={7} className="py-6 text-center text-muted-foreground">No leases for this client.</TableCell></TableRow>}
+              </TableBody>
+            </Table>
+          </div>
         </TabsContent>
 
         {perms.viewActivity && (

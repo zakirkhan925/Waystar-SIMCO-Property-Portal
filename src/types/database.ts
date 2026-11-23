@@ -232,6 +232,12 @@ isOneToOne: false
       referencedRelation: "v_lease_ledger"
       referencedColumns: ["lease_id"]
     },{
+      foreignKeyName: "commissions_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_party_names"
+      referencedColumns: ["lease_id"]
+    },{
       foreignKeyName: "commissions_project_id_fkey"
       columns: ["project_id"]
 isOneToOne: false
@@ -326,6 +332,12 @@ isOneToOne: false
       columns: ["lease_id"]
 isOneToOne: false
       referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "deposit_transactions_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_party_names"
       referencedColumns: ["lease_id"]
     }
                   ]
@@ -538,6 +550,12 @@ isOneToOne: false
       referencedRelation: "v_lease_ledger"
       referencedColumns: ["lease_id"]
     },{
+      foreignKeyName: "lease_events_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_party_names"
+      referencedColumns: ["lease_id"]
+    },{
       foreignKeyName: "lease_events_rent_invoice_id_fkey"
       columns: ["rent_invoice_id"]
 isOneToOne: false
@@ -636,6 +654,12 @@ isOneToOne: true
       referencedRelation: "v_lease_ledger"
       referencedColumns: ["lease_id"]
     },{
+      foreignKeyName: "leases_renewed_from_id_fkey"
+      columns: ["renewed_from_id"]
+isOneToOne: true
+      referencedRelation: "v_lease_party_names"
+      referencedColumns: ["lease_id"]
+    },{
       foreignKeyName: "leases_tenant_client_id_fkey"
       columns: ["tenant_client_id"]
 isOneToOne: false
@@ -696,6 +720,12 @@ isOneToOne: false
       columns: ["lease_id"]
 isOneToOne: false
       referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "owner_payouts_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_party_names"
       referencedColumns: ["lease_id"]
     },{
       foreignKeyName: "owner_payouts_reversed_by_fkey"
@@ -1013,6 +1043,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "v_lease_ledger"
       referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "rent_invoices_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_party_names"
+      referencedColumns: ["lease_id"]
     }
                   ]
                 },"rent_payment_allocations": {
@@ -1094,6 +1130,12 @@ isOneToOne: false
       columns: ["lease_id"]
 isOneToOne: false
       referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "rent_payments_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_party_names"
       referencedColumns: ["lease_id"]
     },{
       foreignKeyName: "rent_payments_reversed_by_fkey"
@@ -1444,6 +1486,14 @@ isOneToOne: false
       referencedColumns: ["project_id"]
     }
                   ]
+                },"v_lease_party_names": {
+                  Row: {
+                    "landlord_name": string | null,"lease_id": string | null,"tenant_name": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
                 },"v_project_inventory": {
                   Row: {
                     "available": number | null,"blocked": number | null,"booked": number | null,"code": string | null,"name": string | null,"on_hold": number | null,"project_id": string | null,"project_status": Database["public"]['Enums']["project_status"] | null,"rented": number | null,"sold": number | null,"sort_order": number | null,"total_area_sqft": number | null,"total_list_value": number | null,"total_units": number | null,"type": Database["public"]['Enums']["project_type"] | null,"unsold_inventory_value": number | null
@@ -1594,6 +1644,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "v_lease_ledger"
       referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "rent_invoices_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_party_names"
+      referencedColumns: ["lease_id"]
     }
                   ]
                 },"v_rent_payment_totals": {
@@ -1631,6 +1687,12 @@ isOneToOne: false
       columns: ["lease_id"]
 isOneToOne: false
       referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "rent_payments_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_party_names"
       referencedColumns: ["lease_id"]
     },{
       foreignKeyName: "rent_payments_reversed_by_fkey"
@@ -1675,6 +1737,12 @@ isOneToOne: false
       columns: ["lease_id"]
 isOneToOne: false
       referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "rent_invoices_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_party_names"
       referencedColumns: ["lease_id"]
     }
                   ]
