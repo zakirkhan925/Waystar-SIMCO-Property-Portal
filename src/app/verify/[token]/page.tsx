@@ -19,6 +19,8 @@ const warning = "bg-amber-100 text-amber-950";
 const banners = {
   valid: { label: "Genuine document", style: valid },
   revoked: { label: "Not valid (revoked)", style: invalid },
+  terminated: { label: "Lease terminated", style: warning },
+  expired: { label: "Lease expired", style: warning },
   cancelled: { label: "Cancelled", style: warning },
   superseded: { label: "Superseded", style: warning },
   reversed: { label: "Reversed", style: warning },
@@ -32,7 +34,8 @@ const verifiedDocument = z.object({
   project_name: z.string(),
   plot_no: z.string().nullable(),
   buyer_name: z.string().nullable(),
-  status: z.enum(["valid", "revoked", "cancelled", "superseded", "reversed", "bounced"]),
+  tenant_name: z.string().nullable().optional(),
+  status: z.enum(["valid", "revoked", "cancelled", "superseded", "reversed", "bounced", "terminated", "expired"]),
   amount: z.string().optional(),
 });
 
@@ -57,7 +60,7 @@ export default async function VerificationPage({ params }: { params: Promise<{ t
     ["Reference number", doc.ref_no],
     ["Project", doc.project_name],
     ["Plot number", doc.plot_no],
-    ["Buyer", doc.buyer_name],
+    ...(doc.tenant_name === undefined ? [["Buyer", doc.buyer_name]] : [["Tenant", doc.tenant_name]]),
     ...(doc.amount === undefined ? [] : [["Receipt amount", formatPKR(doc.amount)]]),
   ];
 

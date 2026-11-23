@@ -4,7 +4,7 @@ import { recoverySummary } from "@/features/recoveries/queries";
 import { listProjectsBrief } from "@/features/users/queries";
 import { readBatches } from "@/lib/query-batches";
 import { createClient } from "@/lib/supabase/server";
-import { aggregateCollections, aggregateProjectReports, aggregateRefunds } from "./aggregation";
+import { aggregateCollections, aggregateProjectReports, aggregateRefunds, aggregateRentals } from "./aggregation";
 import type { ReportFilters } from "./filters";
 
 export async function loadReports(filters: ReportFilters) {
@@ -12,7 +12,7 @@ export async function loadReports(filters: ReportFilters) {
   const { project, from, to } = filters;
   const inPeriod = (date: string | null) => date !== null &&
     (from === "any" || date >= from) && (to === "any" || date <= to);
-  const [allProjects, units, sales, cancellations, transfers, refunds, payments, recoveries] = await Promise.all([
+  const [allProjects, units, sales, cancellations, transfers, refunds, payments, recoveries, rentInvoices, rentPayments, rentBalances] = await Promise.all([
     listProjectsBrief(),
     readBatches((start, end) => {
       let query = supabase.from("units").select("project_id, status, base_price::text").is("deleted_at", null);
@@ -47,6 +47,25 @@ export async function loadReports(filters: ReportFilters) {
     }),
     listPaymentReportRows(filters),
     recoverySummary(project),
+    readBatches((start, end) => {
+      let query = supabase.from("v_rent_invoice_balances").select("project_id, rent_amount::text, outstanding::text, days_overdue");
+      if (project) query = query.eq("project_id", project);
+      if (from !== "any") query = query.gte("due_date", from);
+      if (to !== "any") query = query.lte("due_date", to);
+      return query.order("id").range(start, end);
+    }),
+    readBatches((start, end) => {
+      let query = supabase.from("v_rent_payment_totals").select("project_id, rent_collected::text, commission_earned::text");
+      if (project) query = query.eq("project_id", project);
+      if (from !== "any") query = query.gte("effective_date", from);
+      if (to !== "any") query = query.lte("effective_date", to);
+      return query.order("id").range(start, end);
+    }),
+    readBatches((start, end) => {
+      let query = supabase.from("v_lease_ledger").select("project_id, owed_to_landlord::text");
+      if (project) query = query.eq("project_id", project);
+      return query.order("lease_id").range(start, end);
+    }),
   ]);
 
   const projects = allProjects.filter(({ id }) => !project || id === project);
@@ -55,6 +74,7 @@ export async function loadReports(filters: ReportFilters) {
     projects: aggregateProjectReports(projects, { units, sales, cancellations, transfers }),
     collections: aggregateCollections(projects, payments),
     recoveries,
+    rentals: aggregateRentals(projects, { invoices: rentInvoices, payments: rentPayments, balances: rentBalances }),
     refunds: aggregateRefunds(refunds.filter((row) => row.refund_status !== "paid" || inPeriod(row.refunded_on))),
   };
 }

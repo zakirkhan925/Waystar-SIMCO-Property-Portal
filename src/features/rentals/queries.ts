@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { readBatches } from "@/lib/query-batches";
 import { todayPK } from "@/lib/dates";
 import { toDecimal } from "@/lib/money";
 import type { Enums } from "@/types/database";
@@ -23,25 +24,11 @@ export async function getLease(leaseId: string) {
   };
 }
 
-export async function readRentalPages<T>(read: (from: number, to: number) => PromiseLike<{
-  data: T[] | null;
-  error: unknown;
-}>): Promise<T[]> {
-  const rows: T[] = [];
-  const size = 500;
-  for (let start = 0; ; start += size) {
-    const { data, error } = await read(start, start + size - 1);
-    if (error) throw error;
-    rows.push(...(data ?? []));
-    if (!data || data.length < size) return rows;
-  }
-}
-
 export async function listLeases(params: {
   project?: string; status?: Enums<"lease_status">; q?: string; clientId?: string; unitId?: string;
 } = {}) {
   const supabase = await createClient();
-  const rows = await readRentalPages((from, to) => {
+  const rows = await readBatches((from, to) => {
     let query = supabase.from("leases").select(leaseSelection);
     if (params.project) query = query.eq("project_id", params.project);
     if (params.status) query = query.eq("status", params.status);
@@ -71,11 +58,11 @@ export async function listRentalTotals(leases: Lease[]) {
   const month = todayPK().slice(0, 7);
   const supabase = await createClient();
   const [invoices, payments, receivables] = await Promise.all([
-    readRentalPages((from, to) => supabase.from("v_rent_invoice_balances").select("lease_id, outstanding")
+    readBatches((from, to) => supabase.from("v_rent_invoice_balances").select("lease_id, outstanding")
       .gte("period", `${month}-01`).lte("period", `${month}-28`).order("id").range(from, to)),
-    readRentalPages((from, to) => supabase.from("v_rent_payment_totals").select("lease_id, rent_collected")
+    readBatches((from, to) => supabase.from("v_rent_payment_totals").select("lease_id, rent_collected")
       .gte("effective_date", `${month}-01`).lte("effective_date", todayPK()).order("id").range(from, to)),
-    readRentalPages((from, to) => supabase.from("v_rent_receivables").select("lease_id, outstanding")
+    readBatches((from, to) => supabase.from("v_rent_receivables").select("lease_id, outstanding")
       .gt("days_overdue", 0).order("id").range(from, to)),
   ]);
   const sum = <T extends { lease_id: string | null }>(rows: T[], value: (row: T) => number | null) =>
@@ -91,15 +78,15 @@ export async function listRentalTotals(leases: Lease[]) {
 export async function getLeaseActivity(id: string) {
   const supabase = await createClient();
   const [invoices, payments, deposits, payouts, events, ledger] = await Promise.all([
-    readRentalPages((from, to) => supabase.from("v_rent_invoice_balances").select("*")
+    readBatches((from, to) => supabase.from("v_rent_invoice_balances").select("*")
       .eq("lease_id", id).order("period").order("id").range(from, to)),
-    readRentalPages((from, to) => supabase.from("v_rent_payment_totals").select("*")
+    readBatches((from, to) => supabase.from("v_rent_payment_totals").select("*")
       .eq("lease_id", id).order("received_on", { ascending: false }).order("id").range(from, to)),
-    readRentalPages((from, to) => supabase.from("deposit_transactions").select("*")
+    readBatches((from, to) => supabase.from("deposit_transactions").select("*")
       .eq("lease_id", id).order("txn_date", { ascending: false }).order("id").range(from, to)),
-    readRentalPages((from, to) => supabase.from("owner_payouts").select("*")
+    readBatches((from, to) => supabase.from("owner_payouts").select("*")
       .eq("lease_id", id).order("paid_on", { ascending: false }).order("id").range(from, to)),
-    readRentalPages((from, to) => supabase.from("lease_events").select("*")
+    readBatches((from, to) => supabase.from("lease_events").select("*")
       .eq("lease_id", id).order("event_date", { ascending: false }).order("id").range(from, to)),
     supabase.from("v_lease_ledger").select("*").eq("lease_id", id).single(),
   ]);

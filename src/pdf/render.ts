@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 import { createElement } from "react";
 import { DocumentPdf } from "./documents";
 import { placeOnLetterhead } from "./letterhead";
-import type { DocContext } from "./types";
+import type { DocContext, DocPageContext } from "./types";
 
 export async function qrDataUrl(text: string, margin = 0) {
   return QRCode.toDataURL(text, { margin, width: 160, errorCorrectionLevel: "M" });
@@ -12,8 +12,16 @@ export async function qrDataUrl(text: string, margin = 0) {
 
 /** Render a document; in "letterhead" mode the project's letterhead PDF is placed behind every page. */
 export async function renderDocumentPdf(ctx: DocContext, letterhead?: Uint8Array | null): Promise<Uint8Array> {
-  // createElement keeps this file .ts; DocumentPdf returns a react-pdf <Document>
-  const content = await renderToBuffer(createElement(DocumentPdf, { ctx }) as Parameters<typeof renderToBuffer>[0]);
+  return renderPdf(
+    createElement(DocumentPdf, { ctx }) as Parameters<typeof renderToBuffer>[0],
+    ctx,
+    letterhead,
+  );
+}
+
+export async function renderPdf(document: Parameters<typeof renderToBuffer>[0],
+  ctx: DocPageContext, letterhead?: Uint8Array | null): Promise<Uint8Array> {
+  const content = await renderToBuffer(document);
   if (ctx.layout.mode === "letterhead" && letterhead) {
     return placeOnLetterhead(content, letterhead, `${ctx.template.title} ${ctx.refNo ?? ""}`.trim());
   }

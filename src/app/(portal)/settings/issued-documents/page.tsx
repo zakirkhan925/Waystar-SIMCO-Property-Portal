@@ -20,6 +20,9 @@ const labels: Record<string, string> = {
   statement_of_account: "Statement of Account",
   transfer_letter: "Transfer Letter",
   cancellation_letter: "Cancellation Letter",
+  rent_receipt: "Rent Receipt",
+  rent_invoice: "Rent Invoice",
+  lease_agreement: "Lease Summary",
 };
 
 export default async function IssuedDocumentsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
@@ -51,7 +54,7 @@ export default async function IssuedDocumentsPage({ searchParams }: { searchPara
               <TableRow key={doc.id}>
                 <TableCell className="font-medium">{doc.ref_no}</TableCell>
                 <TableCell>{labels[doc.doc_type] ?? doc.doc_type}</TableCell>
-                <TableCell>{doc.sales?.units?.unit_no ?? "—"}</TableCell>
+                <TableCell>{doc.sales?.units?.unit_no ?? doc.leases?.units?.unit_no ?? "—"}</TableCell>
                 <TableCell>{formatDate(doc.issued_at)}</TableCell>
                 <TableCell>{doc.profiles?.full_name ?? "—"}</TableCell>
                 <TableCell>

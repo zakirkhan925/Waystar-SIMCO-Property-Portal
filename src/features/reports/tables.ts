@@ -9,7 +9,7 @@ const inventoryLabels = {
   available: "Available", on_hold: "On hold", booked: "Booked", sold: "Sold", rented: "Rented", blocked: "Blocked",
 };
 
-export function reportTables({ projects, collections, recoveries, refunds }: Awaited<ReturnType<typeof loadReports>>): ReportTable[] {
+export function reportTables({ projects, collections, recoveries, refunds, rentals }: Awaited<ReturnType<typeof loadReports>>): ReportTable[] {
   const totalsRows = (totals: { name: string; count: number; amount: Decimal }[]) =>
     totals.map(({ name, count, amount }) => [name, count, amount]);
 
@@ -59,6 +59,12 @@ export function reportTables({ projects, collections, recoveries, refunds }: Awa
       id: "refunds", title: "Refunds",
       headers: ["Status", "Cancellations", "Amount (PKR)"],
       rows: totalsRows(refunds),
+    },
+    {
+      id: "rentals", title: "Rentals",
+      headers: ["Project", "Rent billed in period (PKR)", "Rent collected in period (PKR)",
+        "Overdue today on period invoices (PKR)", "Commission earned in period (PKR)", "Owed to landlords today (PKR)"],
+      rows: rentals.map((row) => [row.name, row.billed, row.collected, row.overdue, row.commission, row.owed]),
     },
   ];
 }

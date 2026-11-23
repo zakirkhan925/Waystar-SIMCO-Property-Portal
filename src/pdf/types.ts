@@ -105,3 +105,6 @@ export type DocContext = {
     status: string;
   };
 };
+
+export type DocPageContext = Pick<DocContext,
+  "template" | "refNo" | "date" | "verifyUrl" | "qrDataUrl" | "specimen" | "layout" | "company" | "project" | "settings">;

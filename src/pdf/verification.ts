@@ -3,19 +3,23 @@ import { createClient } from "@/lib/supabase/server";
 import { qrDataUrl } from "./render";
 
 export async function issueDocument({
-  docType, refNo, saleId, projectId, paymentId, transferId, cancellationId,
+  docType, refNo, saleId, projectId, paymentId, transferId, cancellationId, leaseId, rentInvoiceId, rentPaymentId,
 }: {
   docType: string;
   refNo: string;
-  saleId: string;
+  saleId?: string;
   projectId: string;
   paymentId?: string;
   transferId?: string;
   cancellationId?: string;
+  leaseId?: string;
+  rentInvoiceId?: string;
+  rentPaymentId?: string;
 }) {
   const supabase = await createClient();
   const { data: token, error } = await supabase.rpc("issue_document", {
-    p: { doc_type: docType, ref_no: refNo, sale_id: saleId, project_id: projectId, payment_id: paymentId, transfer_id: transferId, cancellation_id: cancellationId },
+    p: { doc_type: docType, ref_no: refNo, sale_id: saleId, project_id: projectId, payment_id: paymentId, transfer_id: transferId, cancellation_id: cancellationId,
+         lease_id: leaseId, rent_invoice_id: rentInvoiceId, rent_payment_id: rentPaymentId },
   });
   if (error || !token) {
     console.error("[pdf/verification]", docType, refNo, error);

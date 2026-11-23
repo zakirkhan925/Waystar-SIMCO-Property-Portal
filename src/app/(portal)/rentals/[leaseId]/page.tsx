@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { LeaseAction } from "@/features/rentals/lease-actions";
 import { LeaseDetail, LeaseOverview } from "@/features/rentals/lease-detail";
 import { getLease, getLeaseActivity } from "@/features/rentals/queries";
@@ -33,9 +34,12 @@ export default async function LeasePage({ params }: { params: Promise<{ leaseId:
         </span>}
         crumbs={[{ label: "Rentals", href: "/rentals" }, { label: lease.agreement_no }]}
         description={lease.projects?.name}
-        actions={manager && <>
-          {canRenew && <LeaseAction leaseId={lease.id} lease={lease} intent="renew" title="Renew" />}
-          {canTerminate && <LeaseAction leaseId={lease.id} intent="terminate" title="Terminate" />}
+        actions={<>
+          <Button variant="outline" size="sm" asChild>
+            <a href={`/api/pdf/lease/${lease.id}`} target="_blank" rel="noopener noreferrer">Lease summary</a>
+          </Button>
+          {manager && canRenew && <LeaseAction leaseId={lease.id} lease={lease} intent="renew" title="Renew" />}
+          {manager && canTerminate && <LeaseAction leaseId={lease.id} intent="terminate" title="Terminate" />}
         </>}
       />
       <LeaseOverview lease={lease} />

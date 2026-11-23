@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { StatCard } from "@/components/stat-card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -98,7 +99,8 @@ export function LeaseDetail({ lease, activity, manager, money }: {
               const id = invoice.id;
               if (!id) return [];
               return [{ id, cells: [
-                invoice.invoice_no, formatDate(invoice.period), formatDate(invoice.due_date), formatPKR(invoice.rent_amount),
+                <a key="pdf" className="font-medium hover:underline" href={`/api/pdf/rent-invoice/${id}`} target="_blank" rel="noopener noreferrer">{invoice.invoice_no}</a>,
+                formatDate(invoice.period), formatDate(invoice.due_date), formatPKR(invoice.rent_amount),
                 formatPKR(invoice.late_fee), formatPKR(invoice.waived_amount), formatPKR(invoice.amount_paid),
                 formatPKR(invoice.outstanding), toDecimal(invoice.outstanding).isZero() ? "Paid" :
                   invoice.days_overdue ? `Overdue (${invoice.days_overdue} days)` : "Due",
@@ -121,7 +123,8 @@ export function LeaseDetail({ lease, activity, manager, money }: {
               const status = reversed ? "Reversed" : payment.instrument_status === "pending" ? "Pending clearance"
                 : payment.instrument_status === "bounced" ? "Bounced" : "Cleared";
               return [{ id, cells: [
-                payment.receipt_no, formatDate(payment.received_on), payment.mode ? paymentModeLabels[payment.mode] : "—",
+                <a key="pdf" className="font-medium hover:underline" href={`/api/pdf/rent-receipt/${id}`} target="_blank" rel="noopener noreferrer">{payment.receipt_no}</a>,
+                formatDate(payment.received_on), payment.mode ? paymentModeLabels[payment.mode] : "—",
                 [payment.bank_name, payment.instrument_no, payment.instrument_date && formatDate(payment.instrument_date)].filter(Boolean).join(" · ") || "—",
                 formatPKR(payment.amount), <Badge key="status" variant="outline" title={payment.reversal_reason ?? payment.bounced_reason ?? undefined}>{status}</Badge>,
                 ...(money ? [<div key="actions" className="flex gap-1.5">
@@ -153,8 +156,13 @@ export function LeaseDetail({ lease, activity, manager, money }: {
             <StatCard label="Paid out" value={formatPKR(ledger.paid_out)} />
             <StatCard label="Owed to landlord" value={formatPKR(landlordBalance(ledger.rent_collected, ledger.commission_earned, ledger.paid_out))} />
           </div>
-          {money && toDecimal(ledger.owed_to_landlord).gt(0) &&
-            <LeaseAction leaseId={lease.id} intent="payout" title="Record owner payout" />}
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <a href={`/api/pdf/owner-statement/${lease.id}`} target="_blank" rel="noopener noreferrer">Owner statement</a>
+            </Button>
+            {money && toDecimal(ledger.owed_to_landlord).gt(0) &&
+              <LeaseAction leaseId={lease.id} intent="payout" title="Record owner payout" />}
+          </div>
           <Records columns={["Paid on", "Amount", "Mode", "Reference", "Status", ...(money ? ["Actions"] : [])]} empty="No payouts yet."
             rows={payouts.map((row) => ({ id: row.id, cells: [
               formatDate(row.paid_on), formatPKR(row.amount), paymentModeLabels[row.mode], row.reference_no,

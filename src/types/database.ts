@@ -465,14 +465,14 @@ isOneToOne: false
                   ]
                 },"issued_documents": {
                   Row: {
-                    "buyer_display_name": string | null,"doc_type": string,"id": string,"issued_at": string,"issued_by": string | null,"payment_id": string | null,"project_id": string,"ref_no": string,"revoked_at": string | null,"revoked_reason": string | null,"sale_id": string | null,"token": string
+                    "buyer_display_name": string | null,"doc_type": string,"id": string,"issued_at": string,"issued_by": string | null,"lease_id": string | null,"payment_id": string | null,"project_id": string,"ref_no": string,"rent_invoice_id": string | null,"rent_payment_id": string | null,"revoked_at": string | null,"revoked_reason": string | null,"sale_id": string | null,"token": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "buyer_display_name"?: string | null,"doc_type": string,"id"?: string,"issued_at"?: string,"issued_by"?: string | null,"payment_id"?: string | null,"project_id": string,"ref_no": string,"revoked_at"?: string | null,"revoked_reason"?: string | null,"sale_id"?: string | null,"token"?: string
+                    "buyer_display_name"?: string | null,"doc_type": string,"id"?: string,"issued_at"?: string,"issued_by"?: string | null,"lease_id"?: string | null,"payment_id"?: string | null,"project_id": string,"ref_no": string,"rent_invoice_id"?: string | null,"rent_payment_id"?: string | null,"revoked_at"?: string | null,"revoked_reason"?: string | null,"sale_id"?: string | null,"token"?: string
                   }
                   Update: {
-                    "buyer_display_name"?: string | null,"doc_type"?: string,"id"?: string,"issued_at"?: string,"issued_by"?: string | null,"payment_id"?: string | null,"project_id"?: string,"ref_no"?: string,"revoked_at"?: string | null,"revoked_reason"?: string | null,"sale_id"?: string | null,"token"?: string
+                    "buyer_display_name"?: string | null,"doc_type"?: string,"id"?: string,"issued_at"?: string,"issued_by"?: string | null,"lease_id"?: string | null,"payment_id"?: string | null,"project_id"?: string,"ref_no"?: string,"rent_invoice_id"?: string | null,"rent_payment_id"?: string | null,"revoked_at"?: string | null,"revoked_reason"?: string | null,"sale_id"?: string | null,"token"?: string
                   }
                   Relationships: [
                     {
@@ -481,6 +481,24 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "issued_documents_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "leases"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "issued_documents_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_ledger"
+      referencedColumns: ["lease_id"]
+    },{
+      foreignKeyName: "issued_documents_lease_id_fkey"
+      columns: ["lease_id"]
+isOneToOne: false
+      referencedRelation: "v_lease_party_names"
+      referencedColumns: ["lease_id"]
     },{
       foreignKeyName: "issued_documents_payment_id_fkey"
       columns: ["payment_id"]
@@ -499,6 +517,36 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "v_project_inventory"
       referencedColumns: ["project_id"]
+    },{
+      foreignKeyName: "issued_documents_rent_invoice_id_fkey"
+      columns: ["rent_invoice_id"]
+isOneToOne: false
+      referencedRelation: "rent_invoices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "issued_documents_rent_invoice_id_fkey"
+      columns: ["rent_invoice_id"]
+isOneToOne: false
+      referencedRelation: "v_rent_invoice_balances"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "issued_documents_rent_invoice_id_fkey"
+      columns: ["rent_invoice_id"]
+isOneToOne: false
+      referencedRelation: "v_rent_receivables"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "issued_documents_rent_payment_id_fkey"
+      columns: ["rent_payment_id"]
+isOneToOne: false
+      referencedRelation: "rent_payments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "issued_documents_rent_payment_id_fkey"
+      columns: ["rent_payment_id"]
+isOneToOne: false
+      referencedRelation: "v_rent_payment_totals"
+      referencedColumns: ["id"]
     },{
       foreignKeyName: "issued_documents_sale_id_fkey"
       columns: ["sale_id"]
@@ -2289,7 +2337,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","commission_status": "pending"|"partially_received"|"received"|"cancelled","deposit_txn_type": "received"|"adjusted"|"refunded","document_type": "booking_form"|"allotment_letter"|"sale_agreement"|"installment_schedule"|"possession_letter"|"ndc_letter"|"payment_receipt"|"transfer_letter"|"statement_of_account"|"cancellation_letter","installment_status": "pending"|"partially_paid"|"paid"|"overdue"|"waived","installment_type": "down_payment"|"installment"|"possession"|"balloon"|"other","instrument_status": "not_applicable"|"pending"|"cleared"|"bounced","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","lease_event_type": "created"|"rent_increased"|"penalty_added"|"penalty_waived"|"expired"|"terminated"|"renewed","lease_status": "draft"|"active"|"expired"|"terminated"|"renewed","ownership_via": "booking"|"transfer"|"correction","payment_mode": "cash"|"cheque"|"pay_order"|"bank_transfer"|"online","plan_frequency": "monthly"|"quarterly"|"bi_annual"|"annual","plan_kind": "full_cash"|"installment","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","record_status": "valid"|"reversed","refund_status": "pending_resale"|"payable"|"paid"|"waived","sale_status": "booked"|"active"|"completed"|"cancelled"|"transferred","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
+            "app_role": "super_admin"|"manager"|"sales_agent"|"accounts"|"viewer"|"client","audit_action": "insert"|"update"|"delete","block_kind": "block"|"tower"|"phase"|"sector","commission_status": "pending"|"partially_received"|"received"|"cancelled","deposit_txn_type": "received"|"adjusted"|"refunded","document_type": "booking_form"|"allotment_letter"|"sale_agreement"|"installment_schedule"|"possession_letter"|"ndc_letter"|"payment_receipt"|"transfer_letter"|"statement_of_account"|"cancellation_letter"|"rent_receipt"|"rent_invoice"|"lease_agreement","installment_status": "pending"|"partially_paid"|"paid"|"overdue"|"waived","installment_type": "down_payment"|"installment"|"possession"|"balloon"|"other","instrument_status": "not_applicable"|"pending"|"cleared"|"bounced","late_fee_method": "none"|"flat_per_installment"|"pct_of_overdue_per_month"|"pct_per_day","lease_event_type": "created"|"rent_increased"|"penalty_added"|"penalty_waived"|"expired"|"terminated"|"renewed","lease_status": "draft"|"active"|"expired"|"terminated"|"renewed","ownership_via": "booking"|"transfer"|"correction","payment_mode": "cash"|"cheque"|"pay_order"|"bank_transfer"|"online","plan_frequency": "monthly"|"quarterly"|"bi_annual"|"annual","plan_kind": "full_cash"|"installment","project_status": "off_plan"|"under_construction"|"completed","project_type": "plot_society"|"high_rise","record_status": "valid"|"reversed","refund_status": "pending_resale"|"payable"|"paid"|"waived","sale_status": "booked"|"active"|"completed"|"cancelled"|"transferred","size_unit": "marla"|"kanal"|"sqft","unit_category": "plot"|"apartment"|"shop"|"office"|"penthouse"|"other","unit_status": "available"|"on_hold"|"booked"|"sold"|"rented"|"blocked","unit_use": "residential"|"commercial"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -2409,7 +2457,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["super_admin", "manager", "sales_agent", "accounts", "viewer", "client"],"audit_action": ["insert", "update", "delete"],"block_kind": ["block", "tower", "phase", "sector"],"commission_status": ["pending", "partially_received", "received", "cancelled"],"deposit_txn_type": ["received", "adjusted", "refunded"],"document_type": ["booking_form", "allotment_letter", "sale_agreement", "installment_schedule", "possession_letter", "ndc_letter", "payment_receipt", "transfer_letter", "statement_of_account", "cancellation_letter"],"installment_status": ["pending", "partially_paid", "paid", "overdue", "waived"],"installment_type": ["down_payment", "installment", "possession", "balloon", "other"],"instrument_status": ["not_applicable", "pending", "cleared", "bounced"],"late_fee_method": ["none", "flat_per_installment", "pct_of_overdue_per_month", "pct_per_day"],"lease_event_type": ["created", "rent_increased", "penalty_added", "penalty_waived", "expired", "terminated", "renewed"],"lease_status": ["draft", "active", "expired", "terminated", "renewed"],"ownership_via": ["booking", "transfer", "correction"],"payment_mode": ["cash", "cheque", "pay_order", "bank_transfer", "online"],"plan_frequency": ["monthly", "quarterly", "bi_annual", "annual"],"plan_kind": ["full_cash", "installment"],"project_status": ["off_plan", "under_construction", "completed"],"project_type": ["plot_society", "high_rise"],"record_status": ["valid", "reversed"],"refund_status": ["pending_resale", "payable", "paid", "waived"],"sale_status": ["booked", "active", "completed", "cancelled", "transferred"],"size_unit": ["marla", "kanal", "sqft"],"unit_category": ["plot", "apartment", "shop", "office", "penthouse", "other"],"unit_status": ["available", "on_hold", "booked", "sold", "rented", "blocked"],"unit_use": ["residential", "commercial"]
+            "app_role": ["super_admin", "manager", "sales_agent", "accounts", "viewer", "client"],"audit_action": ["insert", "update", "delete"],"block_kind": ["block", "tower", "phase", "sector"],"commission_status": ["pending", "partially_received", "received", "cancelled"],"deposit_txn_type": ["received", "adjusted", "refunded"],"document_type": ["booking_form", "allotment_letter", "sale_agreement", "installment_schedule", "possession_letter", "ndc_letter", "payment_receipt", "transfer_letter", "statement_of_account", "cancellation_letter", "rent_receipt", "rent_invoice", "lease_agreement"],"installment_status": ["pending", "partially_paid", "paid", "overdue", "waived"],"installment_type": ["down_payment", "installment", "possession", "balloon", "other"],"instrument_status": ["not_applicable", "pending", "cleared", "bounced"],"late_fee_method": ["none", "flat_per_installment", "pct_of_overdue_per_month", "pct_per_day"],"lease_event_type": ["created", "rent_increased", "penalty_added", "penalty_waived", "expired", "terminated", "renewed"],"lease_status": ["draft", "active", "expired", "terminated", "renewed"],"ownership_via": ["booking", "transfer", "correction"],"payment_mode": ["cash", "cheque", "pay_order", "bank_transfer", "online"],"plan_frequency": ["monthly", "quarterly", "bi_annual", "annual"],"plan_kind": ["full_cash", "installment"],"project_status": ["off_plan", "under_construction", "completed"],"project_type": ["plot_society", "high_rise"],"record_status": ["valid", "reversed"],"refund_status": ["pending_resale", "payable", "paid", "waived"],"sale_status": ["booked", "active", "completed", "cancelled", "transferred"],"size_unit": ["marla", "kanal", "sqft"],"unit_category": ["plot", "apartment", "shop", "office", "penthouse", "other"],"unit_status": ["available", "on_hold", "booked", "sold", "rented", "blocked"],"unit_use": ["residential", "commercial"]
           }
         }
 } as const
